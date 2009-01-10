@@ -2,7 +2,7 @@
 
 SkyNet::SkyNet()
 {
-	printf("Initializing");
+	printf("Initializing..\r\n");
 	
 	m_motor1 = new Jaguar(1);
 	
@@ -29,14 +29,18 @@ SkyNet::SkyNet()
 }
 void SkyNet::DisabledInit()
 {
-	
+	printf("Inititializing Disabled Mode..\r\n");
 }
 void SkyNet::AutonomousInit()
 {
+	printf("Inititializing Autonomous Mode..\r\n");
+	
 	m_autoCount = 0;
 }
 void SkyNet::TeleopInit()
 {
+	printf("Inititializing Teleop Mode..\r\n");
+	
 	m_teleCount = 0;
 }
 void SkyNet::DisabledPeriodic()
