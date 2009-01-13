@@ -1,5 +1,9 @@
 #include "SkyNet.h"
 
+// Camera tracking target size parameters
+#define MIN_PARTICLE_TO_IMAGE_PERCENT 0.25
+#define MAX_PARTICLE_TO_IMAGE_PERCENT 10.0
+
 SkyNet::SkyNet()
 {
 	printf("Initializing..\r\n");
@@ -39,6 +43,14 @@ SkyNet::SkyNet()
 	{
 		printf("Camera is a success \r\n");
 	}
+	
+	tdata = GetTrackingData(GREEN, PASSIVE_LIGHT);
+	tdata.hue.minValue = 5;
+	tdata.hue.maxValue = 114;
+	tdata.saturation.minValue = 5;
+	tdata.saturation.maxValue = 255;
+	tdata.luminance.minValue = 1;
+	tdata.luminance.maxValue = 101;
 }
 void SkyNet::DisabledInit()
 {
@@ -64,7 +76,20 @@ void SkyNet::AutonomousPeriodic()
 {
 	GetWatchdog().Feed();
 	m_autoCount++;
-
+		
+	ParticleAnalysisReport par;
+	if (FindColor(IMAQ_HSL, &tdata.hue, &tdata.saturation, &tdata.luminance, &par)
+			&& par.particleToImagePercent < MAX_PARTICLE_TO_IMAGE_PERCENT
+			&& par.particleToImagePercent > MIN_PARTICLE_TO_IMAGE_PERCENT) 
+	{
+		int lightX = (int)(par.center_mass_x_normalized * 1000.0);
+		int lightY = (int)(par.center_mass_y_normalized * 1000.0);
+		printf("Light found: x: %i y: %i\n", lightX, lightY);
+	} 
+	else 
+	{
+		printf("Light NOT found\n");
+	}
 }
 void SkyNet::TeleopPeriodic()
 {
@@ -93,6 +118,7 @@ void SkyNet::TeleopPeriodic()
 		printf("TeleOperated Loop Counter: %d\r\n",m_teleCount);
 		m_dsPacketsPerSecond = 0;
 	}
+	
 }
 
 void SkyNet::UpdateDashboard()
