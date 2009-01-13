@@ -45,12 +45,12 @@ SkyNet::SkyNet()
 	}
 	
 	tdata = GetTrackingData(GREEN, PASSIVE_LIGHT);
-	tdata.hue.minValue = 5;
-	tdata.hue.maxValue = 114;
-	tdata.saturation.minValue = 5;
+	tdata.hue.minValue = 70;
+	tdata.hue.maxValue = 100;
+	tdata.saturation.minValue = 200;
 	tdata.saturation.maxValue = 255;
-	tdata.luminance.minValue = 1;
-	tdata.luminance.maxValue = 101;
+	tdata.luminance.minValue = 100;
+	tdata.luminance.maxValue = 160;
 }
 void SkyNet::DisabledInit()
 {
