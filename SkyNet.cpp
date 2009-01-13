@@ -90,7 +90,7 @@ void SkyNet::TeleopPeriodic()
 	
 	if ((m_teleCount % 200) == 0)
 	{
-		printf("Print one per second: \r\n");
+		printf("TeleOperated Loop Counter: %d\r\n",m_teleCount);
 		m_dsPacketsPerSecond = 0;
 	}
 }
