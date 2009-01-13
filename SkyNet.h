@@ -8,6 +8,8 @@
 #include "FrcError.h"
 #include "TrackAPI.h" 
 
+#include "DashboardDataFormat.h"
+
 class SkyNet : public IterativeRobot
 {
 public:
@@ -19,12 +21,18 @@ public:
 	void AutonomousPeriodic();
 	void TeleopPeriodic();
 	
+	void UpdateDashboard();
+	
+	DashboardDataFormat m_dashboardDataFormatter;
+	
 	Joystick *m_rightStick,*m_leftStick;
 	
 	RobotDrive *m_RobotDrive;
 	Jaguar *m_motor1,*m_motor2,*m_motor3,*m_motor4;
 	
-	AnalogModule *m_analogModule;
+	Solenoid *m_solenoids[8];
+	
+	AnalogModule *m_analogModules[2];
 	
 	DriverStation *m_ds;
 	UINT32 m_priorPacketNumber;
