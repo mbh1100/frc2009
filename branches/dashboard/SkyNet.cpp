@@ -39,6 +39,8 @@ SkyNet::SkyNet()
 	{
 		printf("Camera is a success \r\n");
 	}
+	
+	m_dashboardDataFormatter = new DashboardDataFormat();
 }
 
 void SkyNet::DisabledInit()
@@ -107,12 +109,12 @@ void SkyNet::UpdateDashboard()
 	
 	for (UINT8 i = 0; i <= (SensorBase::kAnalogChannels - 2); i++)
 	{
-		m_dashboardDataFormatter.m_analogChannels[0][i] = m_analogModules[0]->GetValue(i + 1);
+		m_dashboardDataFormatter->m_analogChannels[0][i] = m_analogModules[0]->GetValue(i + 1);
 	}
 	
 	for (UINT8 i = 0; i <= (SensorBase::kAnalogChannels - 1); i++)
 	{
-		m_dashboardDataFormatter.m_analogChannels[1][i] = m_analogModules[1]->GetValue(i + 1);
+		m_dashboardDataFormatter->m_analogChannels[1][i] = m_analogModules[1]->GetValue(i + 1);
 	}
 	
 	/* Reading Solenoid Status */
@@ -132,11 +134,11 @@ void SkyNet::UpdateDashboard()
 		}
 	}
 	
-	m_dashboardDataFormatter.m_solenoidChannels = solenoidVals;
+	m_dashboardDataFormatter->m_solenoidChannels = solenoidVals;
 	
 	/* Sending data to the Dashboard */
 	
-	m_dashboardDataFormatter.PackAndSend();
+	m_dashboardDataFormatter->PackAndSend(true);
 }
 
 //DONT EVER FORGET THIS!

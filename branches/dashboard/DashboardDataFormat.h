@@ -2,6 +2,7 @@
 #define DASHBOARDFORMAT_H
 
 #include "WPILib.h"
+#include "PCVideoServer.h"
 
 /**
  * This class is just an example of one way you could organize the data that you want
@@ -17,10 +18,14 @@
 class DashboardDataFormat : public SensorBase
 {
 public:
-	DashboardDataFormat(void);
+	DashboardDataFormat();
 	virtual ~DashboardDataFormat();
 	
-	void PackAndSend(void);
+	void PackAndSend(bool cameraState);
+	
+	PCVideoServer *m_cameraFeed;
+	
+	bool m_cameraState;
 	
 	float m_analogChannels[kAnalogModules][kAnalogChannels];
 	

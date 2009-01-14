@@ -23,7 +23,7 @@ public:
 	
 	void UpdateDashboard();
 	
-	DashboardDataFormat m_dashboardDataFormatter;
+	DashboardDataFormat *m_dashboardDataFormatter;
 	
 	Joystick *m_rightStick,*m_leftStick;
 	
