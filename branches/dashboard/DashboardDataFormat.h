@@ -1,5 +1,5 @@
-#ifndef __DashboardDataFormat_h__
-#define __DashboardDataFormat_h__
+#ifndef DASHBOARDFORMAT_H
+#define DASHBOARDFORMAT_H
 
 #include "WPILib.h"
 
@@ -23,10 +23,13 @@ public:
 	void PackAndSend(void);
 	
 	float m_analogChannels[kAnalogModules][kAnalogChannels];
+	
 	UINT8 m_relayFwd[kDigitalModules];
 	UINT8 m_relayRev[kDigitalModules];
+	
 	UINT16 m_dioChannels[kDigitalModules];
 	UINT16 m_dioChannelsOutputEnable[kDigitalModules];
+	
 	UINT8 m_pwmChannels[kDigitalModules][kPwmChannels];
 	UINT8 m_solenoidChannels;
 	
@@ -36,4 +39,4 @@ private:
 };
 
 
-#endif // __DashboardDataFormat_h__
+#endif // DASHBOARDFORMAT_H

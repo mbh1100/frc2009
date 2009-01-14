@@ -28,16 +28,15 @@ public:
 	Joystick *m_rightStick,*m_leftStick;
 	
 	RobotDrive *m_RobotDrive;
+	
 	Jaguar *m_motor1,*m_motor2,*m_motor3,*m_motor4;
 	
-	Solenoid *m_solenoids[8];
+	Solenoid *m_solenoids[SensorBase::kSolenoidChannels];
 	
-	AnalogModule *m_analogModules[2];
+	AnalogModule *m_analogModules[SensorBase::kAnalogModules];
 	
 	DriverStation *m_ds;
-	UINT32 m_priorPacketNumber;
+	
+	UINT32 m_priorPacketNumber, m_autoCount, m_teleCount;
 	UINT8 m_dsPacketsPerSecond;
-	
-	UINT32 m_autoCount,m_teleCount;
-	
 };

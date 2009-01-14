@@ -1,4 +1,3 @@
-
 #include "DashboardDataFormat.h"
 
 DashboardDataFormat::DashboardDataFormat(void) : m_ds (DriverStation::GetInstance())
@@ -40,6 +39,7 @@ void DashboardDataFormat::PackAndSend(void)
 		dashboardPacker.AddU16(m_dioChannels[module]);
 		dashboardPacker.AddU16(m_dioChannelsOutputEnable[module]);
 		dashboardPacker.AddCluster();
+		
 		for(channel = 0; channel < kPwmChannels; channel++)
 		{
 			dashboardPacker.AddU8(m_pwmChannels[module][channel]);

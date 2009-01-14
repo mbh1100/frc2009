@@ -13,7 +13,7 @@ SkyNet::SkyNet()
 	m_rightStick = new Joystick(1);
 	m_leftStick = new Joystick(2);
 	
-	for (int i = 0; i <= 7; i++)
+	for (UINT8 i = 0; i <= (SensorBase::kSolenoidChannels - 1); i++)
 	{
 		m_solenoids[i] = new Solenoid(8, i - 1);
 	}
@@ -22,7 +22,7 @@ SkyNet::SkyNet()
 	m_analogModules[1] = AnalogModule::GetInstance(2);
 	
 	m_analogModules[0]->SetAverageBits(1,8);
-	
+	m_analogModules[1]->SetAverageBits(1,8);
 	
 	m_autoCount = 0;
 	m_teleCount = 0;
@@ -40,32 +40,38 @@ SkyNet::SkyNet()
 		printf("Camera is a success \r\n");
 	}
 }
+
 void SkyNet::DisabledInit()
 {
 	printf("Inititializing Disabled Mode..\r\n");
 }
+
 void SkyNet::AutonomousInit()
 {
 	printf("Inititializing Autonomous Mode..\r\n");
 	
 	m_autoCount = 0;
 }
+
 void SkyNet::TeleopInit()
 {
 	printf("Inititializing Teleop Mode..\r\n");
 	
 	m_teleCount = 0;
 }
+
 void SkyNet::DisabledPeriodic()
 {
 	GetWatchdog().Feed();
 }
+
 void SkyNet::AutonomousPeriodic()
 {
 	GetWatchdog().Feed();
 	m_autoCount++;
 
 }
+
 void SkyNet::TeleopPeriodic()
 {
 	GetWatchdog().Feed();
@@ -97,18 +103,22 @@ void SkyNet::TeleopPeriodic()
 
 void SkyNet::UpdateDashboard()
 {
-	for (int i = 0; i <= 6; i++)
+	/* Reading Analog Modules skipping channel 8 for the first slot as it is used for battery */
+	
+	for (UINT8 i = 0; i <= (SensorBase::kAnalogChannels - 2); i++)
 	{
 		m_dashboardDataFormatter.m_analogChannels[0][i] = m_analogModules[0]->GetValue(i + 1);
 	}
 	
-	for (int i = 0; i <= 7; i++)
+	for (UINT8 i = 0; i <= (SensorBase::kAnalogChannels - 1); i++)
 	{
 		m_dashboardDataFormatter.m_analogChannels[1][i] = m_analogModules[1]->GetValue(i + 1);
 	}
 	
+	/* Reading Solenoid Status */
+	
 	UINT8 solenoidVals = 0;
-	for (int i = 7; i >= 0; i--)
+	for (int i = (SensorBase::kSolenoidChannels - 1); ; i--)
 	{
 		solenoidVals += m_solenoids[i]->Get();
 		
@@ -116,9 +126,15 @@ void SkyNet::UpdateDashboard()
 		{
 			solenoidVals <<= 1;
 		}
+		else
+		{
+			break;
+		}
 	}
 	
 	m_dashboardDataFormatter.m_solenoidChannels = solenoidVals;
+	
+	/* Sending data to the Dashboard */
 	
 	m_dashboardDataFormatter.PackAndSend();
 }
