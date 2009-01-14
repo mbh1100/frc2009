@@ -44,13 +44,13 @@ SkyNet::SkyNet()
 		printf("Camera is a success \r\n");
 	}
 	
-	tdata = GetTrackingData(GREEN, PASSIVE_LIGHT);
-	tdata.hue.minValue = 70;
-	tdata.hue.maxValue = 100;
-	tdata.saturation.minValue = 200;
-	tdata.saturation.maxValue = 255;
-	tdata.luminance.minValue = 100;
-	tdata.luminance.maxValue = 160;
+	tdata = GetTrackingData(GREEN, FLUORESCENT);
+	tdata.hue.minValue = 71;
+	tdata.hue.maxValue = 98;
+	tdata.saturation.minValue = 56;
+	tdata.saturation.maxValue = 111;
+	tdata.luminance.minValue = 103;
+	tdata.luminance.maxValue = 187;
 }
 void SkyNet::DisabledInit()
 {
@@ -84,7 +84,7 @@ void SkyNet::AutonomousPeriodic()
 	{
 		int lightX = (int)(par.center_mass_x_normalized * 1000.0);
 		int lightY = (int)(par.center_mass_y_normalized * 1000.0);
-		printf("Light found: x: %i y: %i\n", lightX, lightY);
+		printf("Light found at: x: %i y: %i\n", lightX, lightY);
 	} 
 	else 
 	{
