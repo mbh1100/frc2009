@@ -44,13 +44,21 @@ SkyNet::SkyNet()
 		printf("Camera is a success \r\n");
 	}
 	
-	tdata = GetTrackingData(GREEN, FLUORESCENT);
-	tdata.hue.minValue = 71;
-	tdata.hue.maxValue = 98;
-	tdata.saturation.minValue = 56;
-	tdata.saturation.maxValue = 111;
-	tdata.luminance.minValue = 103;
-	tdata.luminance.maxValue = 187;
+	//tdata = GetTrackingData(GREEN, FLUORESCENT);
+	sprintf (tdataGreen.name, "GREEN");
+	tdataGreen.hue.minValue = 55;
+	tdataGreen.hue.maxValue = 125;
+	tdataGreen.saturation.minValue = 58;
+	tdataGreen.saturation.maxValue = 255;
+	tdataGreen.luminance.minValue = 92;
+	tdataGreen.luminance.maxValue = 255;
+	sprintf (tdataPink.name, "PINK");
+	tdataPink.hue.minValue = 220;
+	tdataPink.hue.maxValue = 255;
+	tdataPink.saturation.minValue = 75;
+	tdataPink.saturation.maxValue = 255;
+	tdataPink.luminance.minValue = 85;
+	tdataPink.luminance.maxValue = 255;	
 }
 void SkyNet::DisabledInit()
 {
@@ -77,18 +85,30 @@ void SkyNet::AutonomousPeriodic()
 	GetWatchdog().Feed();
 	m_autoCount++;
 		
-	ParticleAnalysisReport par;
-	if (FindColor(IMAQ_HSL, &tdata.hue, &tdata.saturation, &tdata.luminance, &par)
-			&& par.particleToImagePercent < MAX_PARTICLE_TO_IMAGE_PERCENT
-			&& par.particleToImagePercent > MIN_PARTICLE_TO_IMAGE_PERCENT) 
+	ParticleAnalysisReport parGreen,parPink;
+	if (FindColor(IMAQ_HSL, &tdataGreen.hue, &tdataGreen.saturation, &tdataGreen.luminance, &parGreen)
+			&& parGreen.particleToImagePercent < MAX_PARTICLE_TO_IMAGE_PERCENT
+			&& parGreen.particleToImagePercent > MIN_PARTICLE_TO_IMAGE_PERCENT) 
 	{
-		int lightX = (int)(par.center_mass_x_normalized * 1000.0);
-		int lightY = (int)(par.center_mass_y_normalized * 1000.0);
-		printf("Light found at: x: %i y: %i\n", lightX, lightY);
+		int lightX = (int)(parGreen.center_mass_x_normalized * 1000.0);
+		int lightY = (int)(parGreen.center_mass_y_normalized * 1000.0);
+		printf("Green found at: x: %i y: %i\n", lightX, lightY);
 	} 
 	else 
 	{
-		printf("Light NOT found\n");
+		printf("No Green Found\n");
+	}
+	if (FindColor(IMAQ_HSL, &tdataPink.hue, &tdataPink.saturation, &tdataPink.luminance, &parPink)
+			&& parPink.particleToImagePercent < MAX_PARTICLE_TO_IMAGE_PERCENT
+			&& parPink.particleToImagePercent > MIN_PARTICLE_TO_IMAGE_PERCENT) 
+	{
+		int lightX = (int)(parPink.center_mass_x_normalized * 1000.0);
+		int lightY = (int)(parPink.center_mass_y_normalized * 1000.0);
+		printf("Pink found at: x: %i y: %i\n", lightX, lightY);
+	} 
+	else 
+	{
+		printf("No Pink Found\n");
 	}
 }
 void SkyNet::TeleopPeriodic()

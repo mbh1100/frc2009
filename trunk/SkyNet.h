@@ -41,6 +41,6 @@ public:
 	UINT32 m_autoCount,m_teleCount;
 	
 	//Camera Stuff
-	TrackingThreshold tdata;
+	TrackingThreshold tdataGreen,tdataPink;
 	
 };
