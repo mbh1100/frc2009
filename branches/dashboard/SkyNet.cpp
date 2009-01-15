@@ -27,7 +27,7 @@ SkyNet::SkyNet()
 	m_autoCount = 0;
 	m_teleCount = 0;
 	
-	int frameRate = 10,compression=0;
+	int frameRate = 30,compression=0;
 	ImageSize resolution = k320x240;
 	ImageRotation imageRotation = ROT_0;
 	
@@ -71,6 +71,13 @@ void SkyNet::AutonomousPeriodic()
 {
 	GetWatchdog().Feed();
 	m_autoCount++;
+	
+	if ((m_autoCount % 4) == 0)
+	{
+			//For 50Hz Stuff
+			
+			SkyNet::UpdateDashboard(true);
+	}
 
 }
 
@@ -84,11 +91,12 @@ void SkyNet::TeleopPeriodic()
 	{
 		//For 100Hz Stuff
 	}
+	
 	if ((m_teleCount % 4) == 0)
 	{
 		//For 50Hz Stuff
 		
-		SkyNet::UpdateDashboard();
+		SkyNet::UpdateDashboard(false);
 	}
 	
 	if (m_ds->GetPacketNumber() != m_priorPacketNumber)
@@ -103,7 +111,7 @@ void SkyNet::TeleopPeriodic()
 	}
 }
 
-void SkyNet::UpdateDashboard()
+void SkyNet::UpdateDashboard(bool cameraState)
 {
 	/* Reading Analog Modules skipping channel 8 for the first slot as it is used for battery */
 	
@@ -138,7 +146,7 @@ void SkyNet::UpdateDashboard()
 	
 	/* Sending data to the Dashboard */
 	
-	m_dashboardDataFormatter->PackAndSend(true);
+	m_dashboardDataFormatter->PackAndSend(cameraState);
 }
 
 //DONT EVER FORGET THIS!

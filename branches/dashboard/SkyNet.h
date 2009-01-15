@@ -21,7 +21,7 @@ public:
 	void AutonomousPeriodic();
 	void TeleopPeriodic();
 	
-	void UpdateDashboard();
+	void UpdateDashboard(bool cameraState);
 	
 	DashboardDataFormat *m_dashboardDataFormatter;
 	

@@ -5,11 +5,11 @@ DashboardDataFormat::DashboardDataFormat() : m_ds (DriverStation::GetInstance())
 	/* Wait to ensure camera is initialized */
 	Wait(2.0);
 	
-	/* Open connection to dashboard computer then wait for robot to ask for image flow */
+	/* Open connection to dashboard comput er then wait for robot to ask for image flow */
 	m_cameraFeed = new PCVideoServer();
-	m_cameraFeed->Stop();
+	//m_cameraFeed->Stop();
 	
-	m_cameraState = false;
+	m_cameraState = true;
 }
 
 DashboardDataFormat::~DashboardDataFormat()
