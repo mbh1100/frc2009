@@ -4,7 +4,33 @@ SkyNet::SkyNet()
 {
 	printf("Initializing..\r\n");
 	
-	m_motor1 = new Jaguar(1);
+	/* PWM assignments for slot 4 */
+	m_pwms[0][0] = new Jaguar(4, 1);
+	m_pwms[0][1] = new PWM(4, 2);
+	m_pwms[0][2] = new PWM(4, 3);
+	m_pwms[0][3] = new PWM(4, 4);
+	m_pwms[0][4] = new PWM(4, 5);
+	m_pwms[0][5] = new PWM(4, 6);
+	m_pwms[0][6] = new PWM(4, 7);
+	m_pwms[0][7] = new PWM(4, 8);
+	m_pwms[0][8] = new PWM(4, 9);
+	m_pwms[0][9] = new PWM(4, 10);
+	
+	/* PWM assingments for slot 6 */
+	m_pwms[1][0] = new PWM(6, 1);
+	m_pwms[1][1] = new PWM(6, 2);
+	m_pwms[1][2] = new PWM(6, 3);
+	m_pwms[1][3] = new PWM(6, 4);
+	m_pwms[1][4] = new PWM(6, 5);
+	m_pwms[1][5] = new PWM(6, 6);
+	m_pwms[1][6] = new PWM(6, 7);
+	m_pwms[1][7] = new PWM(6, 8);
+	m_pwms[1][8] = new PWM(6, 9);
+	m_pwms[1][9] = new PWM(6, 10);
+
+	/* Motor assignments */
+	m_motor1 = (Jaguar*)m_pwms[0][0];
+
 	
 	m_ds = DriverStation::GetInstance();
 	m_priorPacketNumber = 0;
@@ -106,7 +132,8 @@ void SkyNet::TeleopPeriodic()
 	
 	if ((m_teleCount % 200) == 0)
 	{
-		printf("Print one per second: \r\n");
+		/*printf("Motor Types... %s %s %s \r\n", typeid(*m_motor1).name(), typeid(*m_pwmTest1).name(), typeid(*m_pwmTest2).name());
+		printf("%d \r\n", (int)(typeid(*m_pwmTest1) == typeid(PWM)));*/
 		m_dsPacketsPerSecond = 0;
 	}
 }
@@ -123,6 +150,16 @@ void SkyNet::UpdateDashboard(bool cameraState)
 	for (UINT8 i = 0; i <= (SensorBase::kAnalogChannels - 1); i++)
 	{
 		m_dashboardDataFormatter->m_analogChannels[1][i] = m_analogModules[1]->GetValue(i + 1);
+	}
+	
+	/* Reading PWM Status */
+	
+	for (UINT8 i = 0; i <= 1; i++)
+	{
+		for (UINT8 j = 0; j <= 9; j++)
+		{
+			m_dashboardDataFormatter->m_pwmChannels[i][j] = m_pwms[i][j]->GetRaw();
+		}
 	}
 	
 	/* Reading Solenoid Status */

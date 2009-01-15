@@ -37,6 +37,8 @@ public:
 	
 	DriverStation *m_ds;
 	
+	PWM *m_pwms[2][10];
+	
 	UINT32 m_priorPacketNumber, m_autoCount, m_teleCount;
 	UINT8 m_dsPacketsPerSecond;
 };
