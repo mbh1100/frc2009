@@ -1,6 +1,6 @@
-#include "DashboardDataFormat.h"
+#include "DashboardInterface.h"
 
-DashboardDataFormat::DashboardDataFormat() : m_ds (DriverStation::GetInstance())
+DashboardInterface::DashboardInterface() : m_ds (DriverStation::GetInstance())
 {
 	/* Wait to ensure camera is initialized */
 	Wait(2.0);
@@ -12,7 +12,7 @@ DashboardDataFormat::DashboardDataFormat() : m_ds (DriverStation::GetInstance())
 	m_cameraState = true;
 }
 
-DashboardDataFormat::~DashboardDataFormat()
+DashboardInterface::~DashboardInterface()
 {
 	
 }
@@ -21,7 +21,7 @@ DashboardDataFormat::~DashboardDataFormat()
  * Pack data using the correct types and in the correct order to match the
  * default "Dashboard Datatype" in the LabVIEW Dashboard project.
  */
-void DashboardDataFormat::PackAndSend(bool cameraState)
+void DashboardInterface::PackAndSend(bool cameraState)
 {
 	Dashboard &dashboardPacker = m_ds->GetDashboardPacker();
 	UINT32 module;

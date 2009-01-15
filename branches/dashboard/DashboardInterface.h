@@ -1,5 +1,5 @@
-#ifndef DASHBOARDFORMAT_H
-#define DASHBOARDFORMAT_H
+#ifndef DASHBOARDINTERFACE_H
+#define DASHBOARDINTERFACE_H
 
 #include "WPILib.h"
 #include "PCVideoServer.h"
@@ -15,11 +15,11 @@
  * to add data elements or remove them.  Just remember to make any changes consistently
  * between the LabVIEW "Dashboard Datatype" and the data that gets packed by this class.
  */
-class DashboardDataFormat : public SensorBase
+class DashboardInterface : public SensorBase
 {
 public:
-	DashboardDataFormat();
-	virtual ~DashboardDataFormat();
+	DashboardInterface();
+	virtual ~DashboardInterface();
 	
 	void PackAndSend(bool cameraState);
 	
@@ -39,9 +39,9 @@ public:
 	UINT8 m_solenoidChannels;
 	
 private:
-	DISALLOW_COPY_AND_ASSIGN(DashboardDataFormat);
+	DISALLOW_COPY_AND_ASSIGN(DashboardInterface);
 	DriverStation *m_ds;
 };
 
 
-#endif // DASHBOARDFORMAT_H
+#endif // DASHBOARDINTERFACE_H

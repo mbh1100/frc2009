@@ -66,7 +66,7 @@ SkyNet::SkyNet()
 		printf("Camera is a success \r\n");
 	}
 	
-	m_dashboardDataFormatter = new DashboardDataFormat();
+	m_dashboardDataFormatter = new DashboardInterface();
 }
 
 void SkyNet::DisabledInit()
