@@ -30,7 +30,6 @@ SkyNet::SkyNet()
 
 	/* Motor assignments */
 	m_motor1 = (Jaguar*)m_pwms[0][0];
-
 	
 	m_ds = DriverStation::GetInstance();
 	m_priorPacketNumber = 0;

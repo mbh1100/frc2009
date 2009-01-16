@@ -74,8 +74,20 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 		dashboardPacker.AddCluster();
 		dashboardPacker.AddU8(m_relayFwd[module]);
 		dashboardPacker.AddU8(m_relayRev[module]);
-		dashboardPacker.AddU16(m_dioChannels[module]);
+		
+		UINT16 dioVal = 0;
+		for (channel = 14; channel >= 1; channel--)
+		{
+			dioVal += m_digitalModules[module]->GetDIO(channel);
+			
+			if (channel != 1)
+			{
+				dioVal <<= 1;
+			}
+		}
+		dashboardPacker.AddU16(dioVal);
 		dashboardPacker.AddU16(m_dioChannelsOutputEnable[module]);
+		
 		dashboardPacker.AddCluster();
 		
 		for(channel = 0; channel < kPwmChannels; channel++)
