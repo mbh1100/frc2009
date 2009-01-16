@@ -8,7 +8,7 @@
 #include "FrcError.h"
 #include "TrackAPI.h" 
 
-#include "DashboardInterface.h"
+#include "HardwareInterface.h"
 
 class SkyNet : public IterativeRobot
 {
@@ -23,7 +23,7 @@ public:
 	
 	void UpdateDashboard(bool cameraState);
 	
-	DashboardInterface *m_dashboardDataFormatter;
+	HardwareInterface *m_dashboardDataFormatter;
 	
 	Joystick *m_rightStick,*m_leftStick;
 	

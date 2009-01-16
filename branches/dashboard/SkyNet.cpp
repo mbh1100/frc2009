@@ -66,7 +66,7 @@ SkyNet::SkyNet()
 		printf("Camera is a success \r\n");
 	}
 	
-	m_dashboardDataFormatter = new DashboardInterface();
+	m_dashboardDataFormatter = new HardwareInterface(true);
 }
 
 void SkyNet::DisabledInit()
@@ -102,7 +102,8 @@ void SkyNet::AutonomousPeriodic()
 	{
 			//For 50Hz Stuff
 			
-			SkyNet::UpdateDashboard(true);
+			/* SkyNet::UpdateDashboard(true); */
+			m_dashboardDataFormatter->UpdateDashboard(false);
 	}
 
 }
@@ -122,7 +123,8 @@ void SkyNet::TeleopPeriodic()
 	{
 		//For 50Hz Stuff
 		
-		SkyNet::UpdateDashboard(false);
+		/* UpdateDashboard(false); */
+		m_dashboardDataFormatter->UpdateDashboard(false);
 	}
 	
 	if (m_ds->GetPacketNumber() != m_priorPacketNumber)
@@ -183,7 +185,7 @@ void SkyNet::UpdateDashboard(bool cameraState)
 	
 	/* Sending data to the Dashboard */
 	
-	m_dashboardDataFormatter->PackAndSend(cameraState);
+	/* m_dashboardDataFormatter->UpdateDashboard(cameraState); */
 }
 
 //DONT EVER FORGET THIS!

@@ -1,8 +1,10 @@
-#ifndef DASHBOARDINTERFACE_H
-#define DASHBOARDINTERFACE_H
+#ifndef HARDWAREINTERFACE_H
+#define HARDWAREINTERFACE_H
 
 #include "WPILib.h"
 #include "PCVideoServer.h"
+
+#include "SmartRelay.h"
 
 /**
  * This class is just an example of one way you could organize the data that you want
@@ -15,13 +17,18 @@
  * to add data elements or remove them.  Just remember to make any changes consistently
  * between the LabVIEW "Dashboard Datatype" and the data that gets packed by this class.
  */
-class DashboardInterface : public SensorBase
+class HardwareInterface : public SensorBase
 {
 public:
-	DashboardInterface();
-	virtual ~DashboardInterface();
+	HardwareInterface(bool camera);
+	virtual ~HardwareInterface();
 	
-	void PackAndSend(bool cameraState);
+	void UpdateDashboard(bool cameraState);
+	
+	AnalogModule *m_analogModules[kAnalogModules];
+	DigitalModule *m_digitalModules[kDigitalModules];
+	Solenoid *m_solenoids[kSolenoidChannels];
+	SmartRelay *m_smartRelays[kDigitalModules][kRelayChannels];
 	
 	PCVideoServer *m_cameraFeed;
 	
@@ -39,9 +46,9 @@ public:
 	UINT8 m_solenoidChannels;
 	
 private:
-	DISALLOW_COPY_AND_ASSIGN(DashboardInterface);
+	DISALLOW_COPY_AND_ASSIGN(HardwareInterface);
 	DriverStation *m_ds;
 };
 
 
-#endif // DASHBOARDINTERFACE_H
+#endif // HARDWAREINTERFACE_H

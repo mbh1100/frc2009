@@ -1,18 +1,48 @@
-#include "DashboardInterface.h"
+#include "HardwareInterface.h"
 
-DashboardInterface::DashboardInterface() : m_ds (DriverStation::GetInstance())
+HardwareInterface::HardwareInterface(bool camera) : m_ds (DriverStation::GetInstance())
 {
 	/* Wait to ensure camera is initialized */
 	Wait(2.0);
 	
-	/* Open connection to dashboard comput er then wait for robot to ask for image flow */
-	m_cameraFeed = new PCVideoServer();
-	//m_cameraFeed->Stop();
+	if (camera)
+	{
+		/* Open connection to dashboard comput er then wait for robot to ask for image flow */
+		m_cameraFeed = new PCVideoServer();
+		m_cameraState = true;
+	}
+	else
+	{
+		m_cameraFeed = NULL;
+		m_cameraState = false;
+	}
 	
-	m_cameraState = true;
+	/* Initialize hardware and hardware modules */
+	
+	m_analogModules[0] = AnalogModule::GetInstance(1);
+	m_analogModules[1] = AnalogModule::GetInstance(2);
+	
+	m_digitalModules[0] = DigitalModule::GetInstance(4);
+	m_digitalModules[1] = DigitalModule::GetInstance(6);
+	
+	for (UINT8 i = 0; i < kRelayChannels; i++)
+	{
+		m_smartRelays[4][i] = new SmartRelay(4, i + 1);
+	}
+	
+	for (UINT8 i = 0; i < kRelayChannels; i++)
+	{
+		m_smartRelays[6][i] = new SmartRelay(4, i + 1);
+	}
+	
+	for (UINT8 i = 0; i < kSolenoidChannels; i++)
+	{
+		m_solenoids[i] = new Solenoid(8, i + 1);
+	}
+	
 }
 
-DashboardInterface::~DashboardInterface()
+HardwareInterface::~HardwareInterface()
 {
 	
 }
@@ -21,7 +51,7 @@ DashboardInterface::~DashboardInterface()
  * Pack data using the correct types and in the correct order to match the
  * default "Dashboard Datatype" in the LabVIEW Dashboard project.
  */
-void DashboardInterface::PackAndSend(bool cameraState)
+void HardwareInterface::UpdateDashboard(bool cameraState)
 {
 	Dashboard &dashboardPacker = m_ds->GetDashboardPacker();
 	UINT32 module;
@@ -33,7 +63,8 @@ void DashboardInterface::PackAndSend(bool cameraState)
 		dashboardPacker.AddCluster();
 		for (channel = 0; channel < kAnalogChannels; channel++)
 		{
-			dashboardPacker.AddFloat(m_analogChannels[module][channel]);
+			/* dashboardPacker.AddFloat(m_analogChannels[module][channel]); OLD WAY */
+			dashboardPacker.AddFloat(m_analogModules[module]->GetAverageValue(channel));
 		}
 		dashboardPacker.FinalizeCluster();
 	}
@@ -61,7 +92,7 @@ void DashboardInterface::PackAndSend(bool cameraState)
 	dashboardPacker.Finalize();
 	
 	/* Update camera state */
-	if (m_cameraState != cameraState)
+	if (m_cameraState != cameraState && m_cameraFeed != NULL)
 	{
 		if (cameraState)
 		{
