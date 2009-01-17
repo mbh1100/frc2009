@@ -7,6 +7,8 @@
 #include "BaeUtilities.h"
 #include "FrcError.h"
 #include "TrackAPI.h" 
+#include "PCVideoServer.h"
+//#include "TrackTarget.h"
 
 #include "DashboardDataFormat.h"
 
@@ -38,9 +40,14 @@ public:
 	UINT32 m_priorPacketNumber;
 	UINT8 m_dsPacketsPerSecond;
 	
-	UINT32 m_autoCount,m_teleCount;
+	UINT32 m_autoCount,m_teleCount,m_printsPerLoop;
 	
 	//Camera Stuff
 	TrackingThreshold tdataGreen,tdataPink;
+	bool foundPink,foundGreen;
+	int greenX, greenY, pinkX, pinkY;
+	
+	//Dashboard Stuff
+	PCVideoServer *m_camToDash;
 	
 };

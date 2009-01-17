@@ -43,14 +43,17 @@ SkyNet::SkyNet()
 	{
 		printf("Camera is a success \r\n");
 	}
+	Wait(2.0);
+	m_camToDash = new PCVideoServer;
+
 	
 	//tdata = GetTrackingData(GREEN, FLUORESCENT);
 	sprintf (tdataGreen.name, "GREEN");
-	tdataGreen.hue.minValue = 55;
-	tdataGreen.hue.maxValue = 125;
-	tdataGreen.saturation.minValue = 58;
+	tdataGreen.hue.minValue = 44;
+	tdataGreen.hue.maxValue = 136;
+	tdataGreen.saturation.minValue = 47;
 	tdataGreen.saturation.maxValue = 255;
-	tdataGreen.luminance.minValue = 92;
+	tdataGreen.luminance.minValue = 81;
 	tdataGreen.luminance.maxValue = 255;
 	sprintf (tdataPink.name, "PINK");
 	tdataPink.hue.minValue = 220;
@@ -67,8 +70,10 @@ void SkyNet::DisabledInit()
 void SkyNet::AutonomousInit()
 {
 	printf("Inititializing Autonomous Mode..\r\n");
-	
+	m_printsPerLoop = 1;
 	m_autoCount = 0;
+	foundPink = false;
+	foundGreen = false;
 }
 void SkyNet::TeleopInit()
 {
@@ -84,31 +89,67 @@ void SkyNet::AutonomousPeriodic()
 {
 	GetWatchdog().Feed();
 	m_autoCount++;
-		
+	Dashboard &dashboard = m_ds->GetDashboardPacker();
+	
+	//Finding the target
 	ParticleAnalysisReport parGreen,parPink;
 	if (FindColor(IMAQ_HSL, &tdataGreen.hue, &tdataGreen.saturation, &tdataGreen.luminance, &parGreen)
 			&& parGreen.particleToImagePercent < MAX_PARTICLE_TO_IMAGE_PERCENT
-			&& parGreen.particleToImagePercent > MIN_PARTICLE_TO_IMAGE_PERCENT) 
+			&& parGreen.particleToImagePercent > MIN_PARTICLE_TO_IMAGE_PERCENT)
 	{
-		int lightX = (int)(parGreen.center_mass_x_normalized * 1000.0);
-		int lightY = (int)(parGreen.center_mass_y_normalized * 1000.0);
-		printf("Green found at: x: %i y: %i\n", lightX, lightY);
+		foundGreen = true;
+		greenX = (int)(parGreen.center_mass_x_normalized * 1000.0);
+		greenY = (int)(parGreen.center_mass_y_normalized * 1000.0);
+		if ((m_autoCount % m_printsPerLoop) == 0)
+		{
+			dashboard.Printf("Green found at: x: %i y: %i\n", greenX, greenY);
+		}
+		
 	} 
-	else 
+	else
 	{
-		printf("No Green Found\n");
+		foundGreen = false;
+		dashboard.Printf("No Green Found\n");
 	}
 	if (FindColor(IMAQ_HSL, &tdataPink.hue, &tdataPink.saturation, &tdataPink.luminance, &parPink)
 			&& parPink.particleToImagePercent < MAX_PARTICLE_TO_IMAGE_PERCENT
 			&& parPink.particleToImagePercent > MIN_PARTICLE_TO_IMAGE_PERCENT) 
 	{
-		int lightX = (int)(parPink.center_mass_x_normalized * 1000.0);
-		int lightY = (int)(parPink.center_mass_y_normalized * 1000.0);
-		printf("Pink found at: x: %i y: %i\n", lightX, lightY);
+		foundPink = true;
+		pinkX = (int)(parPink.center_mass_x_normalized * 1000.0);
+		pinkY = (int)(parPink.center_mass_y_normalized * 1000.0);
+		if ((m_autoCount % m_printsPerLoop) == 0)
+		{
+			//printf("Pink found at: x: %i y: %i\n", pinkX, pinkY);
+		}
+		
 	} 
-	else 
+	else if ((m_autoCount % m_printsPerLoop) == 0)
 	{
-		printf("No Pink Found\n");
+		foundPink = false;
+		//printf("No Pink Found\n");
+	}
+	
+	//Tracking Mike with Green
+	if (foundGreen && foundPink && (greenY > pinkY))
+	{
+		if (greenX < -20)
+		{
+			m_motor1->Set(-.07);
+		}
+		else if (greenX > 20)
+		{
+			m_motor1->Set(.07);
+			printf("Moving\n");
+		}
+		else
+		{
+			m_motor1->Set(0);
+		}
+	}
+	else
+	{
+		m_motor1->Set(0);
 	}
 }
 void SkyNet::TeleopPeriodic()
