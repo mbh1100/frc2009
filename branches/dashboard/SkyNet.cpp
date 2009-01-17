@@ -4,54 +4,6 @@ SkyNet::SkyNet()
 {
 	printf("Initializing..\r\n");
 	
-	/* PWM assignments for slot 4 */
-	m_pwms[0][0] = new Jaguar(4, 1);
-	m_pwms[0][1] = new PWM(4, 2);
-	m_pwms[0][2] = new PWM(4, 3);
-	m_pwms[0][3] = new PWM(4, 4);
-	m_pwms[0][4] = new PWM(4, 5);
-	m_pwms[0][5] = new PWM(4, 6);
-	m_pwms[0][6] = new PWM(4, 7);
-	m_pwms[0][7] = new PWM(4, 8);
-	m_pwms[0][8] = new PWM(4, 9);
-	m_pwms[0][9] = new PWM(4, 10);
-	
-	/* PWM assingments for slot 6 */
-	m_pwms[1][0] = new PWM(6, 1);
-	m_pwms[1][1] = new PWM(6, 2);
-	m_pwms[1][2] = new PWM(6, 3);
-	m_pwms[1][3] = new PWM(6, 4);
-	m_pwms[1][4] = new PWM(6, 5);
-	m_pwms[1][5] = new PWM(6, 6);
-	m_pwms[1][6] = new PWM(6, 7);
-	m_pwms[1][7] = new PWM(6, 8);
-	m_pwms[1][8] = new PWM(6, 9);
-	m_pwms[1][9] = new PWM(6, 10);
-
-	/* Motor assignments */
-	m_motor1 = (Jaguar*)m_pwms[0][0];
-	
-	m_ds = DriverStation::GetInstance();
-	m_priorPacketNumber = 0;
-	m_dsPacketsPerSecond = 0;
-	
-	m_rightStick = new Joystick(1);
-	m_leftStick = new Joystick(2);
-	
-	for (UINT8 i = 0; i <= (SensorBase::kSolenoidChannels - 1); i++)
-	{
-		m_solenoids[i] = new Solenoid(8, i - 1);
-	}
-	
-	m_analogModules[0] = AnalogModule::GetInstance(1);
-	m_analogModules[1] = AnalogModule::GetInstance(2);
-	
-	m_analogModules[0]->SetAverageBits(1,8);
-	m_analogModules[1]->SetAverageBits(1,8);
-	
-	m_autoCount = 0;
-	m_teleCount = 0;
-	
 	int frameRate = 30,compression=0;
 	ImageSize resolution = k320x240;
 	ImageRotation imageRotation = ROT_0;
@@ -65,7 +17,31 @@ SkyNet::SkyNet()
 		printf("Camera is a success \r\n");
 	}
 	
-	m_dashboardDataFormatter = new HardwareInterface(true);
+	m_hardwareInterface = new HardwareInterface(true);
+	
+	/* Motor assignments */
+	//m_motor1 = m_hardwareInterface->GetJaguar(0, 1);
+	
+	m_ds = DriverStation::GetInstance();
+	m_priorPacketNumber = 0;
+	m_dsPacketsPerSecond = 0;
+	
+	m_rightStick = new Joystick(1);
+	m_leftStick = new Joystick(2);
+	
+	for (UINT8 i = 0; i <= (SensorBase::kSolenoidChannels - 1); i++)
+	{
+		m_solenoids[i] = m_hardwareInterface->GetSolenoid(i + 1);
+	}
+	
+	//m_analogModules[0] = m_hardwareInterface->GetAnalogModule(0);
+	//m_analogModules[1] = m_hardwareInterface->GetAnalogModule(1);
+	
+	//m_analogModules[0]->SetAverageBits(1,8);
+	//m_analogModules[1]->SetAverageBits(1,8);
+	
+	m_autoCount = 0;
+	m_teleCount = 0;
 }
 
 void SkyNet::DisabledInit()
@@ -102,7 +78,7 @@ void SkyNet::AutonomousPeriodic()
 			//For 50Hz Stuff
 			
 			/* SkyNet::UpdateDashboard(true); */
-			m_dashboardDataFormatter->UpdateDashboard(false);
+			m_hardwareInterface->UpdateDashboard(false);
 	}
 
 }
@@ -123,7 +99,7 @@ void SkyNet::TeleopPeriodic()
 		//For 50Hz Stuff
 		
 		/* UpdateDashboard(false); */
-		m_dashboardDataFormatter->UpdateDashboard(false);
+		//m_hardwareInterface->UpdateDashboard(false);
 	}
 	
 	if (m_ds->GetPacketNumber() != m_priorPacketNumber)
@@ -141,7 +117,7 @@ void SkyNet::TeleopPeriodic()
 
 void SkyNet::UpdateDashboard(bool cameraState)
 {
-	/* Reading Analog Modules skipping channel 8 for the first slot as it is used for battery */
+	/* Reading Analog Modules skipping channel 8 for the first slot as it is used for battery 
 	
 	for (UINT8 i = 0; i <= (SensorBase::kAnalogChannels - 2); i++)
 	{
@@ -153,7 +129,7 @@ void SkyNet::UpdateDashboard(bool cameraState)
 		m_dashboardDataFormatter->m_analogChannels[1][i] = m_analogModules[1]->GetValue(i + 1);
 	}
 	
-	/* Reading PWM Status */
+	Reading PWM Status 
 	
 	for (UINT8 i = 0; i <= 1; i++)
 	{
@@ -163,7 +139,7 @@ void SkyNet::UpdateDashboard(bool cameraState)
 		}
 	}
 	
-	/* Reading Solenoid Status */
+	Reading Solenoid Status 
 	
 	UINT8 solenoidVals = 0;
 	for (int i = (SensorBase::kSolenoidChannels - 1); ; i--)
@@ -182,9 +158,9 @@ void SkyNet::UpdateDashboard(bool cameraState)
 	
 	m_dashboardDataFormatter->m_solenoidChannels = solenoidVals;
 	
-	/* Sending data to the Dashboard */
+	Sending data to the Dashboard
 	
-	/* m_dashboardDataFormatter->UpdateDashboard(cameraState); */
+	m_dashboardDataFormatter->UpdateDashboard(cameraState); */
 }
 
 //DONT EVER FORGET THIS!

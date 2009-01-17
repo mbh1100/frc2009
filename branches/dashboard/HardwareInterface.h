@@ -27,22 +27,22 @@ public:
 	
 	AnalogModule* GetAnalogModule(UINT8 num);
 	DigitalModule* GetDigitalModule(UINT8 num);
-	Jaguar* GetJaguar(Uint8 moduleNum, UINT8 channel);
-	Victor* GetVictor(Uint8 moduleNum, UINT8 channel);
-	Servo* GetServo(Uint8 moduleNum, UINT8 channel);
+	Jaguar* GetJaguar(UINT8 moduleNum, UINT8 channel);
+	Victor* GetVictor(UINT8 moduleNum, UINT8 channel);
+	Servo* GetServo(UINT8 moduleNum, UINT8 channel);
 	SmartRelay* GetSmartRelay(UINT8 moduleNum, UINT8 channel);
 	Solenoid* GetSolenoid(UINT8 channel);
 	
-	static const UINT8 kAnalogSlotNumbers[kAnalogModules] = {1, 2};
-	static const UINT8 kDigitalSlotNumbers[kDigitalModulels] = {4, 6};
-	static const UINT8 kSolenoidSlotNumber = 8;
+	UINT8 kAnalogSlotNumbers[kAnalogModules];
+	UINT8 kDigitalSlotNumbers[kDigitalModules];
+	UINT8 kSolenoidSlotNumber;
 	
-protected:
+//protected:
 	AnalogModule *m_analogModules[kAnalogModules];
 	DigitalModule *m_digitalModules[kDigitalModules];
 	Solenoid *m_solenoids[kSolenoidChannels];
 	SmartRelay *m_smartRelays[kDigitalModules][kRelayChannels];
-	PWM *m_pwms[kDigitalModules][kPWMChannels];
+	PWM *m_pwms[kDigitalModules][kPwmChannels];
 	
 	PCVideoServer *m_cameraFeed;
 	

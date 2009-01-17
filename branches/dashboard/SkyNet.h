@@ -23,21 +23,19 @@ public:
 	
 	void UpdateDashboard(bool cameraState);
 	
-	HardwareInterface *m_dashboardDataFormatter;
+	HardwareInterface *m_hardwareInterface;
 	
 	Joystick *m_rightStick,*m_leftStick;
 	
-	RobotDrive *m_RobotDrive;
+	RobotDrive *m_robotDrive;
 	
 	Jaguar *m_motor1,*m_motor2,*m_motor3,*m_motor4;
-	
-	Solenoid *m_solenoids[SensorBase::kSolenoidChannels];
 	
 	AnalogModule *m_analogModules[SensorBase::kAnalogModules];
 	
 	DriverStation *m_ds;
 	
-	PWM *m_pwms[2][10];
+	Solenoid *m_solenoids[SensorBase::kSolenoidChannels];
 	
 	UINT32 m_priorPacketNumber, m_autoCount, m_teleCount;
 	UINT8 m_dsPacketsPerSecond;
