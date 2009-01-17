@@ -8,8 +8,8 @@
 #include "FrcError.h"
 #include "TrackAPI.h" 
 #include "PCVideoServer.h"
-//#include "TrackTarget.h"
 
+#include "TrackingCamera.h"
 #include "DashboardDataFormat.h"
 
 class SkyNet : public IterativeRobot
@@ -42,7 +42,6 @@ public:
 	UINT8 m_dsPacketsPerSecond;
 	
 	UINT32 m_autoCount,m_teleCount,m_printsPerLoop;
-	
 	
 	//Values of colors being tracked
 	TrackingThreshold tdataGreen,tdataPink;
