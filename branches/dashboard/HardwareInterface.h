@@ -33,6 +33,10 @@ public:
 	SmartRelay* GetSmartRelay(UINT8 moduleNum, UINT8 channel);
 	Solenoid* GetSolenoid(UINT8 channel);
 	
+	static const UINT8 kAnalogSlotNumbers[kAnalogModules] = {1, 2};
+	static const UINT8 kDigitalSlotNumbers[kDigitalModulels] = {4, 6};
+	static const UINT8 kSolenoidSlotNumber = 8;
+	
 protected:
 	AnalogModule *m_analogModules[kAnalogModules];
 	DigitalModule *m_digitalModules[kDigitalModules];
@@ -41,10 +45,6 @@ protected:
 	PWM *m_pwms[kDigitalModules][kPWMChannels];
 	
 	PCVideoServer *m_cameraFeed;
-	
-	static const UINT8 kAnalogSlotNumbers[kAnalogModules] = {1, 2};
-	static const UINT8 kDigitalSlotNumbers[kDigitalModulels] = {4, 6};
-	static const UINT8 kSolenoidSlotNumber = 8;
 	
 	bool m_cameraState;
 	
