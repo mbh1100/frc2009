@@ -19,25 +19,35 @@ HardwareInterface::HardwareInterface(bool camera) : m_ds (DriverStation::GetInst
 	
 	/* Initialize hardware and hardware modules */
 	
-	m_analogModules[0] = AnalogModule::GetInstance(1);
-	m_analogModules[1] = AnalogModule::GetInstance(2);
-	
-	m_digitalModules[0] = DigitalModule::GetInstance(4);
-	m_digitalModules[1] = DigitalModule::GetInstance(6);
-	
-	for (UINT8 i = 0; i < kRelayChannels; i++)
+	for (UINT8 slot = 0; slot < kAnalogModules; slot++)
 	{
-		m_smartRelays[4][i] = new SmartRelay(4, i + 1);
+		m_analogModules[slot] = AnalogModule::GetInstance(kAnalogSlotNumbers[slot]);
 	}
 	
-	for (UINT8 i = 0; i < kRelayChannels; i++)
+	for (UINT8 slot = 0; slot < kDigitalModules; slot++)
 	{
-		m_smartRelays[6][i] = new SmartRelay(4, i + 1);
+		m_digitalModules[slot] = DigitalModule::GetInstance(kDigitalSlotNumbers[slot]);
 	}
 	
-	for (UINT8 i = 0; i < kSolenoidChannels; i++)
+	for (UINT8 slot = 0; slot < kDigitalModules; slot++)
 	{
-		m_solenoids[i] = new Solenoid(8, i + 1);
+		for (UINT8 channel = 0; channel < kPWMChannels; i++)
+		{
+			m_pwms[kDigitalSlotNumbers[slot]][channel] = new PWM(kDigitalSlotNumbers[slot], channel + 1);
+		}
+	}
+	
+	for (UINT8 slot = 0; slot < kDigitalModules; slot++)
+	{
+		for (UINT8 channel = 0; channel < kRelayChannels; i++)
+		{
+			m_smartRelays[kDigitalSlotNumbers[slot]][channel] = new SmartRelay(kDigitalSlotNumbers[slot], channel + 1);
+		}
+	}
+	
+	for (UINT8 channel = 0; channel < kSolenoidChannels; channel++)
+	{
+		m_solenoids[i] = new Solenoid(kSolenoidSlotNumber, channel + 1);
 	}
 	
 }
@@ -47,10 +57,6 @@ HardwareInterface::~HardwareInterface()
 	
 }
 
-/**
- * Pack data using the correct types and in the correct order to match the
- * default "Dashboard Datatype" in the LabVIEW Dashboard project.
- */
 void HardwareInterface::UpdateDashboard(bool cameraState)
 {
 	Dashboard &dashboardPacker = m_ds->GetDashboardPacker();
@@ -160,4 +166,48 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 		
 		m_cameraState = cameraState;
 	}
+}
+
+AnalogModule* GetAnalogModule(UINT8 num)
+{
+	return m_analogModules[num];
+}
+
+DigitalModule* GetDigitalModule(UINT8 num)
+{
+	return m_digitalModules[num];
+}
+
+Jaguar* GetJaguar(Uint8 moduleNum, UINT8 channel)
+{
+	delete m_pwms[moduleNum][channel];
+	m_pwms[moduleNum][channel] = new Jaguar(kDigitalSlotNumbers[moduleNum], channel);
+	
+	return (Jaguar*)(m_pwms[moduleNum][channel]);
+}
+
+Victor* GetVictor(Uint8 moduleNum, UINT8 channel)
+{
+	delete m_pwms[moduleNum][channel];
+	m_pwms[moduleNum][channel] = new Victor(kDigitalSlotNumbers[moduleNum], channel);
+		
+	return (Victor*)(m_pwms[moduleNum][channel]);
+}
+
+Servo* GetServo(Uint8 moduleNum, UINT8 channel)
+{
+	delete m_pwms[moduleNum][channel];
+	m_pwms[moduleNum][channel] = new Servo(kDigitalSlotNumbers[moduleNum], channel);
+		
+	return (Servo*)(m_pwms[moduleNum][channel]);
+}
+
+SmartRelay* GetSmartRelay(UINT8 moduleNum, UINT8 channel)
+{
+	return m_smartRelays[moduleNum][channel];
+}
+
+Solenoid* GetSolenoid(UINT8 channel)
+{
+	return m_solenoids[channel];
 }

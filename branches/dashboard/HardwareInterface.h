@@ -25,6 +25,15 @@ public:
 	
 	void UpdateDashboard(bool cameraState);
 	
+	AnalogModule* GetAnalogModule(UINT8 num);
+	DigitalModule* GetDigitalModule(UINT8 num);
+	Jaguar* GetJaguar(Uint8 moduleNum, UINT8 channel);
+	Victor* GetVictor(Uint8 moduleNum, UINT8 channel);
+	Servo* GetServo(Uint8 moduleNum, UINT8 channel);
+	SmartRelay* GetSmartRelay(UINT8 moduleNum, UINT8 channel);
+	Solenoid* GetSolenoid(UINT8 channel);
+	
+protected:
 	AnalogModule *m_analogModules[kAnalogModules];
 	DigitalModule *m_digitalModules[kDigitalModules];
 	Solenoid *m_solenoids[kSolenoidChannels];
@@ -33,18 +42,11 @@ public:
 	
 	PCVideoServer *m_cameraFeed;
 	
+	static const UINT8 kAnalogSlotNumbers[kAnalogModules] = {1, 2};
+	static const UINT8 kDigitalSlotNumbers[kDigitalModulels] = {4, 6};
+	static const UINT8 kSolenoidSlotNumber = 8;
+	
 	bool m_cameraState;
-	
-	float m_analogChannels[kAnalogModules][kAnalogChannels];
-	
-	UINT8 m_relayFwd[kDigitalModules];
-	UINT8 m_relayRev[kDigitalModules];
-	
-	UINT16 m_dioChannels[kDigitalModules];
-	UINT16 m_dioChannelsOutputEnable[kDigitalModules];
-	
-	UINT8 m_pwmChannels[kDigitalModules][kPwmChannels];
-	UINT8 m_solenoidChannels;
 	
 private:
 	DISALLOW_COPY_AND_ASSIGN(HardwareInterface);
