@@ -2,6 +2,14 @@
 
 TrackingCamera::TrackingCamera(bool topColorGreen)
 {
+	/* Set camera and target heights (in inches)*/
+	m_cameraHeight = 60;
+	m_targetHeight = 66;
+	m_colorDistance = 12;
+	
+	/* Set top color */
+	m_topColor = topColorGreen;
+	
 	/* Color Values */
 	m_tdataGreen.hue.minValue = 44;
 	m_tdataGreen.hue.maxValue = 136;
@@ -32,7 +40,7 @@ TrackingCamera::TrackingCamera(bool topColorGreen)
 		printf("Failed to spawn camera task; Error code %s\r\n",GetVisionErrorText(GetLastVisionError()));
 	}
 }
-void TrackingCamera::Update()
+bool TrackingCamera::Update()
 {
 	if (FindColor(IMAQ_HSL, &m_tdataGreen.hue, &m_tdataGreen.saturation, &m_tdataGreen.luminance, &m_parGreen)
 				&& m_parGreen.particleToImagePercent < m_maxPartToImage
@@ -58,5 +66,49 @@ void TrackingCamera::Update()
 	{
 		m_foundPink = false;
 	}
+	
+	if (m_foundPink && m_foundGreen)
+	{
+		if (m_topColor)
+		{
+			if (m_greenY > m_pinkY)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			if (m_greenY < m_pinkY)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+	else
+	{
+		return false;
+	}
 }
+
+float TrackingCamera::getTargetX()
+{
+	float averageX = (m_greenX + m_pinkX)/2;
+	return averageX;
+}
+float TrackingCamera::getTargetY()
+{
+	float distance,height = fabs(m_greenY-m_pinkY);
+	distance = height;
+	
+	return distance;
+}
+
 
