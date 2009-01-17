@@ -44,6 +44,8 @@ SkyNet::SkyNet()
 	{
 		printf("Camera is a success \r\n");
 	}
+
+
 	Wait(2.0);
 	m_camToDash = new PCVideoServer;
 
@@ -103,14 +105,13 @@ void SkyNet::AutonomousPeriodic()
 		greenY = (int)(parGreen.center_mass_y_normalized * 1000.0);
 		if ((m_autoCount % m_printsPerLoop) == 0)
 		{
-			dashboard.Printf("Green found at: x: %i y: %i\n", greenX, greenY);
+			//dashboard.Printf("Green found at: x: %i y: %i\n", greenX, greenY);
 		}
-		
 	} 
 	else
 	{
 		foundGreen = false;
-		dashboard.Printf("No Green Found\n");
+		//dashboard.Printf("No Green Found\n");
 	}
 	if (FindColor(IMAQ_HSL, &tdataPink.hue, &tdataPink.saturation, &tdataPink.luminance, &parPink)
 			&& parPink.particleToImagePercent < MAX_PARTICLE_TO_IMAGE_PERCENT
@@ -130,7 +131,11 @@ void SkyNet::AutonomousPeriodic()
 		foundPink = false;
 		//printf("No Pink Found\n");
 	}
-	
+	dashboard.Printf("Green at: %i",greenY);
+	dashboard.Printf("  Pink at: %i\n",pinkY);
+	int height = pinkY-greenY;
+	dashboard.Printf("Height: %i\n",height);
+	dashboard.Finalize();
 	//Tracking Mike with Green
 	if (foundGreen && foundPink && (greenY > pinkY))
 	{

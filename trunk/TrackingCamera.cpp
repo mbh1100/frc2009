@@ -105,10 +105,16 @@ float TrackingCamera::getTargetX()
 }
 float TrackingCamera::getTargetY()
 {
-	float distance,height = fabs(m_greenY-m_pinkY);
-	distance = height;
-	
-	return distance;
+	float height;
+	if (m_topColor)
+	{
+		height = m_greenY-200;
+	}
+	else
+	{
+		height = m_pinkY-200;
+	}
+	return -height;
 }
 
 
