@@ -18,8 +18,14 @@
 #ifndef __TRACKAPI_H__
 #define __TRACKAPI_H__
 
-#include "VisionAPI.h"
 #include "BaeUtilities.h"
+
+#include "string.h"
+#include "vxWorks.h" 
+
+#include "AxisCamera.h" 
+#include "FrcError.h"
+#include "VisionAPI.h"
 
 /*  Structures */
 typedef struct TrackingThreshold_struct {

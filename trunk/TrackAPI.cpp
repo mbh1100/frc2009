@@ -12,13 +12,8 @@
 /*  must be accompanied by the FIRST BSD license file in $(WIND_BASE)/WPILib. */
 /*----------------------------------------------------------------------------*/
 
-#include "string.h"
-#include "vxWorks.h" 
-
-#include "AxisCamera.h" 
-#include "FrcError.h"
 #include "TrackAPI.h" 
-#include "VisionAPI.h" 
+
 
 int TrackAPI_debugFlag = 1;
 #define DPRINTF if(TrackAPI_debugFlag)dprintf
