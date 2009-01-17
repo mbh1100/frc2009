@@ -42,3 +42,13 @@ void SmartRelay::Set(Value value)
 		m_rVal = false;
 	}
 }
+
+bool GetForward()
+{
+	return m_fVal;
+}
+
+bool GetReverse()
+{
+	return m_rVal;
+}

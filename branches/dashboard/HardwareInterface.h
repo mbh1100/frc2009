@@ -29,6 +29,7 @@ public:
 	DigitalModule *m_digitalModules[kDigitalModules];
 	Solenoid *m_solenoids[kSolenoidChannels];
 	SmartRelay *m_smartRelays[kDigitalModules][kRelayChannels];
+	PWM *m_pwms[kDigitalModules][kPWMChannels];
 	
 	PCVideoServer *m_cameraFeed;
 	

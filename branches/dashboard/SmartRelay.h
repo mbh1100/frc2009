@@ -12,6 +12,8 @@ public:
 	virtual ~SmartRelay();
 	
 	void Set(Value value);
+	bool GetForward();
+	bool GetReverse();
 		
 protected:
 	bool m_fVal, m_rVal;

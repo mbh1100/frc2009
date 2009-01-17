@@ -2,11 +2,11 @@
 
 HardwareInterface::HardwareInterface(bool camera) : m_ds (DriverStation::GetInstance())
 {
-	/* Wait to ensure camera is initialized */
-	Wait(2.0);
-	
 	if (camera)
 	{
+		/* Wait to ensure camera is initialized */
+		Wait(2.0);
+		
 		/* Open connection to dashboard comput er then wait for robot to ask for image flow */
 		m_cameraFeed = new PCVideoServer();
 		m_cameraState = true;
@@ -57,26 +57,51 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 	UINT32 module;
 	UINT32 channel;
 
-	/* Pack the analog modules */
+	/* Read and pack the analog modules */
 	for (module = 0; module < kAnalogModules; module++)
 	{
 		dashboardPacker.AddCluster();
 		for (channel = 0; channel < kAnalogChannels; channel++)
 		{
-			/* dashboardPacker.AddFloat(m_analogChannels[module][channel]); OLD WAY */
 			dashboardPacker.AddFloat(m_analogModules[module]->GetAverageValue(channel));
 		}
 		dashboardPacker.FinalizeCluster();
 	}
-	/* Pack the digital modules */
+	
+	/* Read and pack the digital modules */
 	for (module = 0; module < kDigitalModules; module++)
 	{
 		dashboardPacker.AddCluster();
+		
+		/* Read and pack forward relays */
+		UINT8 forRelayVal = 0;
+		for (channel = kRelayChannels; channel >= 1; channel--)
+		{
+			forRelayVal += m_smartRelays[module][channel]->GetForward();
+			
+			if (channel != 1)
+			{
+				forRelayVal <<= 1;
+			}
+		}
 		dashboardPacker.AddU8(m_relayFwd[module]);
+		
+		/* Read and pack reverse relays */
+		UINT8 revRelayVal = 0;
+		for (channel = kRelayChannels; channel >= 1; channel--)
+		{
+			revRelayVal += m_smartRelays[module][channel]->GetReverse();
+			
+			if (channel != 1)
+			{
+				revRelayVal <<= 1;
+			}
+		}
 		dashboardPacker.AddU8(m_relayRev[module]);
 		
+		/* Read and pack digital IO */
 		UINT16 dioVal = 0;
-		for (channel = 14; channel >= 1; channel--)
+		for (channel = kDigitalChannels; channel >= 1; channel--)
 		{
 			dioVal += m_digitalModules[module]->GetDIO(channel);
 			
@@ -86,19 +111,37 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 			}
 		}
 		dashboardPacker.AddU16(dioVal);
-		dashboardPacker.AddU16(m_dioChannelsOutputEnable[module]);
+		
+		/* Send a 0 for the digital IO state as software cannot determine it. 
+		 * 
+		 * TODO: If possible remove this from clusters that dashboard expects
+		 * to recieve so it can be removed here*/
+		dashboardPacker.AddU16(0);
 		
 		dashboardPacker.AddCluster();
 		
+		/* Read and pack PWM values */
 		for(channel = 0; channel < kPwmChannels; channel++)
 		{
-			dashboardPacker.AddU8(m_pwmChannels[module][channel]);
+			dashboardPacker.AddU8(m_pwms[module][channel]->GetRaw());
 		}
 		dashboardPacker.FinalizeCluster();
+		
 		dashboardPacker.FinalizeCluster();
 	}
-	/* Pack the solenoid module */
-	dashboardPacker.AddU8(m_solenoidChannels);
+	
+	/* Read and pack solenoid values */
+	UINT8 solenoidVal = 0;
+	for (channel = kSolenoidChannels; channel >= 1; channel--)
+	{
+		solenoidVal += m_solenoids[channel]->Get();
+		
+		if (channel != 1)
+		{
+			solenoidVal <<= 1;
+		}
+	}
+	dashboardPacker.AddU8(solenoidVal);
 
 	/* Flush the data to the driver station. */
 	dashboardPacker.Finalize();
