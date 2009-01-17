@@ -31,6 +31,7 @@ public:
 	
 	RobotDrive *m_RobotDrive;
 	Jaguar *m_motor1,*m_motor2,*m_motor3,*m_motor4;
+	Servo *m_servo1;
 	
 	Solenoid *m_solenoids[8];
 	
@@ -42,9 +43,12 @@ public:
 	
 	UINT32 m_autoCount,m_teleCount,m_printsPerLoop;
 	
-	//Camera Stuff
+	
+	//Values of colors being tracked
 	TrackingThreshold tdataGreen,tdataPink;
+	//State of colors being tracked
 	bool foundPink,foundGreen;
+	//Location of colors being tracked
 	int greenX, greenY, pinkX, pinkY;
 	
 	//Dashboard Stuff

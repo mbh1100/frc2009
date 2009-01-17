@@ -9,6 +9,7 @@ SkyNet::SkyNet()
 	printf("Initializing..\r\n");
 	
 	m_motor1 = new Jaguar(1);
+	m_servo1 = new Servo(4,4);
 	
 	m_ds = DriverStation::GetInstance();
 	m_priorPacketNumber = 0;
@@ -166,12 +167,14 @@ void SkyNet::TeleopPeriodic()
 	{
 		//For 50Hz Stuff
 		
+		m_servo1->Set(.5);
 		SkyNet::UpdateDashboard();
 	}
 	
 	if (m_ds->GetPacketNumber() != m_priorPacketNumber)
 	{
 		//Code dependent on driverstation/human input here
+		
 	}
 	
 	if ((m_teleCount % 200) == 0)
