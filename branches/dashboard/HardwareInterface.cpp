@@ -136,13 +136,13 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 		/* Read and pack PWM values */
 		for(channel = 0; channel < kPwmChannels; channel++)
 		{
-			if (dashboardPacker.AddU8(m_pwms[module][channel] != NULL)
+			if (m_pwms[module][channel] != NULL)
 			{
-				dashboardPacker.AddU8(m_pwms[module][channel]->GetRaw();
+				dashboardPacker.AddU8(m_pwms[module][channel]->GetRaw());
 			}
 			else
 			{
-				dashboardPacker.addU8(128);
+				dashboardPacker.AddU8(128);
 			}
 		}
 		dashboardPacker.FinalizeCluster();
@@ -247,9 +247,9 @@ Servo* HardwareInterface::GetServo(UINT8 moduleNum, UINT8 channel)
 {
 	if (m_pwms[moduleNum][channel - 1])
 	{
-		m_pwms[moduleNum][channel - 1] = new Victor(kDigitalSlotNumbers[moduleNum], channel);
+		m_pwms[moduleNum][channel - 1] = new Servo(kDigitalSlotNumbers[moduleNum], channel);
 			
-		return (Victor*)(m_pwms[moduleNum][channel - 1]);
+		return (Servo*)(m_pwms[moduleNum][channel - 1]);
 	}
 	else
 	{
