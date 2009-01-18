@@ -38,5 +38,4 @@ public:
 	Solenoid *m_solenoids[SensorBase::kSolenoidChannels];
 	
 	UINT32 m_priorPacketNumber, m_autoCount, m_teleCount;
-	UINT8 m_dsPacketsPerSecond;
 };

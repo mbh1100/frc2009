@@ -32,12 +32,13 @@ public:
 	Servo* GetServo(UINT8 moduleNum, UINT8 channel);
 	SmartRelay* GetSmartRelay(UINT8 moduleNum, UINT8 channel);
 	Solenoid* GetSolenoid(UINT8 channel);
+	DriverStation* GetDriverStation();
 	
 	UINT8 kAnalogSlotNumbers[kAnalogModules];
 	UINT8 kDigitalSlotNumbers[kDigitalModules];
 	UINT8 kSolenoidSlotNumber;
 	
-//protected:
+protected:
 	AnalogModule *m_analogModules[kAnalogModules];
 	DigitalModule *m_digitalModules[kDigitalModules];
 	Solenoid *m_solenoids[kSolenoidChannels];

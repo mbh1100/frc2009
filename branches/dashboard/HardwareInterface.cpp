@@ -12,7 +12,7 @@ HardwareInterface::HardwareInterface(bool camera) : m_ds (DriverStation::GetInst
 	if (camera)
 	{
 		/* Wait to ensure camera is initialized */
-		Wait(4.0);
+		Wait(3.0);
 		
 		/* Open connection to dashboard comput er then wait for robot to ask for image flow */
 		m_cameraFeed = new PCVideoServer();
@@ -40,7 +40,7 @@ HardwareInterface::HardwareInterface(bool camera) : m_ds (DriverStation::GetInst
 	{
 		for (UINT8 channel = 0; channel < kPwmChannels; channel++)
 		{
-			m_pwms[kDigitalSlotNumbers[slot]][channel] = new PWM(kDigitalSlotNumbers[slot], channel + 1);
+			m_pwms[kDigitalSlotNumbers[slot]][channel] = NULL;
 		}
 	}
 	
@@ -70,7 +70,7 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 	UINT32 module;
 	UINT32 channel;
 
-	/* Read and pack the analog modules 
+	/* Read and pack the analog modules */
 	for (module = 0; module < kAnalogModules; module++)
 	{
 		dashboardPacker.AddCluster();
@@ -79,7 +79,7 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 			dashboardPacker.AddFloat(m_analogModules[module]->GetValue(channel + 1));
 		}
 		dashboardPacker.FinalizeCluster();
-	} */
+	} 
 	
 	/* Read and pack the digital modules */
 	for (module = 0; module < kDigitalModules; module++)
@@ -136,7 +136,14 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 		/* Read and pack PWM values */
 		for(channel = 0; channel < kPwmChannels; channel++)
 		{
-			dashboardPacker.AddU8(m_pwms[module][channel]->GetRaw());
+			if (dashboardPacker.AddU8(m_pwms[module][channel] != NULL)
+			{
+				dashboardPacker.AddU8(m_pwms[module][channel]->GetRaw();
+			}
+			else
+			{
+				dashboardPacker.addU8(128);
+			}
 		}
 		dashboardPacker.FinalizeCluster();
 		
@@ -175,46 +182,98 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 	}
 }
 
+/* Returns a pointer to a Analog Module in the requested slot.
+ * 
+ * Note that the module number is not literal, 0 is the first slot 
+ * in kDigitalSlotNumbers, 1 is the second, ect...*/
 AnalogModule* HardwareInterface::GetAnalogModule(UINT8 num)
 {
 	return m_analogModules[num];
 }
 
+/* Returns a pointer to a Digital Module in the requested slot.
+ * 
+ * Note that the module number is not literal, 0 is the first slot 
+ * in kDigitalSlotNumbers, 1 is the second, ect...*/
 DigitalModule* HardwareInterface::GetDigitalModule(UINT8 num)
 {
 	return m_digitalModules[num];
 }
 
+/* If the requested PWM is not in use, return a pointer to a new
+ * Jaguar is that channel, otherwise return NULL 
+ * 
+ * Note that the module number is not literal, 0 is the first slot 
+ * in kDigitalSlotNumbers, 1 is the second, ect...*/
 Jaguar* HardwareInterface::GetJaguar(UINT8 moduleNum, UINT8 channel)
 {
-	delete m_pwms[moduleNum][channel - 1];
-	m_pwms[moduleNum][channel - 1] = new Jaguar(kDigitalSlotNumbers[moduleNum], channel);
-	
-	return (Jaguar*)(m_pwms[moduleNum][channel - 1]);
+	if (m_pwms[moduleNum][channel - 1])
+	{
+		m_pwms[moduleNum][channel - 1] = new Jaguar(kDigitalSlotNumbers[moduleNum], channel);
+			
+		return (Jaguar*)(m_pwms[moduleNum][channel - 1]);
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
+/* If the requested PWM is not in use, return a pointer to a new
+ * Victor is that channel, otherwise return NULL 
+ * 
+ * Note that the module number is not literal, 0 is the first slot 
+ * in kDigitalSlotNumbers, 1 is the second, ect...*/
 Victor* HardwareInterface::GetVictor(UINT8 moduleNum, UINT8 channel)
 {
-	delete m_pwms[moduleNum][channel - 1];
-	m_pwms[moduleNum][channel - 1] = new Victor(kDigitalSlotNumbers[moduleNum], channel);
-		
-	return (Victor*)(m_pwms[moduleNum][channel - 1]);
+	if (m_pwms[moduleNum][channel - 1])
+	{
+		m_pwms[moduleNum][channel - 1] = new Victor(kDigitalSlotNumbers[moduleNum], channel);
+			
+		return (Victor*)(m_pwms[moduleNum][channel - 1]);
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
+/* If the requested PWM is not in use, return a pointer to a new
+ * Servo is that channel, otherwise return NULL 
+ * 
+ * Note that the module number is not literal, 0 is the first slot 
+ * in kDigitalSlotNumbers, 1 is the second, ect...*/
 Servo* HardwareInterface::GetServo(UINT8 moduleNum, UINT8 channel)
 {
-	delete m_pwms[moduleNum][channel - 1];
-	m_pwms[moduleNum][channel - 1] = new Servo(kDigitalSlotNumbers[moduleNum], channel);
-		
-	return (Servo*)(m_pwms[moduleNum][channel - 1]);
+	if (m_pwms[moduleNum][channel - 1])
+	{
+		m_pwms[moduleNum][channel - 1] = new Victor(kDigitalSlotNumbers[moduleNum], channel);
+			
+		return (Victor*)(m_pwms[moduleNum][channel - 1]);
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
+/* Returns a pointer to a Smart Relay on the requested module and channel 
+ * 
+ * Note that the module number is not literal, 0 is the first slot 
+ * in kDigitalSlotNumbers, 1 is the second, ect...*/
 SmartRelay* HardwareInterface::GetSmartRelay(UINT8 moduleNum, UINT8 channel)
 {
 	return m_smartRelays[moduleNum][channel - 1];
 }
 
+/* Returns a pointer to a Solenoid on the requested module and channel */
 Solenoid* HardwareInterface::GetSolenoid(UINT8 channel)
 {
 	return m_solenoids[channel - 1];
+}
+
+/* Returns a pointer to the Driver Station */
+DriverStation* HardwareInterface::GetDriverStation()
+{
+	return m_ds;
 }

@@ -16,7 +16,9 @@ SmartRelay::~SmartRelay()
 {
 	
 }
-	
+
+/* Preforms a normal Relay::Set except as updates internal
+ * values to keep track of current relay state */
 void SmartRelay::Set(Value value)
 {
 	Relay::Set(value);
@@ -31,11 +33,6 @@ void SmartRelay::Set(Value value)
 		m_fVal = false;
 		m_rVal = true;
 	}
-	else if (value = kOn)
-	{
-		m_fVal = true;
-		m_rVal = true;
-	}
 	else /* kOff */
 	{
 		m_fVal = false;
@@ -43,11 +40,13 @@ void SmartRelay::Set(Value value)
 	}
 }
 
+/* Returns true if the relay's forward channel is on */
 bool SmartRelay::GetForward()
 {
 	return m_fVal;
 }
 
+/* Returns true if the relay's reverse channel is on */
 bool SmartRelay::GetReverse()
 {
 	return m_rVal;

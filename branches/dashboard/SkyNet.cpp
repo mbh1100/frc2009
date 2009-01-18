@@ -19,26 +19,22 @@ SkyNet::SkyNet()
 	
 	m_hardwareInterface = new HardwareInterface(true);
 	
-	/* Motor assignments */
-	//m_motor1 = m_hardwareInterface->GetJaguar(0, 1);
-	
-	m_ds = DriverStation::GetInstance();
+	m_ds = m_hardwareInterface->GetDriverStation();
 	m_priorPacketNumber = 0;
-	m_dsPacketsPerSecond = 0;
 	
 	m_rightStick = new Joystick(1);
 	m_leftStick = new Joystick(2);
 	
-	for (UINT8 i = 0; i <= (SensorBase::kSolenoidChannels - 1); i++)
+	for (UINT8 channel = 1; channel <= SensorBase::kSolenoidChannels; channel++)
 	{
-		m_solenoids[i] = m_hardwareInterface->GetSolenoid(i + 1);
+		m_solenoids[channel - 1] = m_hardwareInterface->GetSolenoid(channel);
 	}
 	
-	//m_analogModules[0] = m_hardwareInterface->GetAnalogModule(0);
-	//m_analogModules[1] = m_hardwareInterface->GetAnalogModule(1);
+	m_analogModules[0] = m_hardwareInterface->GetAnalogModule(0);
+	m_analogModules[1] = m_hardwareInterface->GetAnalogModule(1);
 	
-	//m_analogModules[0]->SetAverageBits(1,8);
-	//m_analogModules[1]->SetAverageBits(1,8);
+	m_analogModules[0]->SetAverageBits(1,8);
+	m_analogModules[1]->SetAverageBits(1,8);
 	
 	m_autoCount = 0;
 	m_teleCount = 0;
@@ -91,27 +87,27 @@ void SkyNet::TeleopPeriodic()
 	
 	if ((m_teleCount % 2) == 0)
 	{
-		//For 100Hz Stuff
+		/* Runs at 100Hz */
 	}
 	
 	if ((m_teleCount % 4) == 0)
 	{
-		//For 50Hz Stuff
+		/* Runs at 50Hz */
 		
-		/* UpdateDashboard(false); */
+		//UpdateDashboard(false);
 		//m_hardwareInterface->UpdateDashboard(false);
 	}
 	
 	if (m_ds->GetPacketNumber() != m_priorPacketNumber)
 	{
-		//Code dependent on driverstation/human input here
+		/* Code dependent on driverstation/human input here */
+		
+		m_priorPacketNumber = m_ds->GetPacketNumber();
 	}
 	
 	if ((m_teleCount % 200) == 0)
 	{
-		/*printf("Motor Types... %s %s %s \r\n", typeid(*m_motor1).name(), typeid(*m_pwmTest1).name(), typeid(*m_pwmTest2).name());
-		printf("%d \r\n", (int)(typeid(*m_pwmTest1) == typeid(PWM)));*/
-		m_dsPacketsPerSecond = 0;
+		/* Runs at 1Hz */
 	}
 }
 
