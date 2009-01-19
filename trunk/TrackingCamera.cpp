@@ -47,8 +47,8 @@ bool TrackingCamera::Update()
 				&& m_parGreen.particleToImagePercent > m_minPartToImage)
 	{
 		m_foundGreen = true;
-		m_greenX = (int)(m_parGreen.center_mass_x_normalized * 1000.0);
-		m_greenY = (int)(m_parGreen.center_mass_y_normalized * 1000.0);
+		m_greenX = (m_parGreen.center_mass_x_normalized * 1000.0);
+		m_greenY = (m_parGreen.center_mass_y_normalized * 1000.0);
 	}
 	else
 	{
@@ -59,8 +59,8 @@ bool TrackingCamera::Update()
 				&& m_parPink.particleToImagePercent > m_minPartToImage) 
 	{
 		m_foundPink = true;
-		m_pinkX = (int)(m_parPink.center_mass_x_normalized * 1000.0);
-		m_pinkY = (int)(m_parPink.center_mass_y_normalized * 1000.0);			
+		m_pinkX = (m_parPink.center_mass_x_normalized * 1000.0);
+		m_pinkY = (m_parPink.center_mass_y_normalized * 1000.0);			
 	} 
 	else
 	{
@@ -68,11 +68,13 @@ bool TrackingCamera::Update()
 	}
 	
 	if (m_foundPink && m_foundGreen)
-	{
+	{		
 		if (m_topColor)
 		{
-			if (m_greenY > m_pinkY)
+			if (m_greenY < m_pinkY)
 			{
+				printf("Green is: %f\n",m_greenY);
+				printf("Pink is: %f\n",m_pinkY);
 				return true;
 			}
 			else
@@ -82,8 +84,10 @@ bool TrackingCamera::Update()
 		}
 		else
 		{
-			if (m_greenY < m_pinkY)
+			if (m_greenY > m_pinkY)
 			{
+				printf("Green2 is: %f\n",m_greenY);
+				printf("Pink2 is: %f\n",m_pinkY);
 				return true;
 			}
 			else
@@ -105,16 +109,16 @@ float TrackingCamera::getTargetX()
 }
 float TrackingCamera::getTargetY()
 {
-	float height;
+	float y;
 	if (m_topColor)
 	{
-		height = m_greenY-200;
+		y = m_greenY-200;
 	}
 	else
 	{
-		height = m_pinkY-200;
+		y = m_pinkY-200;
 	}
-	return -height;
+	return -y;
 }
 
 
