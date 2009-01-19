@@ -73,8 +73,6 @@ bool TrackingCamera::Update()
 		{
 			if (m_greenY < m_pinkY)
 			{
-				printf("Green is: %f\n",m_greenY);
-				printf("Pink is: %f\n",m_pinkY);
 				return true;
 			}
 			else
@@ -86,8 +84,6 @@ bool TrackingCamera::Update()
 		{
 			if (m_greenY > m_pinkY)
 			{
-				printf("Green2 is: %f\n",m_greenY);
-				printf("Pink2 is: %f\n",m_pinkY);
 				return true;
 			}
 			else
@@ -101,7 +97,6 @@ bool TrackingCamera::Update()
 		return false;
 	}
 }
-
 float TrackingCamera::getTargetX()
 {
 	float averageX = (m_greenX + m_pinkX)/2;
@@ -109,16 +104,6 @@ float TrackingCamera::getTargetX()
 }
 float TrackingCamera::getTargetY()
 {
-	float y;
-	if (m_topColor)
-	{
-		y = m_greenY-200;
-	}
-	else
-	{
-		y = m_pinkY-200;
-	}
-	return -y;
+	float y = -(m_greenY+m_pinkY)/2;
+	return y;
 }
-
-

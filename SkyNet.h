@@ -41,4 +41,8 @@ public:
 	//Dashboard Stuff
 	PCVideoServer *m_camToDash;
 	
+	//Camera Locating
+	bool inView;
+	float positionX,positionY;
+	
 };

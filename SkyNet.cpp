@@ -35,6 +35,10 @@ void SkyNet::AutonomousInit()
 {
 	printf("Inititializing Autonomous Mode..\r\n");
 	m_autoCount = 0;
+	
+	inView = false;
+	positionX = 0;
+	positionY = 0;
 }
 void SkyNet::TeleopInit()
 {
@@ -51,17 +55,26 @@ void SkyNet::AutonomousPeriodic()
 	GetWatchdog().Feed();
 	m_autoCount++;
 	
-	//Tracking Mike with Green
-	if ((m_autoCount % 20) == 0)
+	//Finding the position of the camera
+	if ((m_autoCount % 10) == 0)
 	{
-		if (m_trackingCamera->Update())
+		if (inView = m_trackingCamera->Update())
 		{
-			float x = m_trackingCamera->getTargetX();
-			float y = m_trackingCamera->getTargetY();
-			printf("Target X: %f\n",x);
-			printf("Target Y: %f\n",y);
+			positionX = m_trackingCamera->getTargetX();
+			positionY = m_trackingCamera->getTargetY();
+			printf("Target X: %f\n",positionX);
+			printf("Target Y: %f\n",positionY);
 		}
 	}
+	if (inView)
+	{
+		//PID Loop to track
+	}
+	else
+	{
+		//Scan
+	}
+	
 
 }
 void SkyNet::TeleopPeriodic()
