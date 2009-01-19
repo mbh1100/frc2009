@@ -70,24 +70,24 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 	UINT32 module;
 	UINT32 channel;
 	
-	printf("Dashboard Init'ed succesfully \r\n");
+	//printf("Dashboard Init'ed succesfully \r\n");
 
 	/* Read and pack the analog modules */
 	for (module = 0; module < kAnalogModules; module++)
 	{
-		printf("Mod %d pre clust \r\n", module);
+		//printf("Mod %d pre clust \r\n", module);
 		
 		dashboardPacker.AddCluster();
 		
-		printf("Mod %d post clust \r\n", module);
+		//printf("Mod %d post clust \r\n", module);
 		
 		for (channel = 0; channel < kAnalogChannels; channel++)
 		{
-			printf("channel %d pre float\r\n", channel);
-			//dashboardPacker.AddFloat((float)(m_analogModules[module]->GetAverageValue(channel + 1)));
-			printf("channel %d post float\r\n", channel);
+			//printf("channel %d pre float\r\n", channel);
+			dashboardPacker.AddFloat((float)(m_analogModules[module]->GetAverageValue(channel + 1)));
+			//printf("channel %d post float\r\n", channel);
 		}
-		//dashboardPacker.FinalizeCluster();
+		dashboardPacker.FinalizeCluster();
 	}
 	
 	printf("Analog sent succesfully \r\n");
@@ -95,24 +95,28 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 	/* Read and pack the digital modules */
 	for (module = 0; module < kDigitalModules; module++)
 	{
-		//dashboardPacker.AddCluster();
+		dashboardPacker.AddCluster();
 		
 		/* Read and pack forward relays */
 		UINT8 forRelayVal = 0;
 		for (channel = kRelayChannels - 1; channel >= 0; channel--)
 		{
-			printf("Mod %d Chan %d pre ForRelay\r\n", module, channel);
+			//printf("Mod %d Chan %d pre ForRelay\r\n", module, channel);
 			forRelayVal += m_smartRelays[module][channel]->GetForward();
-			printf("Mod %d Chan %d post ForRelay\r\n", module, channel);
+			//printf("Mod %d Chan %d post ForRelay\r\n", module, channel);
 			
 			if (channel != 0)
 			{
 				forRelayVal <<= 1;
 			}
+			else
+			{
+				break;
+			}
 		}
-		//dashboardPacker.AddU8(forRelayVal);
+		dashboardPacker.AddU8(forRelayVal);
 		
-		printf("Relay forward sent succesfully \r\n");
+		//printf("Relay forward sent succesfully \r\n");
 		
 		/* Read and pack reverse relays */
 		UINT8 revRelayVal = 0;
@@ -124,8 +128,12 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 			{
 				revRelayVal <<= 1;
 			}
+			else
+			{
+				break;
+			}
 		}
-		//dashboardPacker.AddU8(revRelayVal);
+		dashboardPacker.AddU8(revRelayVal);
 		
 		printf("Relay reverse sent succesfully \r\n");
 		
@@ -139,8 +147,12 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 			{
 				dioVal <<= 1;
 			}
+			else
+			{
+				break;
+			}
 		}
-		//dashboardPacker.AddU16(dioVal);
+		dashboardPacker.AddU16(dioVal);
 		
 		printf("DIO sent succesfully \r\n");
 		
@@ -150,26 +162,26 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 		 * to recieve so it can be removed here*/
 		//dashboardPacker.AddU16(0);
 		
-		//dashboardPacker.AddCluster();
+		dashboardPacker.AddCluster();
 		
 		/* Read and pack PWM values */
 		for(channel = 0; channel < kPwmChannels; channel++)
 		{
 			if (m_pwms[module][channel] != NULL)
 			{
-				//dashboardPacker.AddU8((UINT8)m_pwms[module][channel]->GetRaw());
+				dashboardPacker.AddU8((UINT8)m_pwms[module][channel]->GetRaw());
 			}
 			else
 			{
-				//dashboardPacker.AddU8(128);
+				dashboardPacker.AddU8(128);
 			}
 		}
 		
 		printf("PWM sent succesfully \r\n");
 		
-		//dashboardPacker.FinalizeCluster();
+		dashboardPacker.FinalizeCluster();
 		
-		//dashboardPacker.FinalizeCluster();
+		dashboardPacker.FinalizeCluster();
 	}
 	
 	/* Read and pack solenoid values */
@@ -182,13 +194,17 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 		{
 			solenoidVal <<= 1;
 		}
+		else
+		{
+			break;
+		}
 	}
-	//dashboardPacker.AddU8(solenoidVal);
+	dashboardPacker.AddU8(solenoidVal);
 
 	printf("Solenoid sent succesfully \r\n");
 	
 	/* Flush the data to the driver station. */
-	//dashboardPacker.Finalize();
+	dashboardPacker.Finalize();
 	
 	/* Update camera state */
 	if (m_cameraState != cameraState && m_cameraFeed != NULL)
