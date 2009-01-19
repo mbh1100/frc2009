@@ -4,7 +4,7 @@ SkyNet::SkyNet()
 {
 	printf("Initializing..\r\n");
 	
-	int frameRate = 30,compression=0;
+	int frameRate = 10, compression=0;
 	ImageSize resolution = k320x240;
 	ImageRotation imageRotation = ROT_0;
 	
@@ -30,7 +30,7 @@ SkyNet::SkyNet()
 		m_solenoids[channel - 1] = m_hardwareInterface->GetSolenoid(channel);
 	}
 	
-	m_analogModules[0] = m_hardwareInterface->GetAnalogModule(0);
+	 m_analogModules[0] = m_hardwareInterface->GetAnalogModule(0);
 	m_analogModules[1] = m_hardwareInterface->GetAnalogModule(1);
 	
 	m_analogModules[0]->SetAverageBits(1,8);
@@ -71,10 +71,9 @@ void SkyNet::AutonomousPeriodic()
 	
 	if ((m_autoCount % 4) == 0)
 	{
-			//For 50Hz Stuff
+			/* Runs at 50Hz */
 			
-			/* SkyNet::UpdateDashboard(true); */
-			m_hardwareInterface->UpdateDashboard(false);
+			m_hardwareInterface->UpdateDashboard(true);
 	}
 
 }
@@ -84,6 +83,10 @@ void SkyNet::TeleopPeriodic()
 	GetWatchdog().Feed();
 	m_teleCount++;
 		
+	if ((m_teleCount % 200) == 0)
+	{
+		/* Runs at 1Hz */
+	}
 	
 	if ((m_teleCount % 2) == 0)
 	{
@@ -94,8 +97,7 @@ void SkyNet::TeleopPeriodic()
 	{
 		/* Runs at 50Hz */
 		
-		//UpdateDashboard(false);
-		//m_hardwareInterface->UpdateDashboard(false);
+		//m_hardwareInterface->UpdateDashboard(true);
 	}
 	
 	if (m_ds->GetPacketNumber() != m_priorPacketNumber)
@@ -104,16 +106,11 @@ void SkyNet::TeleopPeriodic()
 		
 		m_priorPacketNumber = m_ds->GetPacketNumber();
 	}
-	
-	if ((m_teleCount % 200) == 0)
-	{
-		/* Runs at 1Hz */
-	}
 }
 
-void SkyNet::UpdateDashboard(bool cameraState)
+/* void SkyNet::UpdateDashboard(bool cameraState)
 {
-	/* Reading Analog Modules skipping channel 8 for the first slot as it is used for battery 
+	Reading Analog Modules skipping channel 8 for the first slot as it is used for battery 
 	
 	for (UINT8 i = 0; i <= (SensorBase::kAnalogChannels - 2); i++)
 	{
@@ -156,8 +153,8 @@ void SkyNet::UpdateDashboard(bool cameraState)
 	
 	Sending data to the Dashboard
 	
-	m_dashboardDataFormatter->UpdateDashboard(cameraState); */
-}
+	m_dashboardDataFormatter->UpdateDashboard(cameraState);
+} */
 
 //DONT EVER FORGET THIS!
 START_ROBOT_CLASS(SkyNet);

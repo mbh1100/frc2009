@@ -21,7 +21,7 @@ public:
 	void AutonomousPeriodic();
 	void TeleopPeriodic();
 	
-	void UpdateDashboard(bool cameraState);
+	//void UpdateDashboard(bool cameraState);
 	
 	HardwareInterface *m_hardwareInterface;
 	
