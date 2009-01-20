@@ -40,7 +40,7 @@ HardwareInterface::HardwareInterface(bool camera) : m_ds (DriverStation::GetInst
 	{
 		for (UINT8 channel = 0; channel < kPwmChannels; channel++)
 		{
-			m_pwms[kDigitalSlotNumbers[slot]][channel] = NULL;
+			m_pwms[slot][channel] = NULL;
 		}
 	}
 	
@@ -48,7 +48,7 @@ HardwareInterface::HardwareInterface(bool camera) : m_ds (DriverStation::GetInst
 	{
 		for (UINT8 channel = 0; channel < kRelayChannels; channel++)
 		{
-			m_smartRelays[kDigitalSlotNumbers[slot]][channel] = new SmartRelay(kDigitalSlotNumbers[slot], channel + 1);
+			m_smartRelays[slot][channel] = new SmartRelay(kDigitalSlotNumbers[slot], channel + 1);
 		}
 	}
 	
@@ -139,28 +139,18 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 		
 		/* Read and pack digital IO */
 		UINT16 dioVal = 0;
-		for (channel = kDigitalChannels - 1; channel >= 0; channel--)
+		for (channel = kDigitalChannels; channel > 0; channel--)
 		{
 			dioVal += m_digitalModules[module]->GetDIO(channel);
 			
-			if (channel != 0)
+			if (channel != 1)
 			{
 				dioVal <<= 1;
-			}
-			else
-			{
-				break;
 			}
 		}
 		dashboardPacker.AddU16(dioVal);
 		
 		printf("DIO sent succesfully \r\n");
-		
-		/* Send a 0 for the digital IO state as software cannot determine it. 
-		 * 
-		 * TODO: If possible remove this from clusters that dashboard expects
-		 * to recieve so it can be removed here*/
-		//dashboardPacker.AddU16(0);
 		
 		dashboardPacker.AddCluster();
 		
