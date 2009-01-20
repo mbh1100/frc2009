@@ -24,6 +24,7 @@ SkyNet::SkyNet()
 	m_teleCount = 0;
 	
 	m_trackingCamera = new TrackingCamera(true);
+	m_trackingTurret = new TrackingTurret();
 	Wait(2.0);
 	m_camToDash = new PCVideoServer;
 }
@@ -68,14 +69,12 @@ void SkyNet::AutonomousPeriodic()
 	}
 	if (inView)
 	{
-		//PID Loop to track
+		m_trackingTurret->aimTurret(positionX,positionY);
 	}
 	else
 	{
 		//Scan
 	}
-	
-
 }
 void SkyNet::TeleopPeriodic()
 {
