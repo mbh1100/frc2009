@@ -1,5 +1,11 @@
 #include "HardwareInterface.h"
 
+/* Initializes HardwareInterface.
+ * if camera is true then a PCVideoServer will be started to
+ * feed images to a connected Dashboard computer. Most hardware
+ * is initialized to NULL and waits for a formal request using
+ * the Get methods before getting instaciated.
+ */
 HardwareInterface::HardwareInterface(bool camera) : m_ds (DriverStation::GetInstance())
 {
 	/* Slot Numbers for hardware */
@@ -48,13 +54,13 @@ HardwareInterface::HardwareInterface(bool camera) : m_ds (DriverStation::GetInst
 	{
 		for (UINT8 channel = 0; channel < kRelayChannels; channel++)
 		{
-			m_smartRelays[slot][channel] = new SmartRelay(kDigitalSlotNumbers[slot], channel + 1);
+			m_smartRelays[slot][channel] = NULL;
 		}
 	}
 	
 	for (UINT8 channel = 0; channel < kSolenoidChannels; channel++)
 	{
-		m_solenoids[channel] = new Solenoid(kSolenoidSlotNumber, channel + 1);
+		m_solenoids[channel] = NULL;
 	}
 	
 }
@@ -64,33 +70,28 @@ HardwareInterface::~HardwareInterface()
 	
 }
 
+/* Sends information to a connected computer running Dashboard.
+ * cameraState will be compared against the current internal
+ * value and the image feed (if enabled) will be turned on or
+ * off to match.
+ */
 void HardwareInterface::UpdateDashboard(bool cameraState)
 {
 	Dashboard &dashboardPacker = m_ds->GetDashboardPacker();
 	UINT32 module;
 	UINT32 channel;
-	
-	//printf("Dashboard Init'ed succesfully \r\n");
 
 	/* Read and pack the analog modules */
 	for (module = 0; module < kAnalogModules; module++)
 	{
-		//printf("Mod %d pre clust \r\n", module);
-		
 		dashboardPacker.AddCluster();
-		
-		//printf("Mod %d post clust \r\n", module);
 		
 		for (channel = 0; channel < kAnalogChannels; channel++)
 		{
-			//printf("channel %d pre float\r\n", channel);
 			dashboardPacker.AddFloat((float)(m_analogModules[module]->GetAverageValue(channel + 1)));
-			//printf("channel %d post float\r\n", channel);
 		}
 		dashboardPacker.FinalizeCluster();
 	}
-	
-	printf("Analog sent succesfully \r\n");
 	
 	/* Read and pack the digital modules */
 	for (module = 0; module < kDigitalModules; module++)
@@ -101,9 +102,10 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 		UINT8 forRelayVal = 0;
 		for (channel = kRelayChannels - 1; channel >= 0; channel--)
 		{
-			//printf("Mod %d Chan %d pre ForRelay\r\n", module, channel);
-			forRelayVal += m_smartRelays[module][channel]->GetForward();
-			//printf("Mod %d Chan %d post ForRelay\r\n", module, channel);
+			if (m_smartRelays[module][channel] != NULL)
+			{
+				forRelayVal += m_smartRelays[module][channel]->GetForward();
+			}
 			
 			if (channel != 0)
 			{
@@ -116,13 +118,14 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 		}
 		dashboardPacker.AddU8(forRelayVal);
 		
-		//printf("Relay forward sent succesfully \r\n");
-		
 		/* Read and pack reverse relays */
 		UINT8 revRelayVal = 0;
 		for (channel = kRelayChannels - 1; channel >= 0; channel--)
 		{
-			revRelayVal += m_smartRelays[module][channel]->GetReverse();
+			if (m_smartRelays[module][channel] != NULL)
+			{
+				revRelayVal += m_smartRelays[module][channel]->GetReverse();
+			}
 			
 			if (channel != 0)
 			{
@@ -178,7 +181,10 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 	UINT8 solenoidVal = 0;
 	for (channel = kSolenoidChannels - 1; channel >= 0; channel--)
 	{
-		solenoidVal += m_solenoids[channel]->Get();
+		if (m_solenoids[channel] != NULL)
+		{
+			solenoidVal += m_solenoids[channel]->Get();
+		}
 		
 		if (channel != 0)
 		{
@@ -215,7 +221,8 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 /* Returns a pointer to a Analog Module in the requested slot.
  * 
  * Note that the module number is not literal, 0 is the first slot 
- * in kDigitalSlotNumbers, 1 is the second, ect...*/
+ * in kDigitalSlotNumbers, 1 is the second, ect...
+ */
 AnalogModule* HardwareInterface::GetAnalogModule(UINT8 num)
 {
 	return m_analogModules[num];
@@ -224,17 +231,19 @@ AnalogModule* HardwareInterface::GetAnalogModule(UINT8 num)
 /* Returns a pointer to a Digital Module in the requested slot.
  * 
  * Note that the module number is not literal, 0 is the first slot 
- * in kDigitalSlotNumbers, 1 is the second, ect...*/
+ * in kDigitalSlotNumbers, 1 is the second, ect...
+ */
 DigitalModule* HardwareInterface::GetDigitalModule(UINT8 num)
 {
 	return m_digitalModules[num];
 }
 
 /* If the requested PWM is not in use, return a pointer to a new
- * Jaguar is that channel, otherwise return NULL 
+ * Jaguar on that channel, otherwise return NULL.
  * 
  * Note that the module number is not literal, 0 is the first slot 
- * in kDigitalSlotNumbers, 1 is the second, ect...*/
+ * in kDigitalSlotNumbers, 1 is the second, ect...
+ */
 Jaguar* HardwareInterface::GetJaguar(UINT8 moduleNum, UINT8 channel)
 {
 	if (m_pwms[moduleNum][channel - 1])
@@ -250,10 +259,11 @@ Jaguar* HardwareInterface::GetJaguar(UINT8 moduleNum, UINT8 channel)
 }
 
 /* If the requested PWM is not in use, return a pointer to a new
- * Victor is that channel, otherwise return NULL 
+ * Victor on that channel, otherwise return NULL.
  * 
  * Note that the module number is not literal, 0 is the first slot 
- * in kDigitalSlotNumbers, 1 is the second, ect...*/
+ * in kDigitalSlotNumbers, 1 is the second, ect...
+ */
 Victor* HardwareInterface::GetVictor(UINT8 moduleNum, UINT8 channel)
 {
 	if (m_pwms[moduleNum][channel - 1])
@@ -269,10 +279,11 @@ Victor* HardwareInterface::GetVictor(UINT8 moduleNum, UINT8 channel)
 }
 
 /* If the requested PWM is not in use, return a pointer to a new
- * Servo is that channel, otherwise return NULL 
+ * Servo on that channel, otherwise return NULL.
  * 
  * Note that the module number is not literal, 0 is the first slot 
- * in kDigitalSlotNumbers, 1 is the second, ect...*/
+ * in kDigitalSlotNumbers, 1 is the second, ect...
+ */
 Servo* HardwareInterface::GetServo(UINT8 moduleNum, UINT8 channel)
 {
 	if (m_pwms[moduleNum][channel - 1])
@@ -287,22 +298,45 @@ Servo* HardwareInterface::GetServo(UINT8 moduleNum, UINT8 channel)
 	}
 }
 
-/* Returns a pointer to a Smart Relay on the requested module and channel 
+/* If the requested Relay is not in use, instantiate it, then return a
+ * pointer to the Relay.
  * 
  * Note that the module number is not literal, 0 is the first slot 
- * in kDigitalSlotNumbers, 1 is the second, ect...*/
+ * in kDigitalSlotNumbers, 1 is the second, ect...
+ */
 SmartRelay* HardwareInterface::GetSmartRelay(UINT8 moduleNum, UINT8 channel)
 {
-	return m_smartRelays[moduleNum][channel - 1];
+	if (m_smartRelays[moduleNum][channel - 1] == NULL)
+	{
+		m_smartRelays[moduleNum][channel - 1] = new SmartRelay(kDigitalSlotNumbers[moduleNum], channel);
+		
+		return m_smartRelays[moduleNum][channel - 1];
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
-/* Returns a pointer to a Solenoid on the requested module and channel */
+/* If the requested Solenoid is not in use, instantiate it, then return a
+ * pointer to the Solenoid. 
+ */
 Solenoid* HardwareInterface::GetSolenoid(UINT8 channel)
 {
-	return m_solenoids[channel - 1];
+	if (m_solenoids[channel - 1] == NULL)
+	{
+		m_solenoids[channel - 1] = new Solenoid(kSolenoidSlotNumber, channel);
+		
+		return m_solenoids[channel - 1];
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
-/* Returns a pointer to the Driver Station */
+/* Returns a pointer to the Driver Station 
+ */
 DriverStation* HardwareInterface::GetDriverStation()
 {
 	return m_ds;
