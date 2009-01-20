@@ -48,9 +48,9 @@ float PIDcontrol::calcPID(float current)
 		{
 			m_errorSum = 0;
 		}
-		if(error < m_increment)
+		if((error/1000) < m_increment)
 		{
-			m_errorSum += error;
+			m_errorSum += (error/1000);
 		}
 		else
 		{
@@ -97,11 +97,11 @@ float PIDcontrol::calcPID(float current)
 	m_cycleCount++;
 	return output;
 }
-bool PIDcontrol::isDone()
+bool PIDcontrol::isDone(float current)
 {
-	if (m_previousValue <= m_desiredValue + m_allowedError
-			&& m_previousValue >= m_desiredValue - m_allowedError)
+	if (fabs(current) <= m_desiredValue + m_allowedError)
 	{
+		resetLoop();
 		return true;
 	}
 	return false;

@@ -9,7 +9,7 @@ public:
 	void setDesired(float maxOutput, float minOutput, float increment, float desiredValue);
 	void resetLoop();
 	float calcPID(float current);
-	bool isDone();
+	bool isDone(float current);
 
 protected:
 	float m_p, m_i, m_d;
