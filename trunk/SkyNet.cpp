@@ -57,7 +57,7 @@ void SkyNet::AutonomousPeriodic()
 	m_autoCount++;
 	
 	//Finding the position of the camera
-	if ((m_autoCount % 10) == 0)
+	if ((m_autoCount % 20) == 0)
 	{
 		if (inView = m_trackingCamera->Update())
 		{
@@ -66,14 +66,15 @@ void SkyNet::AutonomousPeriodic()
 			printf("Target X: %f\n",positionX);
 			printf("Target Y: %f\n",positionY);
 		}
-	}
-	if (inView)
-	{
-		m_trackingTurret->aimTurret(positionX,positionY);
-	}
-	else
-	{
-		//Scan
+		if (inView)
+		{
+			bool foundTarget = m_trackingTurret->aimTurret(positionX,positionY);
+			printf("Found target: %d\n",(int)foundTarget);
+		}
+		else
+		{
+			//Scan
+		}
 	}
 }
 void SkyNet::TeleopPeriodic()

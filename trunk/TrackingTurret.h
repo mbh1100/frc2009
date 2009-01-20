@@ -15,7 +15,7 @@ public:
 
 protected:
 	PIDcontrol *calcSpeedX,*calcSpeedY;
-	float m_allowedError;
+	float m_allowedErrorX, m_allowedErrorY;
 	float m_p, m_i, m_d, m_period;
 	float m_maxOutX, m_minOutX, m_incrementX, m_desiredX;
 	float m_maxOutY, m_minOutY, m_incrementY, m_desiredY;
