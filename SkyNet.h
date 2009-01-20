@@ -10,6 +10,7 @@
 #include "PCVideoServer.h"
 
 #include "TrackingCamera.h"
+#include "TrackingTurret.h"
 
 class SkyNet : public IterativeRobot
 {
@@ -23,6 +24,7 @@ public:
 	void TeleopPeriodic();
 	
 	TrackingCamera *m_trackingCamera;
+	TrackingTurret *m_trackingTurret;
 	
 	Joystick *m_rightStick,*m_leftStick;
 	
