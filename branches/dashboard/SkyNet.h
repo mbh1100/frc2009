@@ -21,8 +21,6 @@ public:
 	void AutonomousPeriodic();
 	void TeleopPeriodic();
 	
-	//void UpdateDashboard(bool cameraState);
-	
 	HardwareInterface *m_hardwareInterface;
 	
 	Joystick *m_rightStick,*m_leftStick;

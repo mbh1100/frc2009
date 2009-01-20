@@ -30,7 +30,7 @@ SkyNet::SkyNet()
 		m_solenoids[channel - 1] = m_hardwareInterface->GetSolenoid(channel);
 	}
 	
-	 m_analogModules[0] = m_hardwareInterface->GetAnalogModule(0);
+	m_analogModules[0] = m_hardwareInterface->GetAnalogModule(0);
 	m_analogModules[1] = m_hardwareInterface->GetAnalogModule(1);
 	
 	m_analogModules[0]->SetAverageBits(1,8);
@@ -107,54 +107,6 @@ void SkyNet::TeleopPeriodic()
 		m_priorPacketNumber = m_ds->GetPacketNumber();
 	}
 }
-
-/* void SkyNet::UpdateDashboard(bool cameraState)
-{
-	Reading Analog Modules skipping channel 8 for the first slot as it is used for battery 
-	
-	for (UINT8 i = 0; i <= (SensorBase::kAnalogChannels - 2); i++)
-	{
-		m_dashboardDataFormatter->m_analogChannels[0][i] = m_analogModules[0]->GetValue(i + 1);
-	}
-	
-	for (UINT8 i = 0; i <= (SensorBase::kAnalogChannels - 1); i++)
-	{
-		m_dashboardDataFormatter->m_analogChannels[1][i] = m_analogModules[1]->GetValue(i + 1);
-	}
-	
-	Reading PWM Status 
-	
-	for (UINT8 i = 0; i <= 1; i++)
-	{
-		for (UINT8 j = 0; j <= 9; j++)
-		{
-			m_dashboardDataFormatter->m_pwmChannels[i][j] = m_pwms[i][j]->GetRaw();
-		}
-	}
-	
-	Reading Solenoid Status 
-	
-	UINT8 solenoidVals = 0;
-	for (int i = (SensorBase::kSolenoidChannels - 1); ; i--)
-	{
-		solenoidVals += m_solenoids[i]->Get();
-		
-		if (i != 0)
-		{
-			solenoidVals <<= 1;
-		}
-		else
-		{
-			break;
-		}
-	}
-	
-	m_dashboardDataFormatter->m_solenoidChannels = solenoidVals;
-	
-	Sending data to the Dashboard
-	
-	m_dashboardDataFormatter->UpdateDashboard(cameraState);
-} */
 
 //DONT EVER FORGET THIS!
 START_ROBOT_CLASS(SkyNet);

@@ -17,9 +17,6 @@
  * NOTE: The slot numbers for the cRIO modules are initialized in the
  * constructor, so if those modules are moved be sure to change those values.
  * 
- * TODO: For memory saving purposes, make solenoids and relays only become
- * instantiated after being requested, like the motors are currently.
- * 
  * TODO: Add Joystick support to both HardwareInterface and to the packets
  * that dashboard expects so that joystick data can be read from dashboard.
  */
