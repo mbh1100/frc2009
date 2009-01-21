@@ -35,6 +35,7 @@ public:
 	Servo* GetServo(UINT8 moduleNum, UINT8 channel);
 	SmartRelay* GetSmartRelay(UINT8 moduleNum, UINT8 channel);
 	Solenoid* GetSolenoid(UINT8 channel);
+	Joystick* GetJoystick(UINT8 port);
 	DriverStation* GetDriverStation();
 	
 	UINT8 kAnalogSlotNumbers[kAnalogModules];

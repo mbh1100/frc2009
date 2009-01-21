@@ -142,7 +142,7 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 		}
 		dashboardPacker.AddU8(revRelayVal);
 		
-		printf("Relay reverse sent succesfully \r\n");
+		//printf("Relay reverse sent succesfully \r\n");
 		
 		/* Read and pack digital IO */
 		UINT16 dioVal = 0;
@@ -157,7 +157,7 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 		}
 		dashboardPacker.AddU16(dioVal);
 		
-		printf("DIO sent succesfully \r\n");
+		//printf("DIO sent succesfully \r\n");
 		
 		dashboardPacker.AddCluster();
 		
@@ -174,7 +174,7 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 			}
 		}
 		
-		printf("PWM sent succesfully \r\n");
+		//printf("PWM sent succesfully \r\n");
 		
 		dashboardPacker.FinalizeCluster();
 		
@@ -201,7 +201,7 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 	}
 	dashboardPacker.AddU8(solenoidVal);
 	
-	printf("Solenoid sent succesfully \r\n");
+	//printf("Solenoid sent succesfully \r\n");
 	
 	dashboardPacker.AddCluster();
 	
@@ -249,7 +249,7 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 		{
 			m_cameraFeed->Stop();
 		}
-		
+		                                                                                 
 		m_cameraState = cameraState;
 	}
 }
@@ -369,6 +369,13 @@ Solenoid* HardwareInterface::GetSolenoid(UINT8 channel)
 	{
 		return NULL;
 	}
+}
+
+/* Returns a pointer to the requested joystick
+ */
+Joystick* HardwareInterface::GetJoystick(UINT8 port)
+{
+	return m_joysticks[port - 1];
 }
 
 /* Returns a pointer to the Driver Station 
