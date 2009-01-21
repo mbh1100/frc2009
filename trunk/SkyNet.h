@@ -44,7 +44,7 @@ public:
 	PCVideoServer *m_camToDash;
 	
 	//Camera Locating
-	bool inView;
-	float positionX,positionY;
+	bool m_inView;
+	float m_positionX,m_positionY;
 	
 };
