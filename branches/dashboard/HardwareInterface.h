@@ -39,7 +39,9 @@ public:
 	
 	UINT8 kAnalogSlotNumbers[kAnalogModules];
 	UINT8 kDigitalSlotNumbers[kDigitalModules];
-	UINT8 kSolenoidSlotNumber;
+	static const UINT8 kSolenoidSlotNumber = 8;
+	static const UINT8 kJoystickPorts = 4;
+	static const UINT8 kJoystickButtons = 12;
 	
 protected:
 	AnalogModule *m_analogModules[kAnalogModules];
@@ -47,6 +49,8 @@ protected:
 	Solenoid *m_solenoids[kSolenoidChannels];
 	SmartRelay *m_smartRelays[kDigitalModules][kRelayChannels];
 	PWM *m_pwms[kDigitalModules][kPwmChannels];
+	
+	Joystick *m_joysticks[kJoystickPorts];
 	
 	PCVideoServer *m_cameraFeed;
 	

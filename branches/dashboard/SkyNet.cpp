@@ -22,9 +22,6 @@ SkyNet::SkyNet()
 	m_ds = m_hardwareInterface->GetDriverStation();
 	m_priorPacketNumber = 0;
 	
-	m_rightStick = new Joystick(1);
-	m_leftStick = new Joystick(2);
-	
 	for (UINT8 channel = 1; channel <= SensorBase::kSolenoidChannels; channel++)
 	{
 		m_solenoids[channel - 1] = m_hardwareInterface->GetSolenoid(channel);

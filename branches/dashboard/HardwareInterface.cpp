@@ -13,7 +13,6 @@ HardwareInterface::HardwareInterface(bool camera) : m_ds (DriverStation::GetInst
 	kAnalogSlotNumbers[1] = 2;
 	kDigitalSlotNumbers[0] = 4;
 	kDigitalSlotNumbers[1] = 6;
-	kSolenoidSlotNumber = 8;
 	
 	if (camera)
 	{
@@ -61,6 +60,11 @@ HardwareInterface::HardwareInterface(bool camera) : m_ds (DriverStation::GetInst
 	for (UINT8 channel = 0; channel < kSolenoidChannels; channel++)
 	{
 		m_solenoids[channel] = NULL;
+	}
+	
+	for (UINT8 port = 0; port < kJoystickPorts; port++)
+	{
+		m_joysticks[port] = new Joystick(port + 1);
 	}
 	
 }
@@ -196,8 +200,40 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 		}
 	}
 	dashboardPacker.AddU8(solenoidVal);
-
+	
 	printf("Solenoid sent succesfully \r\n");
+	
+	dashboardPacker.AddCluster();
+	
+	for (UINT8 port = 0; port < kJoystickPorts; port++)
+	{
+		dashboardPacker.AddCluster();
+		
+		dashboardPacker.AddFloat(m_joysticks[port]->GetX());
+		dashboardPacker.AddFloat(m_joysticks[port]->GetY());
+		dashboardPacker.AddFloat(m_joysticks[port]->GetZ());
+		dashboardPacker.AddFloat(m_joysticks[port]->GetTwist());
+		dashboardPacker.AddFloat(m_joysticks[port]->GetThrottle());
+		
+		dashboardPacker.AddCluster();
+		
+		UINT16 buttons = 0;
+		for (channel = kJoystickButtons; channel >= 1; channel--)
+		{
+			buttons += m_joysticks[port]->GetRawButton(channel);
+			//printf("Joystick button %d \r\n", channel);
+			if (channel != 1)
+			{
+				buttons <<= 1;
+			}
+		}
+		dashboardPacker.AddU16(buttons);
+		
+		dashboardPacker.FinalizeCluster();
+		
+		dashboardPacker.FinalizeCluster();
+	}
+	dashboardPacker.FinalizeCluster();
 	
 	/* Flush the data to the driver station. */
 	dashboardPacker.Finalize();

@@ -21,9 +21,7 @@ public:
 	void AutonomousPeriodic();
 	void TeleopPeriodic();
 	
-	HardwareInterface *m_hardwareInterface;
-	
-	Joystick *m_rightStick,*m_leftStick;
+	HardwareInterface *m_hardwareInterface;;
 	
 	RobotDrive *m_robotDrive;
 	
