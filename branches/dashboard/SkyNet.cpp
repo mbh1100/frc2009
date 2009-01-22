@@ -19,6 +19,15 @@ SkyNet::SkyNet()
 	
 	m_hardwareInterface = new HardwareInterface(true);
 	
+	m_motor1 = m_hardwareInterface->GetJaguar(0, 1);
+	m_motor2 = m_hardwareInterface->GetJaguar(0, 2);
+		
+	m_sMotor1 = new SmartJaguar(m_motor1);
+	m_sMotor2 = new SmartJaguar(m_motor2);
+		
+	m_joystick1 = m_hardwareInterface->GetJoystick(1);
+	m_joystick2 = m_hardwareInterface->GetJoystick(2);
+	
 	m_ds = m_hardwareInterface->GetDriverStation();
 	m_priorPacketNumber = 0;
 	
@@ -26,6 +35,15 @@ SkyNet::SkyNet()
 	{
 		m_solenoids[channel - 1] = m_hardwareInterface->GetSolenoid(channel);
 	}
+	
+	/*m_motor1 = m_hardwareInterface->GetJaguar(0, 1);
+	m_motor2 = m_hardwareInterface->GetJaguar(0, 2);
+	
+	m_sMotor1 = new SmartJaguar(m_motor1, 5);
+	m_sMotor2 = new SmartJaguar(m_motor2, 10);
+	
+	m_joystick1 = m_hardwareInterface->GetJoystick(1);
+	m_joystick2 = m_hardwareInterface->GetJoystick(2);*/
 	
 	m_analogModules[0] = m_hardwareInterface->GetAnalogModule(0);
 	m_analogModules[1] = m_hardwareInterface->GetAnalogModule(1);
@@ -85,6 +103,19 @@ void SkyNet::TeleopPeriodic()
 		/* Runs at 1Hz */
 	}
 	
+	if ((m_teleCount % 20) == 0)
+	{
+		/* Runs at 20Hz */
+		m_sMotor1->Update();
+		m_sMotor2->Update();
+		
+		Dashboard &dashboard = m_ds->GetDashboardPacker();
+			
+		dashboard.Printf("Motor1 : %f, Motor2 : %f\r\n", m_motor1->Get(), m_motor2->Get());
+		
+		m_hardwareInterface->UpdateDashboard(true);
+	}
+	
 	if ((m_teleCount % 2) == 0)
 	{
 		/* Runs at 100Hz */
@@ -102,6 +133,9 @@ void SkyNet::TeleopPeriodic()
 		/* Code dependent on driverstation/human input here */
 		
 		m_priorPacketNumber = m_ds->GetPacketNumber();
+		
+		m_sMotor1->SetSpeed(m_joystick1->GetY());
+		m_sMotor2->SetSpeed(m_joystick2->GetY());
 	}
 }
 

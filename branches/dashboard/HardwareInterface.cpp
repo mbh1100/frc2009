@@ -282,7 +282,7 @@ DigitalModule* HardwareInterface::GetDigitalModule(UINT8 num)
  */
 Jaguar* HardwareInterface::GetJaguar(UINT8 moduleNum, UINT8 channel)
 {
-	if (m_pwms[moduleNum][channel - 1])
+	if (m_pwms[moduleNum][channel - 1] == NULL)
 	{
 		m_pwms[moduleNum][channel - 1] = new Jaguar(kDigitalSlotNumbers[moduleNum], channel);
 			
@@ -302,7 +302,7 @@ Jaguar* HardwareInterface::GetJaguar(UINT8 moduleNum, UINT8 channel)
  */
 Victor* HardwareInterface::GetVictor(UINT8 moduleNum, UINT8 channel)
 {
-	if (m_pwms[moduleNum][channel - 1])
+	if (m_pwms[moduleNum][channel - 1] == NULL)
 	{
 		m_pwms[moduleNum][channel - 1] = new Victor(kDigitalSlotNumbers[moduleNum], channel);
 			
@@ -322,7 +322,7 @@ Victor* HardwareInterface::GetVictor(UINT8 moduleNum, UINT8 channel)
  */
 Servo* HardwareInterface::GetServo(UINT8 moduleNum, UINT8 channel)
 {
-	if (m_pwms[moduleNum][channel - 1])
+	if (m_pwms[moduleNum][channel - 1] == NULL)
 	{
 		m_pwms[moduleNum][channel - 1] = new Servo(kDigitalSlotNumbers[moduleNum], channel);
 			
