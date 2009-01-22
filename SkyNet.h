@@ -11,6 +11,8 @@
 
 #include "TrackingCamera.h"
 #include "TrackingTurret.h"
+#include "HardwareInterface.h"
+#include "SmartJaguar.h"
 
 class SkyNet : public IterativeRobot
 {
@@ -26,14 +28,16 @@ public:
 	TrackingCamera *m_trackingCamera;
 	TrackingTurret *m_trackingTurret;
 	
-	DriverStation *m_ds;
-	UINT32 m_priorPacketNumber;
-	UINT8 m_dsPacketsPerSecond;
+	HardwareInterface *m_hardwareInterface;
 	
-	UINT32 m_autoCount,m_teleCount,m_printsPerLoop;
+	AnalogModule *m_analogModules[SensorBase::kAnalogModules];
+	
+	DriverStation *m_ds;
 		
 	//Camera Locating
 	bool m_inView;
 	float m_positionX,m_positionY;
 	
+	
+	UINT32 m_priorPacketNumber, m_autoCount, m_teleCount;
 };
