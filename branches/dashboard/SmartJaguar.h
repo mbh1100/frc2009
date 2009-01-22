@@ -5,7 +5,7 @@
 #include <list>
 #include <cmath>
 
-#define kRampDownMult .5
+#define kRampDownMult .8
 
 class SmartJaguar
 {
@@ -21,7 +21,7 @@ protected:
 	float m_target;
 	std::list<float> m_prevValues;
 	
-	static const UINT8 kMaxSamples = 8;
+	static const UINT8 kMaxSamples = 5;
 	static const UINT8 kMinSamples = 2;
 };
 

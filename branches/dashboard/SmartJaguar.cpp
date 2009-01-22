@@ -23,7 +23,8 @@ void SmartJaguar::SetSpeed(float speed)
 void SmartJaguar::Update()
 {
 	float diff = fabs(m_target - m_motor->Get());
-	diff /= 2.0;
+	/* regulate difference to at most 1.0 */
+	diff = diff > 1.0 ? 1.0 : diff;
 	diff = diff * (kMaxSamples - kMinSamples);
 	
 	/* default sample size */
