@@ -4,21 +4,9 @@ SkyNet::SkyNet()
 {
 	printf("Initializing..\r\n");
 	
-	m_motor1 = new Jaguar(1);
-	m_servo1 = new Servo(4,4);
-	
 	m_ds = DriverStation::GetInstance();
 	m_priorPacketNumber = 0;
 	m_dsPacketsPerSecond = 0;
-	
-	m_rightStick = new Joystick(1);
-	m_leftStick = new Joystick(2);
-	
-//	m_analogModules[0] = AnalogModule::GetInstance(1);
-//	m_analogModules[1] = AnalogModule::GetInstance(2);
-	
-//	m_analogModules[0]->SetAverageBits(1,8);
-	
 	
 	m_autoCount = 0;
 	m_teleCount = 0;
@@ -26,7 +14,6 @@ SkyNet::SkyNet()
 	m_trackingCamera = new TrackingCamera(true);
 	m_trackingTurret = new TrackingTurret();
 	Wait(2.0);
-	m_camToDash = new PCVideoServer;
 }
 void SkyNet::DisabledInit()
 {
@@ -91,7 +78,6 @@ void SkyNet::TeleopPeriodic()
 	{
 		//For 50Hz Stuff
 		
-		m_servo1->Set(.5);
 	}
 	
 	if (m_ds->GetPacketNumber() != m_priorPacketNumber)
