@@ -4,21 +4,28 @@ SkyNet::SkyNet()
 {
 	printf("Initializing..\r\n");
 	
-	m_ds = DriverStation::GetInstance();
+	m_hardwareInterface = new HardwareInterface(true);
+	
+	m_ds = m_hardwareInterface->GetDriverStation();
 	m_priorPacketNumber = 0;
-	m_dsPacketsPerSecond = 0;
 	
-	m_autoCount = 0;
-	m_teleCount = 0;
+	m_analogModules[0] = m_hardwareInterface->GetAnalogModule(0);
+	m_analogModules[1] = m_hardwareInterface->GetAnalogModule(1);
 	
-	m_trackingCamera = new TrackingCamera(true);
-	m_trackingTurret = new TrackingTurret();
-	Wait(2.0);
+	m_analogModules[0]->SetAverageBits(1,8);
+	m_analogModules[1]->SetAverageBits(1,8);
+	
+
+	
+	//m_trackingCamera = new TrackingCamera(true);
+	//m_trackingTurret = new TrackingTurret();
 }
+
 void SkyNet::DisabledInit()
 {
 	printf("Inititializing Disabled Mode..\r\n");
 }
+
 void SkyNet::AutonomousInit()
 {
 	printf("Inititializing Autonomous Mode..\r\n");
@@ -28,6 +35,7 @@ void SkyNet::AutonomousInit()
 	m_positionX = 0;
 	m_positionY = 0;
 }
+
 void SkyNet::TeleopInit()
 {
 	printf("Inititializing Teleop Mode..\r\n");
@@ -38,6 +46,7 @@ void SkyNet::DisabledPeriodic()
 {
 	GetWatchdog().Feed();
 }
+
 void SkyNet::AutonomousPeriodic()
 {
 	GetWatchdog().Feed();
@@ -46,7 +55,9 @@ void SkyNet::AutonomousPeriodic()
 	//Finding the position of the camera
 	if ((m_autoCount % 10) == 0)
 	{
-		if (m_inView = m_trackingCamera->Update())
+		/* Runs at 20Hz */
+		
+		/*if (m_inView = m_trackingCamera->Update())
 		{
 			m_positionX = m_trackingCamera->getTargetX();
 			m_positionY = m_trackingCamera->getTargetY();
@@ -61,34 +72,49 @@ void SkyNet::AutonomousPeriodic()
 		else
 		{
 			m_trackingTurret->stopTurret();
-		}
+		}*/
 	}
+	
+	if ((m_autoCount % 4) == 0)
+	{
+		/* Runs at 50Hz */
+			
+		m_hardwareInterface->UpdateDashboard(true);
+	}
+
 }
+
 void SkyNet::TeleopPeriodic()
 {
 	GetWatchdog().Feed();
 	m_teleCount++;
 		
+	if ((m_teleCount % 200) == 0)
+	{
+		/* Runs at 1Hz */
+	}
+	
+	if ((m_teleCount % 20) == 0)
+	{
+		/* Runs at 10Hz */
+	}
+	
+	if ((m_teleCount % 4) == 0)
+	{
+		/* Runs at 50Hz */
+		
+		m_hardwareInterface->UpdateDashboard(true);
+	}
 	
 	if ((m_teleCount % 2) == 0)
 	{
-		//For 100Hz Stuff
-	}
-	if ((m_teleCount % 4) == 0)
-	{
-		//For 50Hz Stuff
-		
+		/* Runs at 100Hz */
 	}
 	
 	if (m_ds->GetPacketNumber() != m_priorPacketNumber)
 	{
-		//Code dependent on driverstation/human input here
+		/* Code dependent on driverstation/human input here */
 		
-	}
-	
-	if ((m_teleCount % 200) == 0)
-	{
-		printf("TeleOperated Loop Counter: %d\r\n",m_teleCount);
 	}
 	
 }
