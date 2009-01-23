@@ -9,7 +9,7 @@ class PIDServo : public PIDOutput, public Servo
 {
 public:
 	PIDServo(UINT32 slot, UINT32 channel);
-	~PIDServo();
+	virtual ~PIDServo();
 	
 	void PIDWrite(float output);
 };

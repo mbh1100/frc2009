@@ -9,7 +9,7 @@ class PIDJaguar : public PIDOutput, public Jaguar
 {
 public:
 	PIDJaguar(UINT32 slot, UINT32 channel);
-	~PIDJaguar();
+	virtual ~PIDJaguar();
 	
 	void PIDWrite(float output);
 };
