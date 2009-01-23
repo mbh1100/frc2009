@@ -3,6 +3,8 @@
 
 #include "WPILib.h"
 #include "PCVideoServer.h"
+#include "AxisCamera.h"
+#include "FrcError.h"
 
 #include "SmartRelay.h"
 
@@ -23,7 +25,7 @@
 class HardwareInterface : public SensorBase
 {
 public:
-	HardwareInterface(bool camera);
+	HardwareInterface(bool camera, bool cameraServer);
 	virtual ~HardwareInterface();
 	
 	void UpdateDashboard(bool cameraState);

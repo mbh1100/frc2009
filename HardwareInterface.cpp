@@ -1,12 +1,13 @@
 #include "HardwareInterface.h"
 
 /* Initializes HardwareInterface.
- * if camera is true then a PCVideoServer will be started to
+ * if camera is true then a camera task will be generated and if
+ * cameraServer is true it will also start a PCImageServer to
  * feed images to a connected Dashboard computer. Most hardware
  * is initialized to NULL and waits for a formal request using
  * the Get methods before getting instaciated.
  */
-HardwareInterface::HardwareInterface(bool camera) : m_ds (DriverStation::GetInstance())
+HardwareInterface::HardwareInterface(bool camera, bool cameraServer) : m_ds (DriverStation::GetInstance())
 {
 	/* Slot Numbers for hardware */
 	kAnalogSlotNumbers[0] = 1;
@@ -14,14 +15,27 @@ HardwareInterface::HardwareInterface(bool camera) : m_ds (DriverStation::GetInst
 	kDigitalSlotNumbers[0] = 4;
 	kDigitalSlotNumbers[1] = 6;
 	
+	int frameRate = 10, compression = 0;
+	ImageSize resolution = k320x240;
+	ImageRotation imageRotation = ROT_0;
+	
 	if (camera)
 	{
-		/* Wait to ensure camera is initialized */
-		Wait(3.0);
+		/* Initialize the camera */
+		if (!StartCameraTask(frameRate, compression, resolution, imageRotation))
+		{
+			printf("Camera failed to initialize! Error Code %s\r\n", GetVisionErrorText(GetLastVisionError()));
+		}
 		
-		/* Open connection to dashboard comput er then wait for robot to ask for image flow */
-		m_cameraFeed = new PCVideoServer();
-		m_cameraState = true;
+		if (cameraServer)
+		{
+			/* Wait to ensure camera is initialized */
+			Wait(2.0);
+		
+			/* Open connection to dashboard comput er then wait for robot to ask for image flow */
+			m_cameraFeed = new PCVideoServer();
+			m_cameraState = true;
+		}
 	}
 	else
 	{
