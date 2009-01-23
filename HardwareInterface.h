@@ -6,10 +6,7 @@
 #include "AxisCamera.h"
 #include "FrcError.h"
 
-#include "Devices/SmartRelay.h"
-#include "Devices/PIDJaguar.h"
-#include "Devices/PIDVictor.h"
-#include "Devices/PIDServo.h"
+#include "SmartRelay.h"
 
 
 /* This class contains all the nessisary hardware declartions for the robot.
@@ -21,6 +18,9 @@
  * 
  * NOTE: The slot numbers for the cRIO modules are initialized in the
  * constructor, so if those modules are moved be sure to change those values.
+ * 
+ * TODO: Add Joystick support to both HardwareInterface and to the packets
+ * that dashboard expects so that joystick data can be read from dashboard.
  */
 class HardwareInterface : public SensorBase
 {
@@ -35,16 +35,13 @@ public:
 	Jaguar* GetJaguar(UINT8 moduleNum, UINT8 channel);
 	Victor* GetVictor(UINT8 moduleNum, UINT8 channel);
 	Servo* GetServo(UINT8 moduleNum, UINT8 channel);
-	PIDJaguar* GetPIDJaguar(UINT8 moduleNum, UINT8 channel);
-	PIDVictor* GetPIDVictor(UINT8 moduleNum, UINT8 channel);
-	PIDServo* GetPIDServo(UINT8 moduleNum, UINT8 channel);
 	SmartRelay* GetSmartRelay(UINT8 moduleNum, UINT8 channel);
 	Solenoid* GetSolenoid(UINT8 channel);
 	Joystick* GetJoystick(UINT8 port);
 	DriverStation* GetDriverStation();
 	
-	static UINT8 kAnalogSlotNumbers[kAnalogModules];
-	static UINT8 kDigitalSlotNumbers[kDigitalModules];
+	UINT8 kAnalogSlotNumbers[kAnalogModules];
+	UINT8 kDigitalSlotNumbers[kDigitalModules];
 	static const UINT8 kSolenoidSlotNumber = 8;
 	static const UINT8 kJoystickPorts = 4;
 	static const UINT8 kJoystickButtons = 12;
