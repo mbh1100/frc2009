@@ -43,8 +43,8 @@ public:
 	Joystick* GetJoystick(UINT8 port);
 	DriverStation* GetDriverStation();
 	
-	static UINT8 kAnalogSlotNumbers[kAnalogModules];
-	static UINT8 kDigitalSlotNumbers[kDigitalModules];
+	UINT8 kAnalogSlotNumbers[kAnalogModules];
+	UINT8 kDigitalSlotNumbers[kDigitalModules];
 	static const UINT8 kSolenoidSlotNumber = 8;
 	static const UINT8 kJoystickPorts = 4;
 	static const UINT8 kJoystickButtons = 12;
