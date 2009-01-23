@@ -9,7 +9,7 @@
 #include "TrackAPI.h" 
 #include "PCVideoServer.h"
 
-#include "TrackingTurret.h"
+#include "Controllers/TrackingTurret.h"
 #include "HardwareInterface.h"
 
 class SkyNet : public IterativeRobot
