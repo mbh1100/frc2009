@@ -4,7 +4,7 @@ SkyNet::SkyNet()
 {
 	printf("Initializing..\r\n");
 	
-	m_hardwareInterface = new HardwareInterface(true);
+	m_hardwareInterface = new HardwareInterface(true, true);
 	
 	m_ds = m_hardwareInterface->GetDriverStation();
 	m_priorPacketNumber = 0;
