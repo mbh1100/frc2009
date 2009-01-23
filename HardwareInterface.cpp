@@ -348,6 +348,66 @@ Servo* HardwareInterface::GetServo(UINT8 moduleNum, UINT8 channel)
 	}
 }
 
+/* If the requested PWM is not in use, return a pointer to a new
+ * PIDJaguar on that channel, otherwise return NULL.
+ * 
+ * Note that the module number is not literal, 0 is the first slot 
+ * in kDigitalSlotNumbers, 1 is the second, ect...
+ */
+PIDJaguar* HardwareInterface::GetPIDJaguar(UINT8 moduleNum, UINT8 channel)
+{
+	if (m_pwms[moduleNum][channel - 1] == NULL)
+	{
+		m_pwms[moduleNum][channel - 1] = new PIDJaguar(kDigitalSlotNumbers[moduleNum], channel);
+			
+		return (PIDJaguar*)(m_pwms[moduleNum][channel - 1]);
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+/* If the requested PWM is not in use, return a pointer to a new
+ * PIDVictor on that channel, otherwise return NULL.
+ * 
+ * Note that the module number is not literal, 0 is the first slot 
+ * in kDigitalSlotNumbers, 1 is the second, ect...
+ */
+PIDVictor* HardwareInterface::GetPIDVictor(UINT8 moduleNum, UINT8 channel)
+{
+	if (m_pwms[moduleNum][channel - 1] == NULL)
+	{
+		m_pwms[moduleNum][channel - 1] = new PIDVictor(kDigitalSlotNumbers[moduleNum], channel);
+			
+		return (PIDVictor*)(m_pwms[moduleNum][channel - 1]);
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+/* If the requested PWM is not in use, return a pointer to a new
+ * PIDServo on that channel, otherwise return NULL.
+ * 
+ * Note that the module number is not literal, 0 is the first slot 
+ * in kDigitalSlotNumbers, 1 is the second, ect...
+ */
+PIDServo* HardwareInterface::GetPIDServo(UINT8 moduleNum, UINT8 channel)
+{
+	if (m_pwms[moduleNum][channel - 1] == NULL)
+	{
+		m_pwms[moduleNum][channel - 1] = new PIDServo(kDigitalSlotNumbers[moduleNum], channel);
+			
+		return (PIDServo*)(m_pwms[moduleNum][channel - 1]);
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
 /* If the requested Relay is not in use, instantiate it, then return a
  * pointer to the Relay.
  * 
