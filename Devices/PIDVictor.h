@@ -9,7 +9,7 @@ class PIDVictor : public PIDOutput, public Victor
 {
 public:
 	PIDVictor(UINT32 slot, UINT32 channel);
-	~PIDVictor();
+	virtual ~PIDVictor();
 	
 	void PIDWrite(float output);
 };
