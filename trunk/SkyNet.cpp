@@ -15,10 +15,12 @@ SkyNet::SkyNet()
 	m_analogModules[0]->SetAverageBits(1,8);
 	m_analogModules[1]->SetAverageBits(1,8);
 	
-
+	m_turretMotor = m_hardwareInterface->GetJaguar(0, 7);
+	m_cameraServo = m_hardwareInterface->GetServo(0, 8);
+	m_joystick1 = m_hardwareInterface->GetJoystick(1);
+	m_joystick2 = m_hardwareInterface->GetJoystick(2);
 	
-	//m_trackingCamera = new TrackingCamera(true);
-	//m_trackingTurret = new TrackingTurret();
+	m_trackingTurret = new TrackingTurret(m_turretMotor, m_cameraServo, m_joystick1, m_joystick2);
 }
 
 void SkyNet::DisabledInit()
@@ -30,10 +32,6 @@ void SkyNet::AutonomousInit()
 {
 	printf("Inititializing Autonomous Mode..\r\n");
 	m_autoCount = 0;
-	
-	m_inView = false;
-	m_positionX = 0;
-	m_positionY = 0;
 }
 
 void SkyNet::TeleopInit()
@@ -42,6 +40,7 @@ void SkyNet::TeleopInit()
 	
 	m_teleCount = 0;
 }
+
 void SkyNet::DisabledPeriodic()
 {
 	GetWatchdog().Feed();
@@ -55,24 +54,7 @@ void SkyNet::AutonomousPeriodic()
 	//Finding the position of the camera
 	if ((m_autoCount % 10) == 0)
 	{
-		/* Runs at 20Hz */
-		
-		/*if (m_inView = m_trackingCamera->Update())
-		{
-			m_positionX = m_trackingCamera->getTargetX();
-			m_positionY = m_trackingCamera->getTargetY();
-			printf("Target X: %f\n",m_positionX);
-			printf("Target Y: %f\n",m_positionY);
-		}
-		if (m_inView)
-		{
-			bool foundTarget = m_trackingTurret->aimTurret(m_positionX,m_positionY);
-			printf("Found target: %d\n",(int)foundTarget);
-		}
-		else
-		{
-			m_trackingTurret->stopTurret();
-		}*/
+		m_trackingTurret->Update();
 	}
 	
 	if ((m_autoCount % 4) == 0)

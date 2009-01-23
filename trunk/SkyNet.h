@@ -1,7 +1,7 @@
 #include <iostream.h>
 #include "WPILib.h"
 #include <taskLib.h>
-#include "math.h"
+#include <cmath>
 
 #include "AxisCamera.h" 
 #include "BaeUtilities.h"
@@ -9,7 +9,6 @@
 #include "TrackAPI.h" 
 #include "PCVideoServer.h"
 
-#include "TrackingCamera.h"
 #include "TrackingTurret.h"
 #include "HardwareInterface.h"
 #include "SmartJaguar.h"
@@ -30,14 +29,19 @@ public:
 	
 	HardwareInterface *m_hardwareInterface;
 	
+	Joystick *m_joystick1;
+	Joystick *m_joystick2;
+	
+	Jaguar *m_turretMotor;
+	Servo *m_cameraServo;
+	
 	AnalogModule *m_analogModules[SensorBase::kAnalogModules];
 	
-	DriverStation *m_ds;
-		
+	DriverStation *m_ds;	
+	
 	//Camera Locating
 	bool m_inView;
 	float m_positionX,m_positionY;
-	
 	
 	UINT32 m_priorPacketNumber, m_autoCount, m_teleCount;
 };
