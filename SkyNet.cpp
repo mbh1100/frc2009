@@ -95,6 +95,8 @@ void SkyNet::TeleopPeriodic()
 	
 	if (m_ds->GetPacketNumber() != m_priorPacketNumber)
 	{
+		m_priorPacketNumber = m_ds->GetPacketNumber();
+		
 		/* Code dependent on driverstation/human input here */
 		
 	}
