@@ -27,19 +27,11 @@ TrackingCamera::TrackingCamera(bool topColorGreen)
 	
 	m_foundPink = false;
 	m_foundGreen = false;
-	int frameRate = 10, compression = 0;
-	ImageSize resolution = k320x240;
-	ImageRotation imageRotation = ROT_0;
 	
 	m_minPartToImage = .25;
 	m_maxPartToImage = 10.0;
-	
-	/* Initialize Camera */
-	if (StartCameraTask(frameRate, compression, resolution, imageRotation) == -1)
-	{
-		printf("Failed to spawn camera task; Error code %s\r\n",GetVisionErrorText(GetLastVisionError()));
-	}
 }
+
 bool TrackingCamera::Update()
 {
 	if (FindColor(IMAQ_HSL, &m_tdataGreen.hue, &m_tdataGreen.saturation, &m_tdataGreen.luminance, &m_parGreen)
@@ -97,12 +89,14 @@ bool TrackingCamera::Update()
 		return false;
 	}
 }
-float TrackingCamera::getTargetX()
+
+float TrackingCamera::GetTargetX()
 {
 	float averageX = (m_greenX + m_pinkX)/2;
 	return averageX;
 }
-float TrackingCamera::getTargetY()
+
+float TrackingCamera::GetTargetY()
 {
 	float y = -(m_greenY+m_pinkY)/2;
 	return y;
