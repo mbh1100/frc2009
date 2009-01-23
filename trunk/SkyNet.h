@@ -11,7 +11,6 @@
 
 #include "TrackingTurret.h"
 #include "HardwareInterface.h"
-#include "SmartJaguar.h"
 
 class SkyNet : public IterativeRobot
 {
