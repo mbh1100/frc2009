@@ -86,7 +86,7 @@ float PIDEncoder::PIDGet()
 		m_prevVelocity = tmpVelocity;
 		
 		Reset();
-		
+		printf("Acceleration: %f\r\n", acceleration);
 		return acceleration;
 	}
 	

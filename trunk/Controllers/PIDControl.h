@@ -1,28 +1,38 @@
 #include "math.h"
 #include <iostream.h>
+#include "PIDSource.h"
+#include "PIDOutput.h"
 
 class PIDControl
 {
 public:
-	PIDControl(float p, float i, float d, float allowedError);
+	PIDControl();
 	~PIDControl();
 	
-	void SetDesired(float desiredValue);
-	void SetDesired(float p, float i, float d);
-	void SetDesired(float maxOutput, float minOutput, float increment, float desiredValue, float relation);
-	void SetDesired(float maxOutput, float minOutput, float increment, float desiredValue, float relation, float p, float i, float d, float allowedError);
-	void ResetLoop();
-	float CalcPID(float current);
-	bool IsDone(float current);
+	void SetSetpoint(float setpoint);
+	void SetPID(float p, float i, float d);
+	void SetSource(PIDSource* mySource, float maxInput, float minInput);
+	void SetOutput(PIDOutput* myOutput, float maxOutput, float maxInput);
+	void SetError(float errorPercent, float errorIncrement);
+	void Reset();
+	bool Calculate();
+	void Disable();
+	void Enable();
 
+private:
+	float ChangeError(float inputError);
+	
 protected:
+	bool m_enabled;
+	
+	PIDSource *m_source;
+	PIDOutput *m_output;
+	
 	float m_p, m_i, m_d;
-	float m_relateInOut;
+	float m_errorPercent, m_errorIncrement;
+	float m_maxOutput, m_minOutput, m_maxInput, m_minInput;
+	float m_setpoint;
 	
-	float m_maxOutput, m_minOutput;
-	float m_increment, m_desiredValue;
-	
-	float m_errorSum, m_allowedError;
-	float m_previousValue;
-	float m_cycleCount;
+	float m_previousValue, m_cycleCount;
+	float m_errorSum, m_errorAllowed;	
 };

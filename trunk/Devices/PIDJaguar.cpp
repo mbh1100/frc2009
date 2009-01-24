@@ -16,7 +16,7 @@ PIDJaguar::~PIDJaguar()
  */
 void PIDJaguar::PIDWrite(float output)
 {
-	//printf("PIDJag in value: %f\r\n", output);
+	printf("%d PIDJag in value: %f\r\n", (int)this, output);
 	Set(output);
-	//printf("PIDJag out value: %f\r\n", Get());
+	printf("%d PIDJag out value: %f\r\n", (int)this, Get());
 }
