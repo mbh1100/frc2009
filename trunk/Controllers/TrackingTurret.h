@@ -3,12 +3,14 @@
 #include <cmath>
 #include "WPILib.h"
 #include "PIDControl.h"
+#include "PIDController.h"
 #include "TrackingCamera.h"
+#include "../Devices/PIDJaguar.h"
 
 class TrackingTurret
 {
 public:
-	TrackingTurret(Jaguar* motor1, Servo* servo2, Joystick* test1, Joystick* test2);
+	TrackingTurret(PIDJaguar* motor1, Servo* servo2, Joystick* test1, Joystick* test2);
 	~TrackingTurret();
 	
 	void Update();
@@ -19,7 +21,10 @@ public:
 
 protected:
 	TrackingCamera *m_trackingCamera;
-	PIDControl *m_calcSpeedX,*m_calcSpeedY;
+	PIDControl *m_calcSpeedY;//, *m_calcSpeedX;
+	
+	PIDController *m_calcSpeedX;
+	
 	float m_allowedErrorX, m_allowedErrorY;
 	float m_pX, m_iX, m_dX, m_pY, m_iY, m_dY;
 	float m_maxOutX, m_minOutX, m_incrementX, m_desiredX;
@@ -37,6 +42,6 @@ protected:
 	PIDControl *m_calcScan;
 	float m_maxOutScan, m_minOutScan, m_potLeft, m_potRight;
 	Servo *m_cameraServo;
-	Jaguar *m_turretMotor;
+	PIDJaguar *m_turretMotor;
 	Joystick *m_joystick1, *m_joystick2;
 };
