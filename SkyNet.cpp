@@ -15,11 +15,13 @@ SkyNet::SkyNet()
 	m_analogModules[0]->SetAverageBits(1,8);
 	m_analogModules[1]->SetAverageBits(1,8);
 	
-	m_turretMotor = m_hardwareInterface->GetJaguar(0, 7);
+	m_turretMotor = m_hardwareInterface->GetPIDJaguar(0, 7);
 	m_cameraServo = m_hardwareInterface->GetServo(0, 8);
 	m_joystick1 = m_hardwareInterface->GetJoystick(1);
 	m_joystick2 = m_hardwareInterface->GetJoystick(2);
 	
+	m_turretMotor->EnableDeadbandElimination(true);
+	m_turretMotor->SetBounds(255, 136, 128, 120, 0);
 	m_trackingTurret = new TrackingTurret(m_turretMotor, m_cameraServo, m_joystick1, m_joystick2);
 }
 

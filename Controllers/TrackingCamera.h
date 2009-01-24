@@ -2,16 +2,19 @@
 #include <taskLib.h>
 #include <cmath>
 #include "TrackAPI.h"
+#include "PIDSource.h"
 
-class TrackingCamera
+class TrackingCamera : public PIDSource
 {
 public:
 	TrackingCamera(bool topColorGreen);
-	~TrackingCamera();
+	virtual ~TrackingCamera();
 	
 	bool Update();
 	float GetTargetX();
 	float GetTargetY();
+	
+	float PIDGet();
 
 protected:
 	/* Target & Camera Data */

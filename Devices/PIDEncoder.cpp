@@ -89,4 +89,6 @@ float PIDEncoder::PIDGet()
 		
 		return acceleration;
 	}
+	
+	return 0.0;
 }

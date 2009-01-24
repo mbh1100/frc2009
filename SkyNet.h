@@ -23,7 +23,6 @@ public:
 	void AutonomousPeriodic();
 	void TeleopPeriodic();
 	
-	TrackingCamera *m_trackingCamera;
 	TrackingTurret *m_trackingTurret;
 	
 	HardwareInterface *m_hardwareInterface;
@@ -31,7 +30,7 @@ public:
 	Joystick *m_joystick1;
 	Joystick *m_joystick2;
 	
-	Jaguar *m_turretMotor;
+	PIDJaguar *m_turretMotor;
 	Servo *m_cameraServo;
 	
 	AnalogModule *m_analogModules[SensorBase::kAnalogModules];

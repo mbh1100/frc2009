@@ -32,6 +32,11 @@ TrackingCamera::TrackingCamera(bool topColorGreen)
 	m_maxPartToImage = 10.0;
 }
 
+TrackingCamera::~TrackingCamera()
+{
+	
+}
+
 bool TrackingCamera::Update()
 {
 	if (FindColor(IMAQ_HSL, &m_tdataGreen.hue, &m_tdataGreen.saturation, &m_tdataGreen.luminance, &m_parGreen)
@@ -100,4 +105,9 @@ float TrackingCamera::GetTargetY()
 {
 	float y = -(m_greenY+m_pinkY)/2;
 	return y;
+}
+
+float TrackingCamera::PIDGet()
+{
+	return GetTargetX();
 }

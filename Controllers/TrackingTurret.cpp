@@ -1,7 +1,9 @@
 #include "TrackingTurret.h"
 
-TrackingTurret::TrackingTurret(Jaguar* motor7, Servo* servo8, Joystick* test1, Joystick* test2)
+TrackingTurret::TrackingTurret(PIDJaguar* motor7, Servo* servo8, Joystick* test1, Joystick* test2)
 {
+	m_trackingCamera = new TrackingCamera(true);
+	
 	m_valueX = 0;
 	m_valueY = 0;
 	m_currentY = 0;
@@ -13,28 +15,42 @@ TrackingTurret::TrackingTurret(Jaguar* motor7, Servo* servo8, Joystick* test1, J
 	m_turretMotor = motor7;
 	
 	//All variables
-	m_pX = 0.1;
-	m_iX = 0.0001;
-	m_dX = 0.0002;
+	m_pX = -0.0000085; //-.000013
+	m_iX = -0.000000; //-0.0000001
+	m_dX = -0.000000;
+	
 	m_pY = 0.001;
 	m_iY = 0.0001;
 	m_dY = 0.002;
+	
 	m_allowedErrorX = 100;
 	m_allowedErrorY = 50;
+	
 	m_maxOutX = 0.1;
 	m_minOutX = -0.1;
+	
 	m_relationX = 0.0005;
 	m_incrementX = 0.001;
 	m_desiredX = 0.0;
+	
 	m_maxOutY = 0.001;
 	m_minOutY = 0.0;
+	
 	m_relationY = 0.0005;
 	m_incrementY = .00001;
 	m_desiredY = 0.0;	
 	
-	m_calcSpeedX = new PIDControl(m_pX, m_iX, m_dX, m_allowedErrorX);
+	//m_calcSpeedX = new PIDControl(m_pX, m_iX, m_dX, m_allowedErrorX);
+	m_calcSpeedX = new PIDController(m_pX, m_iX, m_dX, .02);
+	m_calcSpeedX->SetTolerence(7.5);
+	m_calcSpeedX->SetInput(m_trackingCamera, -1000.0, 1000.0);
+	m_calcSpeedX->SetSetpoint(0.0);
+	m_calcSpeedX->SetOutput(m_turretMotor, -0.4, 0.4);
+	m_calcSpeedX->Enable();
+	
 	m_calcSpeedY = new PIDControl(m_pY, m_iY, m_dY, m_allowedErrorY);
-	m_calcSpeedX->SetDesired(m_maxOutX, m_minOutX, m_incrementX, m_desiredX, m_relationX);
+	
+	//m_calcSpeedX->SetDesired(m_maxOutX, m_minOutX, m_incrementX, m_desiredX, m_relationX);
 	m_calcSpeedY->SetDesired(m_maxOutY, m_minOutY, m_incrementX, m_desiredX, m_relationY);
 	
 	m_scanLoop = 0;
@@ -49,12 +65,11 @@ TrackingTurret::TrackingTurret(Jaguar* motor7, Servo* servo8, Joystick* test1, J
 	m_calcScan = new PIDControl(m_scanP, m_scanI, m_scanD,10.0);
 	m_calcScan->SetDesired(m_maxOutScan, m_minOutScan, 0.0, m_potLeft, m_relationX);
 	
-	m_trackingCamera = new TrackingCamera(true);
 }
 
 void TrackingTurret::Update()
 {
-	if (m_joystick1->GetRawButton(11))
+	/*if (m_joystick1->GetRawButton(11))
 	{
 		m_pX -= .0001;
 	}
@@ -82,7 +97,7 @@ void TrackingTurret::Update()
 		m_dX += .0001;
 	}
 	printf("P: %f   I: %f   D: %f\r\n",m_pX,m_iX,m_dX);
-	m_calcSpeedX->SetDesired(m_pX,m_iX,m_dX);
+	m_calcSpeedX->SetDesired(m_pX,m_iX,m_dX);*/
 	
 	if (m_inView = m_trackingCamera->Update())
 	{
@@ -105,25 +120,18 @@ void TrackingTurret::Update()
 
 bool TrackingTurret::AimTurret()
 {	
-	bool xDone,yDone;
-	xDone = m_calcSpeedX->IsDone(m_distanceX);
+	m_calcSpeedX->Enable();
+	bool yDone;
+	//xDone = m_calcSpeedX->IsDone(m_distanceX);
 	yDone = m_calcSpeedY->IsDone(m_distanceY);
-	if(xDone && yDone)
+	if(yDone && fabs(m_distanceX) < 100)
 	{
 		m_cameraServo->Set(0.0);
-		m_turretMotor->Set(0.0);
+		//m_turretMotor->Set(0.0);
 		return true;
 	}
 	else
 	{
-		if(!xDone)
-		{
-			m_valueX = m_calcSpeedX->CalcPID(m_distanceX);
-		}
-		else
-		{
-			m_valueX = 0.0;
-		}
 		if(!yDone)
 		{
 			m_valueY = m_calcSpeedY->CalcPID(m_distanceY);
@@ -140,20 +148,11 @@ bool TrackingTurret::AimTurret()
 			m_currentY = 0.0;
 		}
 		
-		printf("Output to motor: %f\n", m_valueX);
+		//printf("Output to motor: %f\n", m_valueX);
 		printf("Output to servo: %f\n", m_currentY);
 		
-		if(m_valueX > 0)
-		{
-			m_valueX += .05;
-		}
-		else
-		{
-			m_valueX -= .05;
-		}
-		
 		m_cameraServo->Set(m_currentY);
-		m_turretMotor->Set(-(m_valueX));
+		//m_turretMotor->Set(-(m_valueX));
 		return false;
 	}
 }
@@ -185,5 +184,6 @@ void TrackingTurret::ResetScan()
 void TrackingTurret::StopTurret()
 {
 	m_cameraServo->Set(0.0);
-	m_turretMotor->Set(0.0);
+	//m_turretMotor->Set(0.0);
+	m_calcSpeedX->Disable();
 }
