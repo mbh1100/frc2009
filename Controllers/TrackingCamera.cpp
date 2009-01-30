@@ -39,6 +39,7 @@ TrackingCamera::~TrackingCamera()
 
 bool TrackingCamera::Update()
 {
+	/* Find green */
 	if (FindColor(IMAQ_HSL, &m_tdataGreen.hue, &m_tdataGreen.saturation, &m_tdataGreen.luminance, &m_parGreen)
 				&& m_parGreen.particleToImagePercent < m_maxPartToImage
 				&& m_parGreen.particleToImagePercent > m_minPartToImage)
@@ -51,6 +52,8 @@ bool TrackingCamera::Update()
 	{
 		m_foundGreen = false;
 	}
+	
+	/* Find pink */
 	if (FindColor(IMAQ_HSL, &m_tdataPink.hue, &m_tdataPink.saturation, &m_tdataPink.luminance, &m_parPink)
 				&& m_parPink.particleToImagePercent < m_maxPartToImage
 				&& m_parPink.particleToImagePercent > m_minPartToImage) 
@@ -64,6 +67,7 @@ bool TrackingCamera::Update()
 		m_foundPink = false;
 	}
 	
+	/* Determine if pink and green are correctly oriented */
 	if (m_foundPink && m_foundGreen)
 	{		
 		if (m_topColor)
@@ -97,12 +101,14 @@ bool TrackingCamera::Update()
 
 float TrackingCamera::GetTargetX()
 {
+	/* Get the horizontal center of the target */
 	float averageX = (m_greenX + m_pinkX)/2;
 	return averageX;
 }
 
 float TrackingCamera::GetTargetY()
 {
+	/* Get the vertical center of the target */
 	float y = -(m_greenY+m_pinkY)/2;
 	return y;
 }

@@ -2,6 +2,7 @@
 
 PIDControl::PIDControl()
 {
+	/* Initialize Constants */
 	m_p = 0.0;
 	m_i = 0.0;
 	m_d = 0.0;
@@ -18,8 +19,15 @@ PIDControl::PIDControl()
 	m_previousValue = 0.0;
 	m_source = NULL;
 	m_output = NULL;
+	m_increment = false;
 	
+	m_lastOutput = 0;
 	m_enabled = true;
+}
+
+PIDControl::~PIDControl()
+{
+	
 }
 
 void PIDControl::SetSetpoint(float setpoint)
@@ -41,11 +49,12 @@ void PIDControl::SetSource(PIDSource* mySource, float maxInput, float minInput)
 	m_minInput = minInput;
 }
 
-void PIDControl::SetOutput(PIDOutput* myOutput, float maxOutput, float minOutput)
+void PIDControl::SetOutput(PIDOutput* myOutput, float maxOutput, float minOutput, bool increment)
 {
 	m_output = myOutput;
 	m_maxOutput = maxOutput;
 	m_minOutput = minOutput;
+	m_increment = increment;
 }
 
 void PIDControl::SetError(float errorPercent, float errorIncrement)
@@ -60,10 +69,12 @@ void PIDControl::Reset()
 	m_previousValue = 0;
 	m_errorSum = 0;
 	m_cycleCount = 0;
+	m_lastOutput = 0;
 }
 
 bool PIDControl::Calculate()
 {
+	/* If disabled, set output to 0.0 and reset loop */
 	if (m_enabled)
 	{
 		/* Get current value from PIDSource */
@@ -79,14 +90,17 @@ bool PIDControl::Calculate()
 		printf("Current Value: %f\r\n", current);
 		
 		/* Decide if goal has been achieved or not */
-		if (fabs(current) <= m_errorAllowed)
+		if (fabs(current - m_setpoint) <= m_errorAllowed)
 		{
-			m_output->PIDWrite(0.0);
+			/* If goal is achieved, give output value of setpoint */
+			m_output->PIDWrite(ChangeError(m_setpoint));
 			Reset();
+			m_lastOutput = ChangeError(m_setpoint);
 			return true;
 		}
 		else
 		{
+			/* If goal is not achieved... */
 			/* Calculate error in terms of the output */
 			float error = ChangeError(m_setpoint - current);
 			
@@ -139,6 +153,11 @@ bool PIDControl::Calculate()
 			
 			/* Calculate Output and Change Motor Speed */
 			float output = pVal + iVal - dVal;
+			if (m_increment)
+			{
+				output += m_lastOutput;
+			}
+
 			if (output > m_maxOutput)
 			{
 				output = m_maxOutput;
@@ -152,6 +171,7 @@ bool PIDControl::Calculate()
 			
 			m_previousValue = current;
 			m_cycleCount++;
+			m_lastOutput = output;
 			return false;
 		}
 	}

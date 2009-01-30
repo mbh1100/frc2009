@@ -1,3 +1,6 @@
+#ifndef __TRACKINGTURRET_H__
+#define __TRACKINGTURRET_H__
+
 #include <iostream.h>
 #include <taskLib.h>
 #include <cmath>
@@ -14,7 +17,6 @@ public:
 	~TrackingTurret();
 	
 	void Update();
-	bool AimTurret();
 	void ScanTarget(float currentX);
 	void ResetScan();
 	void StopTurret();
@@ -22,8 +24,11 @@ public:
 protected:
 	TrackingCamera *m_trackingCamera;
 	
+	/* Declare Objects */
 	PIDControl *m_calcSpeedX;
 	PIDJaguar *m_turretMotor;
+	
+	/* Declare constants */
 	float m_pX, m_iX, m_dX;
 	float m_setpointX, m_maxInputX, m_minInputX, m_maxOutputX, m_minOutputX;	
 	float m_errorPercentX, m_errorIncrementX;
@@ -34,3 +39,6 @@ protected:
 	Servo *m_cameraServo;
 	Joystick *m_joystick1, *m_joystick2;
 };
+
+#endif
+

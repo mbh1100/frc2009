@@ -4,23 +4,30 @@ SkyNet::SkyNet()
 {
 	printf("Initializing..\r\n");
 	
+	/* Initialize Hardware Interface & Driver station*/
 	m_hardwareInterface = new HardwareInterface(true, true);
 	
 	m_ds = m_hardwareInterface->GetDriverStation();
 	m_priorPacketNumber = 0;
 	
+	/* Initialize Analog Modules */
 	m_analogModules[0] = m_hardwareInterface->GetAnalogModule(0);
 	m_analogModules[1] = m_hardwareInterface->GetAnalogModule(1);
 	
 	m_analogModules[0]->SetAverageBits(1,8);
 	m_analogModules[1]->SetAverageBits(1,8);
 	
+	/* Initialize Camera motors and control */
 	m_turretMotor = m_hardwareInterface->GetPIDJaguar(0, 7);
 	m_cameraServo = m_hardwareInterface->GetServo(0, 8);
 	m_joystick1 = m_hardwareInterface->GetJoystick(1);
 	m_joystick2 = m_hardwareInterface->GetJoystick(2);
 	
-	//Saturday
+	m_turretMotor->EnableDeadbandElimination(true);
+	m_turretMotor->SetBounds(255, 136, 128, 120, 0);
+	m_trackingTurret = new TrackingTurret(m_turretMotor, m_cameraServo, m_joystick1, m_joystick2);
+	
+	/* Initialize Drive motors and control */
 	/*m_driveP = .1;
 	m_driveI = .00;
 	m_driveD = .00;
@@ -41,10 +48,6 @@ SkyNet::SkyNet()
 	m_calcLeftDrive->SetInput(m_encoderLeft, -1.0, 1.0);	
 	m_calcLeftDrive->SetOutput(m_leftDriveMotor, -1.0, 1.0);
 	m_calcLeftDrive->SetSetpoint(0.0);*/
-	
-	m_turretMotor->EnableDeadbandElimination(true);
-	m_turretMotor->SetBounds(255, 136, 128, 120, 0);
-	m_trackingTurret = new TrackingTurret(m_turretMotor, m_cameraServo, m_joystick1, m_joystick2);
 }
 
 void SkyNet::DisabledInit()
@@ -81,7 +84,7 @@ void SkyNet::AutonomousPeriodic()
 	GetWatchdog().Feed();
 	m_autoCount++;
 	
-	//Finding the position of the camera
+	/* Finding & tracking the target with the camera */
 	if ((m_autoCount % 10) == 0)
 	{
 		m_trackingTurret->Update();
@@ -128,8 +131,6 @@ void SkyNet::TeleopPeriodic()
 		m_priorPacketNumber = m_ds->GetPacketNumber();
 		
 		/* Code dependent on driverstation/human input here */
-		
-		//m_calcLeftDrive->SetSetpoint(m_joystick1->GetY());
 	}
 	
 }

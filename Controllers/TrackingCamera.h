@@ -1,3 +1,6 @@
+#ifndef __TRACKINGCAMERA_H__
+#define __TRACKINGCAMERA_H__
+
 #include <iostream.h>
 #include <taskLib.h>
 #include <cmath>
@@ -27,3 +30,5 @@ protected:
 	float m_greenX, m_greenY, m_pinkX, m_pinkY;
 	float m_minPartToImage, m_maxPartToImage;
 };
+
+#endif
