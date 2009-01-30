@@ -24,30 +24,28 @@ public:
 	void DisabledPeriodic();
 	void AutonomousPeriodic();
 	void TeleopPeriodic();
-	
-	TrackingTurret *m_trackingTurret;
-	
+		
 	HardwareInterface *m_hardwareInterface;
 	
+	/* Joysticks and other Controls */
 	Joystick *m_joystick1;
 	Joystick *m_joystick2;
 	
+	/* Drive Variables */
 	//PIDEncoder *m_encoderLeft, *m_encoderRight;
 	//PIDController *m_calcLeftDrive, *m_calcRightDrive;
 	//float m_driveP, m_driveI, m_driveD;
 	//PIDJaguar *m_rightDriveMotor, *m_leftDriveMotor; 
 	
+	/* Camera Variables */
 	PIDJaguar *m_turretMotor;
 	Servo *m_cameraServo;
+	TrackingTurret *m_trackingTurret;
 	
 	
 	AnalogModule *m_analogModules[SensorBase::kAnalogModules];
 	
 	DriverStation *m_ds;	
-	
-	//Camera Locating
-	bool m_inView;
-	float m_positionX,m_positionY;
-	
+		
 	UINT32 m_priorPacketNumber, m_autoCount, m_teleCount;
 };

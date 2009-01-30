@@ -4,13 +4,14 @@ TrackingTurret::TrackingTurret(PIDJaguar* motor7, Servo* servo8, Joystick* test1
 {
 	m_trackingCamera = new TrackingCamera(true);
 	
+	//Temporary
 	m_joystick1 = test1;
 	m_joystick2 =  test2;
 	
 	//m_cameraServo = servo8;
 	m_turretMotor = motor7;
 	
-	//All variables
+	//All variables for PIDLoop for horizontal movement
 	m_pX = -0.035;  //-0.03    Faster: -0.035
 	m_iX = -0.03; //-0.0372  Faster: -0.030
 	m_dX = -0.00006;          //Faster: 0.00006
@@ -30,8 +31,14 @@ TrackingTurret::TrackingTurret(PIDJaguar* motor7, Servo* servo8, Joystick* test1
 	m_calcSpeedX->SetError(m_errorPercentX, m_errorIncrementX);
 }
 
+TrackingTurret::~TrackingTurret()
+{
+	
+}
+
 void TrackingTurret::Update()
 {
+	//Temporary code to help determine best values for PID loop
 	if (m_joystick1->GetRawButton(11))
 	{
 		m_pX -= .0001;
@@ -61,28 +68,29 @@ void TrackingTurret::Update()
 	}
 	printf("P: %f   I: %f   D: %f\r\n",m_pX,m_iX,m_dX);
 	m_calcSpeedX->SetPID(m_pX,m_iX,m_dX);
+	//End Temporary Code
 	
+	//Update TrackingCamera
 	if (m_inView = m_trackingCamera->Update())
 	{
 		printf("Target X: %f\n", m_trackingCamera->GetTargetX());
 		printf("Target Y: %f\n", m_trackingCamera->GetTargetY());
 	}
+	
+	/* If we see a target, enable the PID loop and calculate info for it */
 	if (m_inView)
 	{
 		m_calcSpeedX->Enable();
 		bool foundTarget = m_calcSpeedX->Calculate();
 		printf("Found target: %d\n",(int)foundTarget);
 	}
+	
+	/* Else scan for an image, manually or automatically */
 	else
 	{
 		m_calcSpeedX->Disable();
 		printf("No Target Available \r\n");
 	}
-}
-
-bool TrackingTurret::AimTurret()
-{	
-	return false;
 }
 
 void TrackingTurret::ScanTarget(float currentX)
