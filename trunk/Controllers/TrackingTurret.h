@@ -14,7 +14,7 @@ class TrackingTurret
 {
 public:
 	TrackingTurret(PIDJaguar* motor1, Servo* servo2, Joystick* test1, Joystick* test2);
-	~TrackingTurret();
+	virtual ~TrackingTurret();
 	
 	void Update();
 	void ScanTarget(float currentX);

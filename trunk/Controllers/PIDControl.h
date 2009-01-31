@@ -10,7 +10,7 @@ class PIDControl
 {
 public:
 	PIDControl();
-	~PIDControl();
+	virtual ~PIDControl();
 	
 	void SetSetpoint(float setpoint);
 	void SetPID(float p, float i, float d);

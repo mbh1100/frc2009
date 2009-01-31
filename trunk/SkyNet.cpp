@@ -27,27 +27,26 @@ SkyNet::SkyNet()
 	m_turretMotor->SetBounds(255, 136, 128, 120, 0);
 	m_trackingTurret = new TrackingTurret(m_turretMotor, m_cameraServo, m_joystick1, m_joystick2);
 	
-	/* Initialize Drive motors and control */
-	/*m_driveP = .1;
-	m_driveI = .00;
-	m_driveD = .00;
-	
+	/* Initialize drive motors and controls */	
 	m_leftDriveMotor = m_hardwareInterface->GetPIDJaguar(0, 5);
-	m_rightDriveMotor = m_hardwareInterface->GetPIDJaguar(0, 4);
-	
 	m_leftDriveMotor->EnableDeadbandElimination(true);
 	m_leftDriveMotor->SetBounds(255, 136, 128, 120, 0);
 	
-	m_encoderLeft = new PIDEncoder(4,1,4,2);
-	m_encoderLeft->SetDistancePerTick(-0.001);
-	m_encoderLeft->SetType(PIDEncoder::kAcceleration);
-	m_encoderLeft->Start();
+	m_rightDriveMotor = m_hardwareInterface->GetPIDJaguar(0, 4);
+	m_rightDriveMotor->EnableDeadbandElimination(true);
+	m_rightDriveMotor->SetBounds(255, 136, 128, 120, 0);	
 	
-	m_calcLeftDrive = new PIDController(m_driveP, m_driveI, m_driveD);
-	m_calcLeftDrive->SetTolerence(1.0);
-	m_calcLeftDrive->SetInput(m_encoderLeft, -1.0, 1.0);	
-	m_calcLeftDrive->SetOutput(m_leftDriveMotor, -1.0, 1.0);
-	m_calcLeftDrive->SetSetpoint(0.0);*/
+	m_leftDriveEncoder = new PIDEncoder(4,3,4,4);
+	m_leftDriveEncoder->SetDistancePerTick(-0.001);
+	m_leftDriveEncoder->SetType(PIDEncoder::kVelocity);
+	m_leftDriveEncoder->Start();
+	
+	m_rightDriveEncoder = new PIDEncoder(4,1,4,2);
+	m_rightDriveEncoder->SetDistancePerTick(-0.001);
+	m_rightDriveEncoder->SetType(PIDEncoder::kVelocity);
+	m_rightDriveEncoder->Start();
+	
+	m_drive = new TankDrive(m_leftDriveMotor, m_rightDriveMotor, m_leftDriveEncoder, m_rightDriveEncoder);
 }
 
 void SkyNet::DisabledInit()
@@ -62,7 +61,8 @@ void SkyNet::AutonomousInit()
 	printf("Inititializing Autonomous Mode..\r\n");
 	m_autoCount = 0;
 	
-	//m_calcLeftDrive->Disable();
+	/* Disable TankDrive */
+	m_drive->Disable();
 }
 
 void SkyNet::TeleopInit()
@@ -131,6 +131,10 @@ void SkyNet::TeleopPeriodic()
 		m_priorPacketNumber = m_ds->GetPacketNumber();
 		
 		/* Code dependent on driverstation/human input here */
+		
+		/* Tank Drive */
+		m_drive->SetSetpoint(m_joystick1->GetY()*-1.5, m_joystick2->GetY()*-90);
+		m_drive->Update();
 	}
 	
 }
