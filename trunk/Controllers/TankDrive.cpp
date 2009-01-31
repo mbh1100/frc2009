@@ -10,7 +10,7 @@ TankDrive::TankDrive(PIDJaguar* leftMotor, PIDJaguar* rightMotor, PIDEncoder* le
 	m_rightEncoder = rightEncoder;
 	
 	//initial P, I, D settings need to be determined for drive motor CIMs
-	m_p = -0.01;  		  //
+	m_p = -0.008;  		  //
 	m_i = -0.00; 		  //
 	m_d = -0.00;          //
 	
@@ -18,14 +18,14 @@ TankDrive::TankDrive(PIDJaguar* leftMotor, PIDJaguar* rightMotor, PIDEncoder* le
 	m_setpointRight = 0.0;
 	
 	//Not sure what these should be appropriately set to...Encoder vals no limit...
-	m_maxInput = 1.5;
-	m_minInput = -1.5;
+	m_maxInput = 7.2;
+	m_minInput = -7.2;
 	
-	m_maxOutput = 0.99;
-	m_minOutput = -1.0;
+	m_maxOutput =  .98;
+	m_minOutput = -.98;
 	m_increment = true;
 	
-	m_errorPercent = 10;
+	m_errorPercent = 0.0;//10
 	m_errorIncrement = .01;
 	
 	//Set up boundaries and default values for PID control object to use in Calculate
@@ -60,6 +60,7 @@ void TankDrive::SetSetpoint(float leftSetpoint, float rightSetpoint)
 	m_setpointLeft = leftSetpoint;
 	m_setpointRight = rightSetpoint;
 }
+
 void TankDrive::Update()
 {
 	/* Enable PID loops, just in case */

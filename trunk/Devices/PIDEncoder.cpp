@@ -10,6 +10,8 @@ PIDEncoder::PIDEncoder(UINT32 aChannel, UINT32 bChannel, bool reverseDirection) 
 	m_type = kVelocity;
 	
 	m_timer = new Timer();
+	
+	m_samples = 2;
 }
 
 /* Initializes using the standard Encoder constructor and then
@@ -22,6 +24,8 @@ PIDEncoder::PIDEncoder(UINT32 aSlot, UINT32 aChannel, UINT32 bSlot, UINT32 bChan
 	m_type = kVelocity;
 	
 	m_timer = new Timer();
+	
+	m_samples = 2;
 }
 
 PIDEncoder::~PIDEncoder()
@@ -56,6 +60,13 @@ void PIDEncoder::Stop()
 	m_timer->Stop();
 }
 
+/* Sets the number of acceleration/velocity samples to average.
+ */
+void PIDEncoder::SetSampleSize(unsigned int sample)
+{
+	m_samples = sample;
+}
+
 /* Sets the type of the encoder so it knows what value to report when
  * PIDGet is called.
  */
@@ -74,20 +85,33 @@ float PIDEncoder::PIDGet()
 		return GetDistance();
 		
 	case kVelocity :
-		m_prevVelocity = GetDistance() / m_timer->Get();
+		m_prevVelocity.push_front(GetDistance() / m_timer->Get());
+		
+		while (m_prevVelocity.size() > m_samples)
+		{
+			m_prevVelocity.pop_back();
+		}
 		
 		Reset();
 		
-		return m_prevVelocity;
+		return std::accumulate(m_prevVelocity.begin(), m_prevVelocity.end(), 0.0) / m_prevVelocity.size();
 		
 	case kAcceleration :
-		float tmpVelocity = GetDistance() / m_timer->Get();
-		float acceleration = (tmpVelocity - m_prevVelocity) / m_timer->Get();
-		m_prevVelocity = tmpVelocity;
+		m_prevVelocity.push_front(GetDistance() / m_timer->Get());
+		m_prevAcceleration.push_front((m_prevVelocity.front() - *++(m_prevVelocity.begin())) / m_timer->Get());
+		
+		while (m_prevVelocity.size() > m_samples)
+		{
+			m_prevVelocity.pop_back();
+		}
+		while (m_prevAcceleration.size() > m_samples)
+		{
+			m_prevAcceleration.pop_back();
+		}
 		
 		Reset();
-		printf("Acceleration: %f\r\n", acceleration);
-		return acceleration;
+		
+		return std::accumulate(m_prevAcceleration.begin(), m_prevAcceleration.end(), 0.0) / m_prevAcceleration.size();
 	}
 	
 	return 0.0;

@@ -36,17 +36,33 @@ SkyNet::SkyNet()
 	m_rightDriveMotor->EnableDeadbandElimination(true);
 	m_rightDriveMotor->SetBounds(255, 136, 128, 120, 0);	
 	
-	m_leftDriveEncoder = new PIDEncoder(4,3,4,4);
+	m_leftDriveEncoder = new PIDEncoder(4, 3, 4, 4);
 	m_leftDriveEncoder->SetDistancePerTick(-0.001);
 	m_leftDriveEncoder->SetType(PIDEncoder::kVelocity);
+	//m_leftDriveEncoder->SetSampleSize(1);
 	m_leftDriveEncoder->Start();
 	
-	m_rightDriveEncoder = new PIDEncoder(4,1,4,2);
+	m_rightDriveEncoder = new PIDEncoder(4, 1, 4, 2);
 	m_rightDriveEncoder->SetDistancePerTick(-0.001);
 	m_rightDriveEncoder->SetType(PIDEncoder::kVelocity);
+	//m_rightDriveEncoder->SetSampleSize(1);
 	m_rightDriveEncoder->Start();
 	
+	m_testEncoder2 = new PIDEncoder(4, 1, 4, 2);
+	m_testEncoder2->SetDistancePerTick(-0.001);
+	m_testEncoder2->SetType(PIDEncoder::kVelocity);
+	//m_testEncoder2->SetSampleSize(1);
+	m_testEncoder2->Start();
+	
+	m_testEncoder = new PIDEncoder(4, 1, 4, 2);
+	m_testEncoder->SetDistancePerTick(-0.001);
+	m_testEncoder->SetType(PIDEncoder::kAcceleration);
+	//m_testEncoder->SetSampleSize(1);
+	m_testEncoder->Start();
+	
 	m_drive = new TankDrive(m_leftDriveMotor, m_rightDriveMotor, m_leftDriveEncoder, m_rightDriveEncoder);
+	
+	m_testSample = 2;
 }
 
 void SkyNet::DisabledInit()
@@ -117,6 +133,10 @@ void SkyNet::TeleopPeriodic()
 	{
 		/* Runs at 50Hz */
 		
+		Dashboard &dashboard = m_ds->GetDashboardPacker();
+		dashboard.Printf("Accel : %f , Sample Size : %u \r\n", m_testEncoder->PIDGet(), m_testSample);
+		dashboard.Printf("Velo : %f \r\n", m_testEncoder2->PIDGet());
+		
 		m_hardwareInterface->UpdateDashboard(true);
 	
 	}
@@ -133,8 +153,21 @@ void SkyNet::TeleopPeriodic()
 		/* Code dependent on driverstation/human input here */
 		
 		/* Tank Drive */
-		m_drive->SetSetpoint(m_joystick1->GetY()*-1.5, m_joystick2->GetY()*-90);
+		m_drive->SetSetpoint(m_joystick1->GetY()*-1.5, m_joystick2->GetY()*-7.2);
 		m_drive->Update();
+		
+		/* Temporary */
+		if (m_joystick2->GetRawButton(5))
+		{
+			m_testSample++;
+			m_testEncoder->SetSampleSize(m_testSample);
+		}
+		if (m_joystick2->GetRawButton(4))
+		{
+			m_testSample--;
+			m_testEncoder->SetSampleSize(m_testSample);
+		}
+		
 	}
 	
 }
