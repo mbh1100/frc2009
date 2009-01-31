@@ -42,6 +42,10 @@ public:
 	Servo *m_cameraServo;
 	TrackingTurret *m_trackingTurret;
 	
+	/* Temporary */
+	PIDEncoder *m_testEncoder, *m_testEncoder2;
+	unsigned int m_testSample;
+	
 	
 	AnalogModule *m_analogModules[SensorBase::kAnalogModules];
 	

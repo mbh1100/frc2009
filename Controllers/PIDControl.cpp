@@ -69,7 +69,7 @@ void PIDControl::Reset()
 	m_previousValue = 0;
 	m_errorSum = 0;
 	m_cycleCount = 0;
-	m_lastOutput = 0;
+	//m_lastOutput = 0;
 }
 
 bool PIDControl::Calculate()
@@ -143,7 +143,7 @@ bool PIDControl::Calculate()
 			}
 			else
 			{
-				m_errorSum = 0;
+				m_errorSum = 0;                                       
 			}
 			iVal = m_i * m_errorSum;
 			
@@ -170,9 +170,9 @@ bool PIDControl::Calculate()
 			{
 				output = m_maxOutput;
 			}
-			else if (output < -m_maxOutput)
+			else if (output < m_minOutput)
 			{
-				output = -m_maxOutput;
+				output = m_minOutput;
 			}
 			
 			m_output->PIDWrite(output);
