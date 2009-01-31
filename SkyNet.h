@@ -9,6 +9,7 @@
 #include "TrackAPI.h" 
 #include "PCVideoServer.h"
 
+#include "Controllers/TankDrive.h"
 #include "Controllers/TrackingTurret.h"
 #include "HardwareInterface.h"
 #include "Devices/PIDEncoder.h"
@@ -32,10 +33,9 @@ public:
 	Joystick *m_joystick2;
 	
 	/* Drive Variables */
-	//PIDEncoder *m_encoderLeft, *m_encoderRight;
-	//PIDController *m_calcLeftDrive, *m_calcRightDrive;
-	//float m_driveP, m_driveI, m_driveD;
-	//PIDJaguar *m_rightDriveMotor, *m_leftDriveMotor; 
+	PIDEncoder *m_leftDriveEncoder, *m_rightDriveEncoder;
+	PIDJaguar *m_leftDriveMotor, *m_rightDriveMotor;
+	TankDrive *m_drive;
 	
 	/* Camera Variables */
 	PIDJaguar *m_turretMotor;

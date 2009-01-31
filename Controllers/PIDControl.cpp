@@ -155,6 +155,14 @@ bool PIDControl::Calculate()
 			float output = pVal + iVal - dVal;
 			if (m_increment)
 			{
+				if (m_setpoint < m_lastOutput)
+				{
+					output = -fabs(output);
+				}
+				else
+				{
+					output = fabs(output);
+				}
 				output += m_lastOutput;
 			}
 
