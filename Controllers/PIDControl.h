@@ -43,6 +43,9 @@ protected:
 	float m_previousValue, m_cycleCount;
 	float m_errorSum, m_errorAllowed;
 	float m_lastOutput;
+	
+	/* Loop Completed */
+	bool m_complete;
 };
 
 #endif
