@@ -17,6 +17,9 @@ public:
 	float GetTargetX();
 	float GetTargetY();
 	
+	bool TargetMoving();
+	float GetSetpoint();
+	
 	float PIDGet();
 
 protected:

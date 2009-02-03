@@ -11,12 +11,12 @@ TrackingCamera::TrackingCamera(bool topColorGreen)
 	m_topColor = topColorGreen;
 	
 	/* Color Values */
-	m_tdataGreen.hue.minValue = 44;
-	m_tdataGreen.hue.maxValue = 136;
-	m_tdataGreen.saturation.minValue = 47;
-	m_tdataGreen.saturation.maxValue = 255;
-	m_tdataGreen.luminance.minValue = 81;
-	m_tdataGreen.luminance.maxValue = 255;
+	m_tdataGreen.hue.minValue = 44;			//135
+	m_tdataGreen.hue.maxValue = 136;		//140
+	m_tdataGreen.saturation.minValue = 47;	//31.4
+	m_tdataGreen.saturation.maxValue = 255;	//29.4
+	m_tdataGreen.luminance.minValue = 81;	//39
+	m_tdataGreen.luminance.maxValue = 255;	//75.5
 	
 	m_tdataPink.hue.minValue = 220;
 	m_tdataPink.hue.maxValue = 255;
@@ -111,6 +111,18 @@ float TrackingCamera::GetTargetY()
 	/* Get the vertical center of the target */
 	float y = -(m_greenY+m_pinkY)/2;
 	return y;
+}
+
+bool TrackingCamera::TargetMoving()
+{
+		
+	return false;
+}
+
+float TrackingCamera::GetSetpoint()
+{
+	
+	return 0.0;
 }
 
 float TrackingCamera::PIDGet()

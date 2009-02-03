@@ -23,6 +23,7 @@ PIDControl::PIDControl()
 	
 	m_lastOutput = 0;
 	m_enabled = true;
+	m_complete = false;
 }
 
 PIDControl::~PIDControl()
@@ -93,95 +94,95 @@ bool PIDControl::Calculate()
 		if (fabs(current - m_setpoint) <= m_errorAllowed)
 		{
 			/* If goal is achieved, give output value of setpoint */
-			m_output->PIDWrite(ChangeError(m_setpoint));
 			Reset();
-			m_lastOutput = ChangeError(m_setpoint);
-			return true;
+			m_complete = true;
 		}
 		else
 		{
-			/* If goal is not achieved... */
-			/* Calculate error in terms of the output */
-			float error = ChangeError(m_setpoint - current);
-			
-			float pVal = 0, iVal = 0, dVal = 0;
-			
-			/* Calculate pVal */
-			pVal = m_p * error;
-			
-			/* Calculate iVal */
-			float allowedErrorOut = ChangeError(m_errorAllowed);
-			if (error >= allowedErrorOut)
+			m_complete = false;
+		}
+
+		/* Calculate error in terms of the output */
+		float error = ChangeError(m_setpoint - current);
+		
+		float pVal = 0, iVal = 0, dVal = 0;
+		
+		/* Calculate pVal */
+		pVal = m_p * error;
+		
+		/* Calculate iVal */
+		float allowedErrorOut = ChangeError(m_errorAllowed);
+		if (error >= allowedErrorOut)
+		{
+			if (m_errorSum < 0);
 			{
-				if (m_errorSum < 0);
-				{
-					m_errorSum = 0;
-				}
-				if ((error) < m_errorIncrement)
-				{
-					m_errorSum += error;
-				}
-				else
-				{
-					m_errorSum += m_errorIncrement;
-				}
+				m_errorSum = 0;
 			}
-			else if (error <= -allowedErrorOut)
+			if ((error) < m_errorIncrement)
 			{
-				if(m_errorSum > 0)
-				{
-					m_errorSum = 0;
-				}
-				if(error > -m_errorIncrement)
-				{
-					m_errorSum += error;
-				}
-				else
-				{
-					m_errorSum -= m_errorIncrement;
-				}			
+				m_errorSum += error;
 			}
 			else
 			{
-				m_errorSum = 0;                                       
+				m_errorSum += m_errorIncrement;
 			}
-			iVal = m_i * m_errorSum;
-			
-			/* Calculate dVal */
-			float velocity = current - m_previousValue;
-			dVal = m_d * velocity;
-			
-			/* Calculate Output and Change Motor Speed */
-			float output = pVal + iVal - dVal;
-			if (m_increment)
-			{
-				if (m_setpoint < m_lastOutput)
-				{
-					output = -fabs(output);
-				}
-				else
-				{
-					output = fabs(output);
-				}
-				output += m_lastOutput;
-			}
-
-			if (output > m_maxOutput)
-			{
-				output = m_maxOutput;
-			}
-			else if (output < m_minOutput)
-			{
-				output = m_minOutput;
-			}
-			
-			m_output->PIDWrite(output);
-			
-			m_previousValue = current;
-			m_cycleCount++;
-			m_lastOutput = output;
-			return false;
 		}
+		else if (error <= -allowedErrorOut)
+		{
+			if(m_errorSum > 0)
+			{
+				m_errorSum = 0;
+			}
+			if(error > -m_errorIncrement)
+			{
+				m_errorSum += error;
+			}
+			else
+			{
+				m_errorSum -= m_errorIncrement;
+			}			
+		}
+		else
+		{
+			m_errorSum = 0;                                       
+		}
+		iVal = m_i * m_errorSum;
+		
+		/* Calculate dVal */
+		float velocity = current - m_previousValue;
+		dVal = m_d * velocity;
+		
+		/* Calculate Output and Change Motor Speed */
+		float output = pVal + iVal - dVal;
+		if (m_increment)
+		{
+			if (m_setpoint < current)
+			{
+				output = -fabs(output);
+			}
+			else
+			{
+				output = fabs(output);
+			}
+			output += m_lastOutput;
+		}
+
+		if (output > m_maxOutput)
+		{
+			output = m_maxOutput;
+		}
+		else if (output < m_minOutput)
+		{
+			output = m_minOutput;
+		}
+		
+		m_output->PIDWrite(output);
+		
+		m_previousValue = current;
+		m_cycleCount++;
+		m_lastOutput = output;
+		
+		return m_complete;
 	}
 	m_output->PIDWrite(0.0);
 	Reset();
