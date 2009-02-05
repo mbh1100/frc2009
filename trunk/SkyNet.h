@@ -37,8 +37,9 @@ public:
 	PIDJaguar *m_leftDriveMotor, *m_rightDriveMotor;
 	TankDrive *m_drive;
 	
-	/* Camera Variables */
+	/* Camera Variables MDV adding shooter motor */
 	PIDJaguar *m_turretMotor;
+	PIDVictor *m_shooterMotor;
 	Servo *m_cameraServo;
 	TrackingTurret *m_trackingTurret;
 	
@@ -50,6 +51,10 @@ public:
 	AnalogModule *m_analogModules[SensorBase::kAnalogModules];
 	
 	DriverStation *m_ds;	
+	
+	/* MDV vars to control toggle DGIO off driver station */
+	bool m_manualOverrideTurretShooter;
+	
 		
 	UINT32 m_priorPacketNumber, m_autoCount, m_teleCount;
 };

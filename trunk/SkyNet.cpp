@@ -62,6 +62,8 @@ SkyNet::SkyNet()
 	
 	m_drive = new TankDrive(m_leftDriveMotor, m_rightDriveMotor, m_leftDriveEncoder, m_rightDriveEncoder);
 	
+	/* MDV setting up vars to allow shooter manual override */
+	m_manualOverrideTurretShooter = false; 
 	m_testSample = 2;
 }
 
@@ -127,6 +129,13 @@ void SkyNet::TeleopPeriodic()
 	if ((m_teleCount % 20) == 0)
 	{
 		/* Runs at 10Hz */
+		
+		/* MDV checking for manual override on turret and shooter */
+		if (m_manualOverrideTurretShooter = m_ds->GetDigitalIn(1))
+		{
+			m_trackingTurret->ManualTurretTurn(m_ds);
+		}
+		
 	}
 	
 	if ((m_teleCount % 4) == 0)
