@@ -17,12 +17,21 @@ public:
 	virtual ~TrackingTurret();
 	
 	void Update();
+	
+	/* MDV new method for manual turret control */
+	void ManualTurretTurn(DriverStation* driverStation);
+	
 	void ScanTarget(float currentX);
 	void ResetScan();
 	void StopTurret();
 
 protected:
 	TrackingCamera *m_trackingCamera;
+	
+	/* MDV driver station instance to read DGIO and analog */
+	DriverStation *m_ds;
+	float m_inputVoltage;
+	float m_turretDirection;
 	
 	/* Declare Objects */
 	PIDControl *m_calcSpeedX;

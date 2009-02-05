@@ -29,10 +29,51 @@ TrackingTurret::TrackingTurret(PIDJaguar* motor7, Servo* servo8, Joystick* test1
 	m_calcSpeedX->SetSource(m_trackingCamera, m_maxInputX, m_minInputX);
 	m_calcSpeedX->SetOutput(m_turretMotor, m_maxOutputX, m_minOutputX);
 	m_calcSpeedX->SetError(m_errorPercentX, m_errorIncrementX);
+	
+	/* MDV vars for turret turning 
+	 * initial voltage set to stop
+	 * initial direction for PIDWrite is 0
+	 * */
+	m_inputVoltage = 2.5;
+	m_turretDirection = 0;
 }
 
 TrackingTurret::~TrackingTurret()
 {
+	
+}
+
+/* MDV manual override on turret turning */
+void TrackingTurret::ManualTurretTurn(DriverStation* driverStation)
+{
+	/* MDV PIDWrite the angle received from slider potentiometer 
+	 * 
+	 * Currently a Jaguar, will probably end up a Victor */
+	m_ds = driverStation;
+	m_inputVoltage = m_ds->GetAnalogIn(1);
+	
+	/* MDV Ranges for turning
+	 * if less than c. 1.2 V, continue turning LEFT
+	 * 
+	 * else if greater than 3.7 V, continue turning RIGHT
+	 * else stop moving
+	 * 
+	 * Values set for PIDWrite are based on 
+	 * LEFT = 1
+	 * RIGHT = -1
+	 * STOP = 0
+	 */  
+	if (m_inputVoltage < 1.2)
+		{m_turretDirection = 1.0;
+		}
+	else if (m_inputVoltage > 3.7)
+		{m_turretDirection = -1;
+		}
+	else
+		{m_turretDirection = 0;
+		}
+		
+	m_turretMotor->PIDWrite(m_turretDirection);
 	
 }
 
