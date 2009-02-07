@@ -18,53 +18,59 @@ SkyNet::SkyNet()
 	m_analogModules[1]->SetAverageBits(1,8);
 	
 	/* Initialize Camera motors and control */
-	m_turretMotor = m_hardwareInterface->GetPIDJaguar(0, 7);
+	m_turretMotor = m_hardwareInterface->GetPIDJaguar(0, 3);
+	m_shooterMotor = m_hardwareInterface->GetJaguar(0, 4);
 	m_cameraServo = m_hardwareInterface->GetServo(0, 8);
 	m_joystick1 = m_hardwareInterface->GetJoystick(1);
 	m_joystick2 = m_hardwareInterface->GetJoystick(2);
 	
 	m_turretMotor->EnableDeadbandElimination(true);
 	m_turretMotor->SetBounds(255, 136, 128, 120, 0);
-	m_trackingTurret = new TrackingTurret(m_turretMotor, m_cameraServo, m_joystick1, m_joystick2);
+	
+	m_shooterMotor->EnableDeadbandElimination(true);
+	m_shooterMotor->SetBounds(255, 136, 128, 120, 0);
+	
+	m_trackingTurret = new TrackingTurret(m_turretMotor, m_shooterMotor, m_cameraServo, m_joystick1, m_joystick2);
+	
+	m_manual = 0;
+	m_shoot = 0;
+	m_turnMotor = 0;
+	m_setDistance = 3;
 	
 	/* Initialize drive motors and controls */	
-	m_leftDriveMotor = m_hardwareInterface->GetPIDJaguar(0, 5);
+	m_leftDriveMotor = m_hardwareInterface->GetPIDJaguar(0, 1);
 	m_leftDriveMotor->EnableDeadbandElimination(true);
 	m_leftDriveMotor->SetBounds(255, 136, 128, 120, 0);
 	
-	m_rightDriveMotor = m_hardwareInterface->GetPIDJaguar(0, 4);
+	m_rightDriveMotor = m_hardwareInterface->GetPIDJaguar(0, 2);
 	m_rightDriveMotor->EnableDeadbandElimination(true);
 	m_rightDriveMotor->SetBounds(255, 136, 128, 120, 0);	
 	
 	m_leftDriveEncoder = new PIDEncoder(4, 3, 4, 4);
 	m_leftDriveEncoder->SetDistancePerTick(-0.001);
 	m_leftDriveEncoder->SetType(PIDEncoder::kVelocity);
-	//m_leftDriveEncoder->SetSampleSize(1);
+	m_leftDriveEncoder->SetSampleSize(3);
 	m_leftDriveEncoder->Start();
 	
 	m_rightDriveEncoder = new PIDEncoder(4, 1, 4, 2);
 	m_rightDriveEncoder->SetDistancePerTick(-0.001);
 	m_rightDriveEncoder->SetType(PIDEncoder::kVelocity);
-	//m_rightDriveEncoder->SetSampleSize(1);
+	m_rightDriveEncoder->SetSampleSize(3);
 	m_rightDriveEncoder->Start();
-	
-	m_testEncoder2 = new PIDEncoder(4, 1, 4, 2);
-	m_testEncoder2->SetDistancePerTick(-0.001);
-	m_testEncoder2->SetType(PIDEncoder::kVelocity);
-	//m_testEncoder2->SetSampleSize(1);
-	m_testEncoder2->Start();
-	
-	m_testEncoder = new PIDEncoder(4, 1, 4, 2);
-	m_testEncoder->SetDistancePerTick(-0.001);
-	m_testEncoder->SetType(PIDEncoder::kAcceleration);
-	//m_testEncoder->SetSampleSize(1);
-	m_testEncoder->Start();
-	
+		
 	m_drive = new TankDrive(m_leftDriveMotor, m_rightDriveMotor, m_leftDriveEncoder, m_rightDriveEncoder);
 	
-	/* MDV setting up vars to allow shooter manual override */
-	m_manualOverrideTurretShooter = false; 
-	m_testSample = 2;
+	
+	/* Sweeper and Hopper */	
+	m_leftHelixMotor = m_hardwareInterface->GetVictor(0, 6);
+	m_rightHelixMotor = m_hardwareInterface->GetVictor(0, 7);
+	m_sweeperMotor = m_hardwareInterface->GetVictor(0,5);
+	
+	m_sweeperState = false;
+	m_helixState = 0;
+	m_helixDirection = 0;
+	
+	m_hopperControl = new HopperControl(m_leftHelixMotor, m_rightHelixMotor, m_sweeperMotor);
 }
 
 void SkyNet::DisabledInit()
@@ -83,6 +89,7 @@ void SkyNet::AutonomousInit()
 	m_drive->Disable();
 }
 
+
 void SkyNet::TeleopInit()
 {
 	printf("Inititializing Teleop Mode..\r\n");
@@ -91,6 +98,7 @@ void SkyNet::TeleopInit()
 	//m_calcLeftDrive->Enable();
 	m_trackingTurret->StopTurret();
 }
+
 
 void SkyNet::DisabledPeriodic()
 {
@@ -105,7 +113,14 @@ void SkyNet::AutonomousPeriodic()
 	/* Finding & tracking the target with the camera */
 	if ((m_autoCount % 10) == 0)
 	{
-		m_trackingTurret->Update();
+		//Should only be in teleop mode - should just set values in autonomous
+		m_manual = false;
+		m_shoot = false;
+		m_turnMotor = 0.0;
+		m_setDistance = 0.0;
+		
+		//Change in the near future
+		m_trackingTurret->Update(m_manual, m_shoot, m_turnMotor, m_setDistance);
 	}
 	
 	if ((m_autoCount % 4) == 0)
@@ -130,23 +145,11 @@ void SkyNet::TeleopPeriodic()
 	{
 		/* Runs at 10Hz */
 		
-		/* MDV checking for manual override on turret and shooter */
-		if (m_manualOverrideTurretShooter = m_ds->GetDigitalIn(1))
-		{
-			m_trackingTurret->ManualTurretTurn(m_ds);
-		}
-		
 	}
 	
 	if ((m_teleCount % 4) == 0)
 	{
 		/* Runs at 50Hz */
-		
-		Dashboard &dashboard = m_ds->GetDashboardPacker();
-		dashboard.Printf("Accel : %f , Sample Size : %u \r\n", m_testEncoder->PIDGet(), m_testSample);
-		dashboard.Printf("Velo : %f \r\n", m_testEncoder2->PIDGet());
-		
-		m_hardwareInterface->UpdateDashboard(true);
 	
 	}
 	
@@ -165,20 +168,23 @@ void SkyNet::TeleopPeriodic()
 		m_drive->SetSetpoint(m_joystick1->GetY()*-1.5, m_joystick2->GetY()*-7.2);
 		m_drive->Update();
 		
-		/* Temporary */
-		if (m_joystick2->GetRawButton(5))
-		{
-			m_testSample++;
-			m_testEncoder->SetSampleSize(m_testSample);
-		}
-		if (m_joystick2->GetRawButton(4))
-		{
-			m_testSample--;
-			m_testEncoder->SetSampleSize(m_testSample);
-		}
-		
+		/* Hopper and Sweeper Control */
+		m_sweeperState = m_ds->GetDigitalIn(2);
+		m_helixState = m_ds->GetAnalogIn(1);
+		m_helixDirection = m_ds->GetAnalogIn(2);
+		m_hopperControl->Update(m_sweeperState, m_helixState, m_helixDirection);
 	}
 	
+	if ((m_teleCount % 10) == 0)
+	{
+		/* Turret, shooter, and camera servo code */
+		m_manual = m_ds->GetDigitalIn(1);
+		m_shoot = m_ds->GetDigitalIn(3);
+		m_turnMotor = m_ds->GetAnalogIn(3);
+		m_setDistance = m_ds->GetAnalogIn(4);
+		
+		m_trackingTurret->Update(m_manual, m_shoot, m_turnMotor, m_setDistance);
+	}	
 }
 
 //DONT EVER FORGET THIS!

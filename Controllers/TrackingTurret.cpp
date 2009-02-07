@@ -1,6 +1,6 @@
 #include "TrackingTurret.h"
 
-TrackingTurret::TrackingTurret(PIDJaguar* motor7, Servo* servo8, Joystick* test1, Joystick* test2)
+TrackingTurret::TrackingTurret(PIDJaguar* turretMotor, Jaguar* shooterMotor, Servo* cameraServo, Joystick* test1, Joystick* test2)
 {
 	m_trackingCamera = new TrackingCamera(true);
 	
@@ -8,8 +8,9 @@ TrackingTurret::TrackingTurret(PIDJaguar* motor7, Servo* servo8, Joystick* test1
 	m_joystick1 = test1;
 	m_joystick2 =  test2;
 	
-	//m_cameraServo = servo8;
-	m_turretMotor = motor7;
+	m_cameraServo = cameraServo;
+	m_turretMotor = turretMotor;
+	m_shooterMotor = shooterMotor;
 	
 	//All variables for PIDLoop for horizontal movement
 	m_pX = -0.3;  //-0.03    Faster: -0.035
@@ -30,12 +31,18 @@ TrackingTurret::TrackingTurret(PIDJaguar* motor7, Servo* servo8, Joystick* test1
 	m_calcSpeedX->SetOutput(m_turretMotor, m_maxOutputX, m_minOutputX);
 	m_calcSpeedX->SetError(m_errorPercentX, m_errorIncrementX);
 	
-	/* MDV vars for turret turning 
+	/* Variables for manual turret aiming
 	 * initial voltage set to stop
 	 * initial direction for PIDWrite is 0
 	 * */
-	m_inputVoltage = 2.5;
+	m_turnMotor = 2.5;
 	m_turretDirection = 0;
+	
+	m_inView = false;
+	m_targetFound = false;
+	m_shoot = false;
+	m_targetDistance = 3.0;
+	m_shooter = new Shoot(m_shooterMotor);
 }
 
 TrackingTurret::~TrackingTurret()
@@ -43,16 +50,10 @@ TrackingTurret::~TrackingTurret()
 	
 }
 
-/* MDV manual override on turret turning */
-void TrackingTurret::ManualTurretTurn(DriverStation* driverStation)
-{
-	/* MDV PIDWrite the angle received from slider potentiometer 
-	 * 
-	 * Currently a Jaguar, will probably end up a Victor */
-	m_ds = driverStation;
-	m_inputVoltage = m_ds->GetAnalogIn(1);
-	
-	/* MDV Ranges for turning
+/* Manual override on turret turning */
+void TrackingTurret::Manual(float turnMotor, float changeDistance)
+{	
+	/* Ranges for turning
 	 * if less than c. 1.2 V, continue turning LEFT
 	 * 
 	 * else if greater than 3.7 V, continue turning RIGHT
@@ -62,22 +63,76 @@ void TrackingTurret::ManualTurretTurn(DriverStation* driverStation)
 	 * LEFT = 1
 	 * RIGHT = -1
 	 * STOP = 0
-	 */  
-	if (m_inputVoltage < 1.2)
-		{m_turretDirection = 1.0;
-		}
-	else if (m_inputVoltage > 3.7)
-		{m_turretDirection = -1;
-		}
+	 */
+	
+	m_turnMotor = turnMotor;
+	m_changeDistance = changeDistance;
+	
+	m_targetFound = 0;
+	
+	/* Start turning the turret */
+	if (m_turnMotor < 1.2)
+	{
+		m_turretDirection = .3;
+	}
+	else if (m_turnMotor > 3.7)
+	{
+		m_turretDirection = -.3;
+	}
 	else
-		{m_turretDirection = 0;
-		}
-		
+	{
+		m_turretDirection = 0.0;
+	}
+	
+	m_trackingCamera->Update();
+	
+	if (fabs(m_trackingCamera->GetTargetX()) < 100)
+	{
+		m_targetFound = true;
+	}
+	else
+	{
+		m_targetFound = false;
+	}
+	
 	m_turretMotor->PIDWrite(m_turretDirection);
 	
 }
 
-void TrackingTurret::Update()
+void TrackingTurret::Automatic()
+{
+	/* Update TrackingCamera */
+	if (m_inView = m_trackingCamera->Update())
+	{
+		printf("Target X: %f\n", m_trackingCamera->GetTargetX());
+		printf("Target Y: %f\n", m_trackingCamera->GetTargetY());
+	}
+	
+	/* If we see a target, enable the PID loop and calculate info for it */
+	if (m_inView)
+	{
+		if (m_trackingCamera->TargetMoving())
+		{
+			m_calcSpeedX->SetSetpoint(m_trackingCamera->GetSetpoint());
+		}
+		else
+		{
+			m_calcSpeedX->SetSetpoint(m_setpointX);
+		}
+		m_calcSpeedX->Enable();
+		m_targetFound = m_calcSpeedX->Calculate();
+		printf("Found target: %d\n",(int)m_targetFound);
+	}
+	
+	/* Else scan for an image, manually or automatically */
+	else
+	{
+		m_calcSpeedX->Disable();
+		printf("No Target Available \r\n");
+	}
+}
+
+bool TrackingTurret::Update(bool manual, bool shoot, float turnMotor, float changeDistance)
 {
 	//Temporary code to help determine best values for PID loop
 	if (m_joystick1->GetRawButton(11))
@@ -111,35 +166,23 @@ void TrackingTurret::Update()
 	m_calcSpeedX->SetPID(m_pX,m_iX,m_dX);
 	//End Temporary Code
 	
-	/* Update TrackingCamera */
-	if (m_inView = m_trackingCamera->Update())
-	{
-		printf("Target X: %f\n", m_trackingCamera->GetTargetX());
-		printf("Target Y: %f\n", m_trackingCamera->GetTargetY());
-	}
+	m_shoot = shoot;
 	
-	/* If we see a target, enable the PID loop and calculate info for it */
-	if (m_inView)
+	if (manual)
 	{
-		if (m_trackingCamera->TargetMoving())
-		{
-			m_calcSpeedX->SetSetpoint(m_trackingCamera->GetSetpoint());
-		}
-		else
-		{
-			m_calcSpeedX->SetSetpoint(m_setpointX);
-		}
-		m_calcSpeedX->Enable();
-		bool foundTarget = m_calcSpeedX->Calculate();
-		printf("Found target: %d\n",(int)foundTarget);
+		Manual(turnMotor, changeDistance);
 	}
-	
-	/* Else scan for an image, manually or automatically */
 	else
 	{
-		m_calcSpeedX->Disable();
-		printf("No Target Available \r\n");
+		Automatic();
 	}
+	
+	if (m_shoot)
+	{
+		m_shooter->Fire(m_targetDistance);
+	}
+	
+	return m_targetFound;
 }
 
 void TrackingTurret::ScanTarget(float currentX)
@@ -168,3 +211,4 @@ void TrackingTurret::StopTurret()
 {
 	m_calcSpeedX->Disable();
 }
+
