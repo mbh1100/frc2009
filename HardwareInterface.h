@@ -48,6 +48,9 @@ public:
 	static const UINT8 kSolenoidSlotNumber = 8;
 	static const UINT8 kJoystickPorts = 4;
 	static const UINT8 kJoystickButtons = 12;
+	static const UINT8 kDriverStationDigitalOuts = 8;
+	static const UINT8 kDriverStationDigitalIns = 8;
+	static const UINT8 kDriverStationAnalogIns = 8;
 	
 protected:
 	AnalogModule *m_analogModules[kAnalogModules];
