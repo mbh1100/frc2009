@@ -217,6 +217,8 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 	
 	//printf("Solenoid sent succesfully \r\n");
 	
+	
+	/* Read and pack joystick values */
 	dashboardPacker.AddCluster();
 	
 	for (UINT8 port = 0; port < kJoystickPorts; port++)
@@ -247,6 +249,51 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 		
 		dashboardPacker.FinalizeCluster();
 	}
+	dashboardPacker.FinalizeCluster();
+	
+	/* Read and pack Driver Station IO */
+	dashboardPacker.AddCluster();
+	
+	UINT8 dsIn = 0;
+	for (channel = 1; channel <= kDriverStationDigitalIns; channel++)
+	{
+		dsIn += m_ds->GetDigitalIn(channel);
+		
+		if (channel < kDriverStationDigitalIns)
+		{
+			dsIn <<= 1;
+		}
+		else
+		{
+			break;
+		}
+	}
+	dashboardPacker.AddU8(dsIn);
+	
+	
+	UINT8 dsOut = 0;
+	for (channel = 1; channel <= kDriverStationDigitalOuts; channel++)
+	{
+		dsIn += m_ds->GetDigitalOut(channel);
+		
+		if (channel < kDriverStationDigitalOuts)
+		{
+			dsOut <<= 1;
+		}
+		else
+		{
+			break;
+		}
+	}
+	dashboardPacker.AddU8(dsOut);
+	
+	dashboardPacker.AddCluster();
+	for (channel = 1; channel <= kDriverStationAnalogIns; channel++)
+	{
+		dashboardPacker.AddFloat(m_ds->GetAnalogIn(channel));
+	}
+	dashboardPacker.FinalizeCluster();
+	
 	dashboardPacker.FinalizeCluster();
 	
 	/* Flush the data to the driver station. */
