@@ -29,6 +29,7 @@ public:
 	virtual ~HardwareInterface();
 	
 	void UpdateDashboard(bool cameraState);
+	void EmergencyStop();
 	
 	AnalogModule* GetAnalogModule(UINT8 num);
 	DigitalModule* GetDigitalModule(UINT8 num);

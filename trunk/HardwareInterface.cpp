@@ -251,49 +251,12 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 	}
 	dashboardPacker.FinalizeCluster();
 	
-	/* Read and pack Driver Station IO */
-	dashboardPacker.AddCluster();
-	
-	UINT8 dsIn = 0;
-	for (channel = 1; channel <= kDriverStationDigitalIns; channel++)
-	{
-		dsIn += m_ds->GetDigitalIn(channel);
-		
-		if (channel < kDriverStationDigitalIns)
-		{
-			dsIn <<= 1;
-		}
-		else
-		{
-			break;
-		}
-	}
-	dashboardPacker.AddU8(dsIn);
-	
-	
-	UINT8 dsOut = 0;
-	for (channel = 1; channel <= kDriverStationDigitalOuts; channel++)
-	{
-		dsIn += m_ds->GetDigitalOut(channel);
-		
-		if (channel < kDriverStationDigitalOuts)
-		{
-			dsOut <<= 1;
-		}
-		else
-		{
-			break;
-		}
-	}
-	dashboardPacker.AddU8(dsOut);
-	
+	/* Read and pack Driver Station Analog Inputs */
 	dashboardPacker.AddCluster();
 	for (channel = 1; channel <= kDriverStationAnalogIns; channel++)
 	{
 		dashboardPacker.AddFloat(m_ds->GetAnalogIn(channel));
 	}
-	dashboardPacker.FinalizeCluster();
-	
 	dashboardPacker.FinalizeCluster();
 	
 	/* Flush the data to the driver station. */
@@ -312,6 +275,19 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 		}
 		                                                                                 
 		m_cameraState = cameraState;
+	}
+}
+
+/* Sets all initialized PWMs to 0.0
+ */
+void HardwareInterface::EmergencyStop()
+{
+	for (UINT8 module = 0; module < kDigitalModules; module++)
+	{
+		for (UINT8 channel = 0; channel < kPwmChannels; channel++)
+		{
+			if (m_pwms[module][channel] != NULL) m_pwms[module][channel]->SetRaw(127);
+		}
 	}
 }
 

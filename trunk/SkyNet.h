@@ -56,7 +56,7 @@ protected:
 	
 	DriverStation *m_ds;
 		
-	UINT32 m_priorPacketNumber, m_autoCount, m_teleCount;
+	UINT32 m_priorPacketNumber, m_autoCount, m_teleCount, m_disableCount;
 	
 	/* PWM Constants (Relative Modules) */
 	static const UINT8 kLeftDriveModule       = 0; //J
