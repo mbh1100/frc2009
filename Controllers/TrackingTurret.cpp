@@ -1,12 +1,8 @@
 #include "TrackingTurret.h"
 
-TrackingTurret::TrackingTurret(PIDJaguar* turretMotor, Jaguar* shooterMotor, Servo* cameraServo, Joystick* test1, Joystick* test2)
+TrackingTurret::TrackingTurret(PIDOutput* turretMotor, SpeedController* shooterMotor, Servo* cameraServo)
 {
 	m_trackingCamera = new TrackingCamera(true);
-	
-	//Temporary
-	m_joystick1 = test1;
-	m_joystick2 =  test2;
 	
 	m_cameraServo = cameraServo;
 	m_turretMotor = turretMotor;
@@ -52,7 +48,8 @@ TrackingTurret::~TrackingTurret()
 /* Manual override on turret turning */
 void TrackingTurret::Manual(float turnMotor, float changeDistance)
 {	
-	/* Ranges for turning
+	/* TODO: This makes no sense */
+	/* Ranges for turning 
 	 * if less than c. 1.2 V, continue turning LEFT
 	 * 
 	 * else if greater than 3.7 V, continue turning RIGHT
@@ -133,38 +130,6 @@ void TrackingTurret::Automatic()
 
 bool TrackingTurret::Update(bool manual, bool shoot, float turnMotor, float changeDistance)
 {
-	//Temporary code to help determine best values for PID loop
-	if (m_joystick1->GetRawButton(11))
-	{
-		m_pX -= .01;
-	}
-	else if (m_joystick1->GetRawButton(10))
-	{
-		m_pX += .01;
-	}
-	
-	
-	if (m_joystick2->GetRawButton(7))
-	{
-		m_iX -= .0001;
-	}
-	else if (m_joystick2->GetRawButton(6))
-	{
-		m_iX += .0001;
-	}
-	
-	if (m_joystick2->GetRawButton(11))
-	{
-		m_dX -= .00001;
-	}
-	else if (m_joystick2->GetRawButton(10))
-	{
-		m_dX += .00001;
-	}
-	printf("P: %f   I: %f   D: %f\r\n",m_pX,m_iX,m_dX);
-	m_calcSpeedX->SetPID(m_pX,m_iX,m_dX);
-	//End Temporary Code
-	
 	m_shoot = shoot;
 	
 	if (manual)

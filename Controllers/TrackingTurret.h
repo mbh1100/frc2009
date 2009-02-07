@@ -13,7 +13,7 @@
 class TrackingTurret
 {
 public:
-	TrackingTurret(PIDJaguar* turretMotor, Jaguar* shooterMotor, Servo* cameraServo, Joystick* test1, Joystick* test2);
+	TrackingTurret(PIDOutput* turretMotor, SpeedController* shooterMotor, Servo* cameraServo);
 	virtual ~TrackingTurret();
 	
 	/* New method for manual turret control */
@@ -37,8 +37,8 @@ protected:
 	
 	/* Declare Objects */
 	PIDControl *m_calcSpeedX;
-	PIDJaguar *m_turretMotor;
-	Jaguar *m_shooterMotor;
+	PIDOutput *m_turretMotor;
+	SpeedController *m_shooterMotor;
 	
 	/* Declare constants */
 	float m_pX, m_iX, m_dX;
@@ -50,8 +50,6 @@ protected:
 	bool m_targetFound, m_shoot;	
 	
 	Servo *m_cameraServo;
-	
-	Joystick *m_joystick1, *m_joystick2;
 };
 
 #endif

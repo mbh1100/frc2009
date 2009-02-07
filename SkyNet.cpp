@@ -31,7 +31,7 @@ SkyNet::SkyNet()
 	m_shooterMotor->EnableDeadbandElimination(true);
 	m_shooterMotor->SetBounds(255, 136, 128, 120, 0);
 	
-	m_trackingTurret = new TrackingTurret(m_turretMotor, m_shooterMotor, m_cameraServo, m_leftJoystick, m_rightJoystick);
+	m_trackingTurret = new TrackingTurret(m_turretMotor, m_shooterMotor, m_cameraServo);
 	
 	m_manual = 0;
 	m_shoot = 0;
