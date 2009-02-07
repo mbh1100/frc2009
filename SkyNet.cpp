@@ -76,8 +76,9 @@ SkyNet::SkyNet()
 void SkyNet::DisabledInit()
 {
 	printf("Inititializing Disabled Mode..\r\n");
+	m_disableCount = 0;
 	
-	//m_calcLeftDrive->Disable();
+	m_hardwareInterface->EmergencyStop();
 }
 
 void SkyNet::AutonomousInit()
@@ -89,7 +90,6 @@ void SkyNet::AutonomousInit()
 	m_drive->Disable();
 }
 
-
 void SkyNet::TeleopInit()
 {
 	printf("Inititializing Teleop Mode..\r\n");
@@ -99,10 +99,17 @@ void SkyNet::TeleopInit()
 	m_trackingTurret->StopTurret();
 }
 
-
 void SkyNet::DisabledPeriodic()
 {
 	GetWatchdog().Feed();
+	m_disableCount++;
+	
+	if ((m_disableCount % 4) == 0)
+	{
+		/* Runs at 50Hz */
+	
+		m_hardwareInterface->UpdateDashboard(true);
+	}
 }
 
 void SkyNet::AutonomousPeriodic()
@@ -151,6 +158,7 @@ void SkyNet::TeleopPeriodic()
 	{
 		/* Runs at 50Hz */
 	
+		m_hardwareInterface->UpdateDashboard(true);
 	}
 	
 	if ((m_teleCount % 2) == 0)

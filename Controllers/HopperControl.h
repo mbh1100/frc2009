@@ -14,7 +14,7 @@ public:
 	
 protected:
 	Victor *m_leftHelixMotor, *m_rightHelixMotor, *m_sweeperMotor;
-	static float kHelixSpeed, kSweeperSpeed;
+	float kHelixSpeed, kSweeperSpeed;
 };
 
 #endif
