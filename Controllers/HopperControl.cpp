@@ -5,29 +5,41 @@ HopperControl::HopperControl(Victor* leftHelixMotor, Victor* rightHelixMotor, Vi
 	m_leftHelixMotor = leftHelixMotor;
 	m_rightHelixMotor = rightHelixMotor;
 	m_sweeperMotor = sweeperMotor;
+	
+	kHelixSpeed = .98;
+	kSweeperSpeed = .98;
 }
 
-void HopperControl::Update(bool sweeperState, float helixState, float helixDirection)
+HopperControl::~HopperControl()
 {
-	SetMotors(helixDirection);
 	
-	if (helixState == 1)
+}
+
+void HopperControl::Update(int helixSide, int helixDirection)
+{
+	m_sweeperMotor->Set(helixDirection >= 0 ? kSweeperSpeed : -kSweeperSpeed);
+	
+	if (helixDirection == 0)
 	{
 		m_rightHelixMotor->Set(0.0);
-	}
-	else if (helixState == -1)
-	{
 		m_leftHelixMotor->Set(0.0);
 	}
-	if (!sweeperState)
+	else
 	{
-		m_sweeperMotor->Set(0.0);
+		if (helixSide >= 0)
+		{
+			m_rightHelixMotor->Set(helixDirection > 0 ? kHelixSpeed : -kHelixSpeed);
+		}
+		if (helixSide <= 0)
+		{
+			m_leftHelixMotor->Set(helixDirection > 0 ? kHelixSpeed : -kHelixSpeed);
+		}
 	}
 }
 
-void HopperControl::SetMotors(float motorDirection)
+void HopperControl::Disable()
 {
-	m_leftHelixMotor->Set(motorDirection);
-	m_rightHelixMotor->Set(motorDirection);
-	m_sweeperMotor->Set(motorDirection);
+	m_rightHelixMotor->Set(0.0);
+	m_leftHelixMotor->Set(0.0);
+	m_sweeperMotor->Set(0.0);
 }

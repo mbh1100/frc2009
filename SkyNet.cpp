@@ -18,11 +18,12 @@ SkyNet::SkyNet()
 	m_analogModules[1]->SetAverageBits(1,8);
 	
 	/* Initialize Camera motors and control */
-	m_turretMotor = m_hardwareInterface->GetPIDJaguar(0, 3);
-	m_shooterMotor = m_hardwareInterface->GetJaguar(0, 4);
-	m_cameraServo = m_hardwareInterface->GetServo(0, 8);
-	m_joystick1 = m_hardwareInterface->GetJoystick(1);
-	m_joystick2 = m_hardwareInterface->GetJoystick(2);
+	m_turretMotor = m_hardwareInterface->GetPIDJaguar(kTurretModule, kTurretPWM);
+	m_shooterMotor = m_hardwareInterface->GetJaguar(kShooterModule, kShooterPWM);
+	m_cameraServo = m_hardwareInterface->GetServo(kCameraModule, kCameraPWM);
+	m_emptyCellServo = m_hardwareInterface->GetServo(kLeftCellHolderModule, kLeftCellHolderPWM);
+	m_leftJoystick = m_hardwareInterface->GetJoystick(kLeftJoystickPort);
+	m_rightJoystick = m_hardwareInterface->GetJoystick(kRightJoystickPort);
 	
 	m_turretMotor->EnableDeadbandElimination(true);
 	m_turretMotor->SetBounds(255, 136, 128, 120, 0);
@@ -30,7 +31,7 @@ SkyNet::SkyNet()
 	m_shooterMotor->EnableDeadbandElimination(true);
 	m_shooterMotor->SetBounds(255, 136, 128, 120, 0);
 	
-	m_trackingTurret = new TrackingTurret(m_turretMotor, m_shooterMotor, m_cameraServo, m_joystick1, m_joystick2);
+	m_trackingTurret = new TrackingTurret(m_turretMotor, m_shooterMotor, m_cameraServo, m_leftJoystick, m_rightJoystick);
 	
 	m_manual = 0;
 	m_shoot = 0;
@@ -38,21 +39,21 @@ SkyNet::SkyNet()
 	m_setDistance = 3;
 	
 	/* Initialize drive motors and controls */	
-	m_leftDriveMotor = m_hardwareInterface->GetPIDJaguar(0, 1);
+	m_leftDriveMotor = m_hardwareInterface->GetPIDJaguar(kLeftDriveModule, kLeftDrivePWM);
 	m_leftDriveMotor->EnableDeadbandElimination(true);
 	m_leftDriveMotor->SetBounds(255, 136, 128, 120, 0);
 	
-	m_rightDriveMotor = m_hardwareInterface->GetPIDJaguar(0, 2);
+	m_rightDriveMotor = m_hardwareInterface->GetPIDJaguar(kRightDriveModule, kRightDrivePWM);
 	m_rightDriveMotor->EnableDeadbandElimination(true);
 	m_rightDriveMotor->SetBounds(255, 136, 128, 120, 0);	
 	
-	m_leftDriveEncoder = new PIDEncoder(4, 3, 4, 4);
+	m_leftDriveEncoder = new PIDEncoder(kLeftDriveEncoderAModule, kLeftDriveEncoderAChannel, kLeftDriveEncoderBModule, kLeftDriveEncoderBChannel);
 	m_leftDriveEncoder->SetDistancePerTick(-0.001);
 	m_leftDriveEncoder->SetType(PIDEncoder::kVelocity);
 	m_leftDriveEncoder->SetSampleSize(3);
 	m_leftDriveEncoder->Start();
 	
-	m_rightDriveEncoder = new PIDEncoder(4, 1, 4, 2);
+	m_rightDriveEncoder = new PIDEncoder(kLeftDriveEncoderAModule, kLeftDriveEncoderAChannel, kLeftDriveEncoderBModule, kLeftDriveEncoderBChannel);
 	m_rightDriveEncoder->SetDistancePerTick(-0.001);
 	m_rightDriveEncoder->SetType(PIDEncoder::kVelocity);
 	m_rightDriveEncoder->SetSampleSize(3);
@@ -62,12 +63,11 @@ SkyNet::SkyNet()
 	
 	
 	/* Sweeper and Hopper */	
-	m_leftHelixMotor = m_hardwareInterface->GetVictor(0, 6);
-	m_rightHelixMotor = m_hardwareInterface->GetVictor(0, 7);
-	m_sweeperMotor = m_hardwareInterface->GetVictor(0,5);
+	m_leftHelixMotor = m_hardwareInterface->GetVictor(kLeftHelixModule, kLeftHelixPWM);
+	m_rightHelixMotor = m_hardwareInterface->GetVictor(kRightHelixModule, kRightHelixPWM);
+	m_sweeperMotor = m_hardwareInterface->GetVictor(kSweeperModule,kSweeperPWM);
 	
-	m_sweeperState = false;
-	m_helixState = 0;
+	m_helixSide = 0;
 	m_helixDirection = 0;
 	
 	m_hopperControl = new HopperControl(m_leftHelixMotor, m_rightHelixMotor, m_sweeperMotor);
@@ -165,14 +165,16 @@ void SkyNet::TeleopPeriodic()
 		/* Code dependent on driverstation/human input here */
 		
 		/* Tank Drive */
-		m_drive->SetSetpoint(m_joystick1->GetY()*-1.5, m_joystick2->GetY()*-7.2);
+		m_drive->SetSetpoint(m_leftJoystick->GetY()*-1.5, m_rightJoystick->GetY()*-7.2);
 		m_drive->Update();
 		
+		/* Cell Servo Test */
+		m_emptyCellServo->Set((m_leftJoystick->GetY() + 1.0) / 2.1);
+		
 		/* Hopper and Sweeper Control */
-		m_sweeperState = m_ds->GetDigitalIn(2);
-		m_helixState = m_ds->GetAnalogIn(1);
-		m_helixDirection = m_ds->GetAnalogIn(2);
-		m_hopperControl->Update(m_sweeperState, m_helixState, m_helixDirection);
+		m_helixSide = 0;//m_ds->GetAnalogIn(1);
+		m_helixDirection = 0;//m_ds->GetAnalogIn(2);
+		m_hopperControl->Update(m_helixSide, m_helixDirection);
 	}
 	
 	if ((m_teleCount % 10) == 0)

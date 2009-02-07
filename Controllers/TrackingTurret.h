@@ -9,7 +9,6 @@
 #include "PIDController.h"
 #include "TrackingCamera.h"
 #include "../Devices/PIDJaguar.h"
-#include "Shoot.h"
 
 class TrackingTurret
 {
@@ -34,7 +33,6 @@ protected:
 	float m_turretDirection;
 	
 	/* Distance of Target Variables */
-	Shoot *m_shooter;
 	float m_targetDistance;
 	
 	/* Declare Objects */

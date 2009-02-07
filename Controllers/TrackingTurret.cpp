@@ -42,7 +42,6 @@ TrackingTurret::TrackingTurret(PIDJaguar* turretMotor, Jaguar* shooterMotor, Ser
 	m_targetFound = false;
 	m_shoot = false;
 	m_targetDistance = 3.0;
-	m_shooter = new Shoot(m_shooterMotor);
 }
 
 TrackingTurret::~TrackingTurret()
@@ -179,7 +178,7 @@ bool TrackingTurret::Update(bool manual, bool shoot, float turnMotor, float chan
 	
 	if (m_shoot)
 	{
-		m_shooter->Fire(m_targetDistance);
+		//TODO: Shooter
 	}
 	
 	return m_targetFound;
