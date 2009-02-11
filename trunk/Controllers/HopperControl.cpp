@@ -23,6 +23,7 @@ void HopperControl::Update(int helixSide, int helixDirection)
 	{
 		m_rightHelixMotor->Set(0.0);
 		m_leftHelixMotor->Set(0.0);
+		m_sweeperMotor->Set(0.0);
 	}
 	else
 	{

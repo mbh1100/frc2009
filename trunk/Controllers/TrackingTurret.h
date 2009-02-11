@@ -45,7 +45,6 @@ protected:
 	float m_setpointX, m_maxInputX, m_minInputX, m_maxOutputX, m_minOutputX;	
 	float m_errorPercentX, m_errorIncrementX;
 	
-	float m_distanceX, m_distanceY;
 	bool m_inView;
 	bool m_targetFound, m_shoot;	
 	
