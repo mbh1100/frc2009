@@ -193,7 +193,17 @@ void SkyNet::TeleopPeriodic()
 		m_turnMotor = m_ds->GetAnalogIn(3);
 		m_setDistance = m_ds->GetAnalogIn(4);
 		
-		m_trackingTurret->Update(m_manual, m_shoot, m_turnMotor, m_setDistance);
+		if (m_trackingTurret->Update(m_manual, m_shoot, m_turnMotor, m_setDistance))
+		{
+			/* Turn on LEDs */
+			m_ds->SetDigitalOut(kTargetAquiredLED, 1);
+			
+		}
+		else
+		{
+			/* Turn off LEDs */
+			m_ds->SetDigitalOut(kTargetAquiredLED, 0);			
+		}		
 	}	
 }
 

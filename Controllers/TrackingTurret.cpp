@@ -89,10 +89,9 @@ void TrackingTurret::Manual(float turnMotor, float changeDistance)
 	else
 	{
 		m_targetFound = false;
-	}
+	}	
 	
 	m_turretMotor->PIDWrite(m_turretDirection);
-	
 }
 
 void TrackingTurret::Automatic()
