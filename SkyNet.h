@@ -44,6 +44,8 @@ protected:
 	HopperControl *m_hopperControl;
 	Victor *m_leftHelixMotor, *m_rightHelixMotor, *m_sweeperMotor;
 	int m_helixSide, m_helixDirection;
+	DigitalInput *m_leftHelixEntryLimit, *m_leftHelixBottomLimit, *m_leftHelixTopLimit;
+	DigitalInput *m_rightHelixEntryLimit, *m_rightHelixBottomLimit, *m_rightHelixTopLimit;
 	
 	/* Turret and Shooter Variables */
 	PIDJaguar *m_turretMotor;
@@ -90,27 +92,35 @@ protected:
 	static const UINT8 kTurretPWM          = 10; //S
 	
 	/* cRIO Digital IO Constants (Literal Modules)*/
-	static const UINT8 kLeftTurretLimitModule     = 4;
-	static const UINT8 kRightTurretLimitModule    = 4;
-	static const UINT8 kLeftDriveEncoderAModule   = 4;
-	static const UINT8 kLeftDriveEncoderBModule   = 4;
-	static const UINT8 kRightDriveEncoderAModule  = 4;
-	static const UINT8 kRightDriveEncoderBModule  = 4;
-	static const UINT8 kLeftCellLoadLimitModule   = 4;
-	static const UINT8 kRightCellLoadLimitModule  = 4;
-	static const UINT8 kLeftCellCenterLimitModule = 4;
+	static const UINT8 kLeftDriveEncoderAModule    = 4;
+	static const UINT8 kLeftDriveEncoderBModule    = 4;
+	static const UINT8 kRightDriveEncoderAModule   = 4;
+	static const UINT8 kRightDriveEncoderBModule   = 4;
+	static const UINT8 kLeftCellLoadLimitModule    = 4;
+	static const UINT8 kRightCellLoadLimitModule   = 4;
+	static const UINT8 kLeftCellCenterLimitModule  = 4;
 	static const UINT8 kRightCellCenterLimitModule = 4;
+	static const UINT8 kLeftLiftEntryLimitModule   = 4;
+	static const UINT8 kLeftLiftBottomLimitModule  = 4;
+	static const UINT8 kLeftLiftTopLimitModule     = 4;
+	static const UINT8 kRightLiftEntryLimitModule  = 4;
+	static const UINT8 kRightLiftBottomLimitModule = 4;
+	static const UINT8 kRightLiftTopLimitModule    = 4;
 	
-	static const UINT8 kLeftTurretLimitChannel     = 1;
-	static const UINT8 kRightTurretLimitChannel    = 2;
-	static const UINT8 kLeftDriveEncoderAChannel   = 3;
-	static const UINT8 kLeftDriveEncoderBChannel   = 4;
-	static const UINT8 kRightDriveEncoderAChannel  = 5;
-	static const UINT8 kRightDriveEncoderBChannel  = 6;
-	static const UINT8 kLeftCellLoadLimitChannel   = 7;
-	static const UINT8 kRightCellLoadLimitChannel  = 8;
-	static const UINT8 kLeftCellCenterLimitChannel = 9;
-	static const UINT8 kRightCellCenterLimitChannel = 10;
+	static const UINT8 kLeftDriveEncoderAChannel    = 1;
+	static const UINT8 kLeftDriveEncoderBChannel    = 2;
+	static const UINT8 kRightDriveEncoderAChannel   = 3;
+	static const UINT8 kRightDriveEncoderBChannel   = 4;
+	static const UINT8 kLeftCellLoadLimitChannel    = 5;
+	static const UINT8 kRightCellLoadLimitChannel   = 6;
+	static const UINT8 kLeftCellCenterLimitChannel  = 7;
+	static const UINT8 kRightCellCenterLimitChannel = 8;
+	static const UINT8 kLeftLiftEntryLimitChannel   = 9;
+	static const UINT8 kLeftLiftBottomLimitChannel  = 10;
+	static const UINT8 kLeftLiftTopLimitChannel     = 11;
+	static const UINT8 kRightLiftEntryLimitChannel  = 12;
+	static const UINT8 kRightLiftBottomLimitChannel = 13;
+	static const UINT8 kRightLiftTopLimitChannel    = 14;
 	
 	/* cRIO Analog In Constants */
 	
