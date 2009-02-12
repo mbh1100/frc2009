@@ -20,8 +20,8 @@ SkyNet::SkyNet()
 	/* Initialize Camera motors and control */
 	m_turretMotor = m_hardwareInterface->GetPIDJaguar(kTurretModule, kTurretPWM);
 	m_shooterMotor = m_hardwareInterface->GetJaguar(kShooterModule, kShooterPWM);
-	m_cameraServo = m_hardwareInterface->GetServo(kCameraModule, kCameraPWM);
-	m_emptyCellServo = m_hardwareInterface->GetServo(kLeftCellHolderModule, kLeftCellHolderPWM);
+	m_leftEmptyCell = m_hardwareInterface->GetVictor(kLeftCellHolderModule, kLeftCellHolderPWM);
+	m_rightEmptyCell = m_hardwareInterface->GetVictor(kRightCellHolderModule, kRightCellHolderPWM);
 	m_leftJoystick = m_hardwareInterface->GetJoystick(kLeftJoystickPort);
 	m_rightJoystick = m_hardwareInterface->GetJoystick(kRightJoystickPort);
 	
@@ -71,6 +71,21 @@ SkyNet::SkyNet()
 	m_helixDirection = 0;
 	
 	m_hopperControl = new HopperControl(m_leftHelixMotor, m_rightHelixMotor, m_sweeperMotor);
+	
+	
+	/* Empty Cell Variables & Constants */
+	m_leftEmptyCell = m_hardwareInterface->GetVictor(kLeftCellHolderModule, kLeftCellHolderPWM);
+	m_rightEmptyCell = m_hardwareInterface->GetVictor(kRightCellHolderModule, kRightCellHolderPWM);
+
+	m_emptyCellControl = new EmptyCell(m_leftEmptyCell, m_rightEmptyCell);
+	
+	//TODO: Talk to Mike and see if it should somehow go through HardwareInterface
+	m_leftCellLoaded = new DigitalInput(kLeftCellLoadLimitModule, kLeftCellLoadLimitChannel);
+	m_rightCellLoaded = new DigitalInput(kRightCellLoadLimitModule, kRightCellLoadLimitChannel);
+	m_leftCellCentered = new DigitalInput(kLeftCellCenterLimitModule, kLeftCellCenterLimitChannel);
+	m_rightCellCentered = new DigitalInput(kRightCellCenterLimitModule, kRightCellCenterLimitChannel);
+	
+	m_release = 0;
 }
 
 void SkyNet::DisabledInit()
@@ -176,13 +191,17 @@ void SkyNet::TeleopPeriodic()
 		m_drive->SetSetpoint(m_leftJoystick->GetY()*-1.5, m_rightJoystick->GetY()*-7.2);
 		m_drive->Update();
 		
-		/* Cell Servo Test */
-		m_emptyCellServo->Set((m_leftJoystick->GetY() + 1.0) / 2.1);
+		/* Empty Cell Control */
+		m_release = m_ds->GetDigitalIn(kCellSwitch);
+		m_emptyCellControl->Update(m_release, m_leftCellLoaded->Get(), m_rightCellLoaded->Get(), m_leftCellCentered->Get(), m_rightCellCentered->Get(), m_teleCount);
+		
+		printf("Servo at: %f\r\n", (m_leftJoystick->GetThrottle() + 1.0)/2.1);
 		
 		/* Hopper and Sweeper Control */
 		m_helixSide = 0;//m_ds->GetAnalogIn(1);
 		m_helixDirection = 0;//m_ds->GetAnalogIn(2);
 		m_hopperControl->Update(m_helixSide, m_helixDirection);
+		
 	}
 	
 	if ((m_teleCount % 10) == 0)
