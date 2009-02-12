@@ -70,6 +70,13 @@ SkyNet::SkyNet()
 	m_helixSide = 0;
 	m_helixDirection = 0;
 	
+	m_leftHelixEntryLimit = new DigitalInput(kLeftLiftEntryLimitModule, kLeftLiftEntryLimitChannel);
+	m_leftHelixBottomLimit = new DigitalInput(kLeftLiftBottomLimitModule, kLeftLiftBottomLimitChannel);
+	m_leftHelixTopLimit = new DigitalInput(kLeftLiftTopLimitModule, kLeftLiftTopLimitChannel);
+	m_rightHelixEntryLimit = new DigitalInput(kRightLiftEntryLimitModule, kRightLiftEntryLimitChannel);
+	m_rightHelixBottomLimit = new DigitalInput(kRightLiftBottomLimitModule, kRightLiftBottomLimitChannel);
+	m_rightHelixTopLimit = new DigitalInput(kRightLiftTopLimitModule, kRightLiftTopLimitChannel);
+	
 	m_hopperControl = new HopperControl(m_leftHelixMotor, m_rightHelixMotor, m_sweeperMotor);
 	
 	
@@ -198,10 +205,13 @@ void SkyNet::TeleopPeriodic()
 		printf("Servo at: %f\r\n", (m_leftJoystick->GetThrottle() + 1.0)/2.1);
 		
 		/* Hopper and Sweeper Control */
-		m_helixSide = 0;//m_ds->GetAnalogIn(1);
-		m_helixDirection = 0;//m_ds->GetAnalogIn(2);
-		m_hopperControl->Update(m_helixSide, m_helixDirection);
-		
+		if (!m_shoot)
+		{
+			m_helixSide = 0;//m_ds->GetAnalogIn(1);
+			m_helixDirection = 0;//m_ds->GetAnalogIn(2);
+			m_hopperControl->Update(m_helixSide, m_helixDirection, m_leftHelixEntryLimit->Get(), m_leftHelixBottomLimit->Get(),
+					m_leftHelixTopLimit->Get(), m_rightHelixEntryLimit->Get(), m_rightHelixBottomLimit->Get(), m_rightHelixTopLimit->Get(), m_teleCount);
+		}
 	}
 	
 	if ((m_teleCount % 10) == 0)
