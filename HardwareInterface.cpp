@@ -282,12 +282,9 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
  */
 void HardwareInterface::EmergencyStop()
 {
-	for (UINT8 module = 0; module < kDigitalModules; module++)
+	for (std::list<PWM*>::iterator i = m_emergencyDisableList.begin(); i != m_emergencyDisableList.end(); i++)
 	{
-		for (UINT8 channel = 0; channel < kPwmChannels; channel++)
-		{
-			if (m_pwms[module][channel] != NULL) m_pwms[module][channel]->SetRaw(127);
-		}
+		(*i)->SetRaw(127);
 	}
 }
 
@@ -323,6 +320,8 @@ Jaguar* HardwareInterface::GetJaguar(UINT8 moduleNum, UINT8 channel)
 	{
 		m_pwms[moduleNum][channel - 1] = new Jaguar(kDigitalSlotNumbers[moduleNum], channel);
 			
+		m_emergencyDisableList.push_back(m_pwms[moduleNum][channel - 1]);
+		
 		return (Jaguar*)(m_pwms[moduleNum][channel - 1]);
 	}
 	else
@@ -343,6 +342,8 @@ Victor* HardwareInterface::GetVictor(UINT8 moduleNum, UINT8 channel)
 	{
 		m_pwms[moduleNum][channel - 1] = new Victor(kDigitalSlotNumbers[moduleNum], channel);
 			
+		m_emergencyDisableList.push_back(m_pwms[moduleNum][channel - 1]);
+		
 		return (Victor*)(m_pwms[moduleNum][channel - 1]);
 	}
 	else
@@ -382,7 +383,9 @@ PIDJaguar* HardwareInterface::GetPIDJaguar(UINT8 moduleNum, UINT8 channel)
 	if (m_pwms[moduleNum][channel - 1] == NULL)
 	{
 		m_pwms[moduleNum][channel - 1] = new PIDJaguar(kDigitalSlotNumbers[moduleNum], channel);
-			
+		
+		m_emergencyDisableList.push_back(m_pwms[moduleNum][channel - 1]);
+		
 		return (PIDJaguar*)(m_pwms[moduleNum][channel - 1]);
 	}
 	else
@@ -403,6 +406,8 @@ PIDVictor* HardwareInterface::GetPIDVictor(UINT8 moduleNum, UINT8 channel)
 	{
 		m_pwms[moduleNum][channel - 1] = new PIDVictor(kDigitalSlotNumbers[moduleNum], channel);
 			
+		m_emergencyDisableList.push_back(m_pwms[moduleNum][channel - 1]);
+		
 		return (PIDVictor*)(m_pwms[moduleNum][channel - 1]);
 	}
 	else

@@ -72,29 +72,34 @@ bool TrackingCamera::Update()
 	{		
 		if (m_topColor)
 		{
-			if (m_greenY < m_pinkY)
+			if (m_greenY < m_pinkY && fabs(m_greenX - m_pinkX) <= kTargetAllowedHorizontalDifference)
 			{
+				m_targetSize = m_parGreen.particleToImagePercent + m_parPink.particleToImagePercent;
 				return true;
 			}
 			else
 			{
+				m_targetSize = 0.0;
 				return false;
 			}
 		}
 		else
 		{
-			if (m_greenY > m_pinkY)
+			if (m_greenY > m_pinkY && fabs(m_greenX - m_pinkX) <= kTargetAllowedHorizontalDifference)
 			{
+				m_targetSize = m_parGreen.particleToImagePercent + m_parPink.particleToImagePercent;
 				return true;
 			}
 			else
 			{
+				m_targetSize = 0.0;
 				return false;
 			}
 		}
 	}
 	else
 	{
+		m_targetSize = 0.0;
 		return false;
 	}
 }
@@ -113,19 +118,13 @@ float TrackingCamera::GetTargetY()
 	return y;
 }
 
+float TrackingCamera::GetTargetSize()
+{
+	return m_targetSize;
+}
+
 bool TrackingCamera::TargetMoving()
 {
 		
 	return false;
-}
-
-float TrackingCamera::GetSetpoint()
-{
-	
-	return 0.0;
-}
-
-float TrackingCamera::PIDGet()
-{
-	return GetTargetX();
 }

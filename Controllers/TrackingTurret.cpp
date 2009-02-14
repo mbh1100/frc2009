@@ -1,37 +1,13 @@
 #include "TrackingTurret.h"
 
-TrackingTurret::TrackingTurret(PIDOutput* turretMotor, Servo* cameraServo)
+TrackingTurret::TrackingTurret(Servo* primary, Servo* secondary)
 {
 	m_trackingCamera = new TrackingCamera(true);
 	
-	m_cameraServo = cameraServo;
-	m_turretMotor = turretMotor;
+	m_primaryServo = primary;
+	m_secondaryServo = secondary;
 	
-	//All variables for PIDLoop for horizontal movement
-	m_pX = -0.3;  //-0.03    Faster: -0.035
-	m_iX = -0.00; //-0.0372  Faster: -0.030
-	m_dX = -0.00000;          //Faster: 0.00006
-	m_setpointX = -60.0;
-	m_maxInputX = 1000.0;
-	m_minInputX = -1000.0;
-	m_maxOutputX = 1.0;
-	m_minOutputX = -1.0;
-	m_errorPercentX = 10.0;
-	m_errorIncrementX = .001;
-	
-	m_calcSpeedX = new PIDControl();
-	m_calcSpeedX->SetPID(m_pX, m_iX, m_dX);
-	m_calcSpeedX->SetSetpoint(m_setpointX);
-	m_calcSpeedX->SetSource(m_trackingCamera, m_maxInputX, m_minInputX);
-	m_calcSpeedX->SetOutput(m_turretMotor, m_maxOutputX, m_minOutputX);
-	m_calcSpeedX->SetError(m_errorPercentX, m_errorIncrementX);
-	
-	/* Variables for manual turret aiming
-	 * initial voltage set to stop
-	 * initial direction for PIDWrite is 0
-	 * */
-	m_turnMotor = 2.5;
-	m_turretDirection = 0;
+	m_scanDirection = 1;
 	
 	m_inView = false;
 	m_targetFound = false;
@@ -42,129 +18,64 @@ TrackingTurret::~TrackingTurret()
 	
 }
 
-/* Manual override on turret turning */
-void TrackingTurret::Manual(float turnMotor, float changeDistance)
-{	
-	m_calcSpeedX->Disable();
-	
-	/* TODO: This makes no sense */
-	/* Ranges for turning 
-	 * if less than c. 1.2 V, continue turning LEFT
-	 * 
-	 * else if greater than 3.7 V, continue turning RIGHT
-	 * else stop moving
-	 * 
-	 * Values set for PIDWrite are based on 
-	 * LEFT = 1
-	 * RIGHT = -1
-	 * STOP = 0
-	 */
-	
-	m_turnMotor = turnMotor;
-	m_changeDistance = changeDistance;
-	
-	m_targetFound = 0;
-	
-	/* Start turning the turret */
-	if (m_turnMotor < 1.2)
-	{
-		m_turretDirection = .3;
-	}
-	else if (m_turnMotor > 3.7)
-	{
-		m_turretDirection = -.3;
-	}
-	else
-	{
-		m_turretDirection = 0.0;
-	}
-	
-	/* Determine if target has been found so LEDs can turn on */
-	m_trackingCamera->Update();
-	
-	if (fabs(m_trackingCamera->GetTargetX()) < 100)
-	{
-		m_targetFound = true;
-	}
-	else
-	{
-		m_targetFound = false;
-	}	
-	
-	m_turretMotor->PIDWrite(m_turretDirection);
-}
-
-void TrackingTurret::Automatic()
+bool TrackingTurret::Update()
 {
-	/* Update TrackingCamera */
-	if (m_inView = m_trackingCamera->Update())
-	{
-		printf("Target X: %f\n", m_trackingCamera->GetTargetX());
-		printf("Target Y: %f\n", m_trackingCamera->GetTargetY());
-	}
+	m_inView = m_trackingCamera->Update();
 	
 	/* If we see a target, enable the PID loop and calculate info for it */
 	if (m_inView)
 	{
-		if (m_trackingCamera->TargetMoving())
+		if (fabs(m_trackingCamera->GetTargetX()) > kTurretAllowedError)
 		{
-			m_calcSpeedX->SetSetpoint(m_trackingCamera->GetSetpoint());
+			m_scanDirection = sign(m_trackingCamera->GetTargetX());
+			m_motorPos += kTurretMaxInc * m_trackingCamera->GetTargetSize() * m_scanDirection;
+		
+			m_targetFound = false;
 		}
 		else
 		{
-			m_calcSpeedX->SetSetpoint(m_setpointX);
+			m_targetFound = true;
 		}
-		m_calcSpeedX->Enable();
-		m_targetFound = m_calcSpeedX->Calculate();
-		printf("Found target: %d\n",(int)m_targetFound);
+	}
+	else
+	{	
+		m_motorPos += kTurretManualInc * m_scanDirection;
 	}
 	
-	/* Else scan for an image, manually or automatically */
-	else
-	{
-		m_calcSpeedX->Disable();
-		printf("No Target Available \r\n");
-	}
-}
-
-bool TrackingTurret::Update(bool manual, float turnMotor, float changeDistance)
-{	
-	if (manual)
-	{
-		Manual(turnMotor, changeDistance);
-	}
-	else
-	{
-		Automatic();
-	}
+	UpdateMotors();
 	
 	return m_targetFound;
 }
 
-void TrackingTurret::ScanTarget(float currentX)
-{
-	/*if(m_scanLoop <= 0)
+bool TrackingTurret::Update(int direction)
+{	
+	m_inView = m_trackingCamera->Update();
+	
+	if (fabs(m_trackingCamera->GetTargetX()) > kTurretAllowedError)
 	{
-		if(currentX > 0)
-		{
-			m_inverse = 1;
-		}
-		else
-		{
-			m_inverse = 0;
-		}
+		m_targetFound = false;
+	}
+	else
+	{
+		m_targetFound = true;
 	}
 	
-	m_scanLoop++;*/	
+	m_motorPos += kTurretManualInc * (double)direction;
+	
+	UpdateMotors();
+	
+	return m_targetFound;
 }
 
-void TrackingTurret::ResetScan()
+void TrackingTurret::UpdateMotors()
 {
-	//m_scanLoop = 0;
+	if (m_motorPos > 1.0 || m_motorPos < 0.0)
+	{
+		m_motorPos = m_scanDirection == -1 ? 0.0 : 1.0;
+		
+		m_scanDirection *= -1;
+	}
+	
+	m_primaryServo->Set(m_motorPos);
+	m_secondaryServo->Set(1.0 - m_motorPos);
 }
-
-void TrackingTurret::StopTurret()
-{
-	m_calcSpeedX->Disable();
-}
-

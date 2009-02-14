@@ -11,6 +11,8 @@
 #include "Devices/PIDVictor.h"
 #include "Devices/PIDServo.h"
 
+#include <list>
+
 
 /* This class contains all the nessisary hardware declartions for the robot.
  * Any (non-sensor) hardware that the robot needs should be requested from
@@ -59,6 +61,8 @@ protected:
 	Solenoid *m_solenoids[kSolenoidChannels];
 	SmartRelay *m_smartRelays[kDigitalModules][kRelayChannels];
 	PWM *m_pwms[kDigitalModules][kPwmChannels];
+	
+	std::list<PWM*> m_emergencyDisableList;
 	
 	Joystick *m_joysticks[kJoystickPorts];
 	
