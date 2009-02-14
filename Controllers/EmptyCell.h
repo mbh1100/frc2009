@@ -16,7 +16,7 @@ protected:
 	
 	bool m_release, m_releaseProcess, m_limitLeftBottom, m_limitRightBottom, m_limitLeftTop, m_limitRightTop;
 	
-	static const float kEmptyCellSpeed = .2;
+	float kEmptyCellSpeed;
 };
 
 #endif

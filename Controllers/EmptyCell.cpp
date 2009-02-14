@@ -2,6 +2,8 @@
 
 EmptyCell::EmptyCell(Victor* leftMotor, Victor* rightMotor)
 {
+	kEmptyCellSpeed = .2;
+	
 	m_leftMotor = leftMotor;
 	m_rightMotor = rightMotor;
 	

@@ -2,7 +2,7 @@
 
 SkyNet::SkyNet()
 {
-	printf("Initializing..\r\n");
+     	printf("Initializing..\r\n");
 	
 	/* Initialize Hardware Interface & Driver station*/
 	m_hardwareInterface = new HardwareInterface(true, true);
@@ -24,10 +24,13 @@ SkyNet::SkyNet()
 	m_leftJoystick = m_hardwareInterface->GetJoystick(kLeftJoystickPort);
 	m_rightJoystick = m_hardwareInterface->GetJoystick(kRightJoystickPort);
 	
+	m_leftTestJoystick = m_hardwareInterface->GetJoystick(3);
+	m_rightTestJoystick = m_hardwareInterface->GetJoystick(4);
+	
 	m_shooterMotor->EnableDeadbandElimination(true);
 	m_shooterMotor->SetBounds(255, 136, 128, 120, 0);
 	
-	m_trackingTurret = new TrackingTurret(m_turretMotor, m_turretServoOne);
+	//m_trackingTurret = new TrackingTurret(m_turretMotor, m_turretServoOne);
 	
 	m_manual = 0;
 	m_shoot = 0;
@@ -49,7 +52,7 @@ SkyNet::SkyNet()
 	m_leftDriveEncoder->SetSampleSize(3);
 	m_leftDriveEncoder->Start();
 	
-	m_rightDriveEncoder = new PIDEncoder(kLeftDriveEncoderAModule, kLeftDriveEncoderAChannel, kLeftDriveEncoderBModule, kLeftDriveEncoderBChannel);
+	m_rightDriveEncoder = new PIDEncoder(kRightDriveEncoderAModule, kRightDriveEncoderAChannel, kRightDriveEncoderBModule, kRightDriveEncoderBChannel);
 	m_rightDriveEncoder->SetDistancePerTick(-0.001);
 	m_rightDriveEncoder->SetType(PIDEncoder::kVelocity);
 	m_rightDriveEncoder->SetSampleSize(3);
@@ -64,7 +67,7 @@ SkyNet::SkyNet()
 	
 	m_leftHelixMotor = m_hardwareInterface->GetVictor(kLeftHelixModule, kLeftHelixPWM);
 	m_rightHelixMotor = m_hardwareInterface->GetVictor(kRightHelixModule, kRightHelixPWM);
-	m_sweeperMotor = m_hardwareInterface->GetVictor(kSweeperModule,kSweeperPWM);
+	m_sweeperMotor = m_hardwareInterface->GetJaguar(kSweeperModule,kSweeperPWM);
 	
 	m_helixSide = 0;
 	m_helixDirection = 0;
@@ -86,10 +89,10 @@ SkyNet::SkyNet()
 	m_emptyCellControl = new EmptyCell(m_leftEmptyCell, m_rightEmptyCell);
 	
 	//TODO: Talk to Mike and see if it should somehow go through HardwareInterface
-	m_leftCellBottom = new DigitalInput(kLeftCellBottomLimitModule, kLeftCellBottomLimitChannel);
-	m_rightCellBottom = new DigitalInput(kRightCellBottomLimitModule, kRightCellBottomLimitChannel);
-	m_leftCellTop = new DigitalInput(kLeftCellTopLimitModule, kLeftCellTopLimitChannel);
-	m_rightCellTop = new DigitalInput(kRightCellTopLimitModule, kRightCellTopLimitChannel);
+	//m_leftCellBottom = new DigitalInput(kLeftCellBottomLimitModule, kLeftCellBottomLimitChannel);
+	//m_rightCellBottom = new DigitalInput(kRightCellBottomLimitModule, kRightCellBottomLimitChannel);
+	//m_leftCellTop = new DigitalInput(kLeftCellTopLimitModule, kLeftCellTopLimitChannel);
+	//m_rightCellTop = new DigitalInput(kRightCellTopLimitModule, kRightCellTopLimitChannel);
 	
 	m_release = 0;
 }
@@ -116,7 +119,7 @@ void SkyNet::TeleopInit()
 	printf("Inititializing Teleop Mode..\r\n");
 	m_teleCount = 0;
 	
-	m_trackingTurret->StopTurret();
+	//m_trackingTurret->StopTurret();
 }
 
 void SkyNet::DisabledPeriodic()
@@ -147,7 +150,7 @@ void SkyNet::AutonomousPeriodic()
 		m_setDistance = 0.0;
 		
 		//Change in the near future
-		m_trackingTurret->Update(m_manual, m_turnMotor, m_setDistance);
+		//m_trackingTurret->Update(m_manual, m_turnMotor, m_setDistance);
 	}
 	
 	if ((m_autoCount % 4) == 0)
@@ -188,22 +191,65 @@ void SkyNet::TeleopPeriodic()
 	
 	if (m_ds->GetPacketNumber() != m_priorPacketNumber)
 	{
+		
+		/* Begin Diagnostic Code */
+		m_leftDriveMotor->Set(m_leftTestJoystick->GetY());
+		m_rightDriveMotor->Set(m_rightTestJoystick->GetY());
+		
+		if (m_rightTestJoystick->GetTrigger())
+		{
+			m_sweeperMotor->Set(.98);
+		}
+		else if (m_rightTestJoystick->GetTop())
+		{
+			m_sweeperMotor->Set(-.98);
+		}
+		else
+		{
+			m_sweeperMotor->Set(0.0);
+		}
+		if (m_rightTestJoystick->GetRawButton(11))
+		{
+			m_leftHelixMotor->Set(.98);
+		}
+		else if (m_rightTestJoystick->GetRawButton(10))
+		{
+			m_leftHelixMotor->Set(-.98);
+		}
+		else
+		{
+			m_leftHelixMotor->Set(0.0);
+		}
+		if (m_rightTestJoystick->GetRawButton(6))
+		{
+			m_rightHelixMotor->Set(.98);
+		}
+		else if (m_rightTestJoystick->GetRawButton(7))
+		{
+			m_rightHelixMotor->Set(-.98);
+		}
+		else
+		{
+			m_rightHelixMotor->Set(0.0);
+		}
+		/* End Diagnostic Code */
+		
 		m_priorPacketNumber = m_ds->GetPacketNumber();
 		
 		/* Code dependent on driverstation/human input here */
 		
 		/* Tank Drive */
-		m_drive->SetSetpoint(m_leftJoystick->GetY()*-1.5, m_rightJoystick->GetY()*-7.2);
+		m_drive->SetSetpoint(m_leftJoystick->GetY()* 5.0, m_rightJoystick->GetY()* 5.0);
 		m_drive->Update();
 		
 		/* Empty Cell Control */
-		m_release = m_ds->GetDigitalIn(kCellSwitch);
-		m_emptyCellControl->Update(m_release, m_leftCellBottom->Get(), m_rightCellBottom->Get(), m_leftCellTop->Get(), m_rightCellTop->Get());
+		//m_release = m_ds->GetDigitalIn(kCellSwitch);
+		//m_emptyCellControl->Update(m_release, m_leftCellBottom->Get(), m_rightCellBottom->Get(), m_leftCellTop->Get(), m_rightCellTop->Get());
 		
-		printf("Servo at: %f\r\n", (m_leftJoystick->GetThrottle() + 1.0)/2.1);
+		//printf("Servo at: %f\r\n", (m_leftJoystick->GetThrottle() + 1.0)/2.1);
 	}
 	
-	if ((m_teleCount % 10) == 0)
+	if (false) //(m_teleCount % 10) == 0)
 	{
 		/* Turret, shooter, and camera servo code */
 		m_manual = m_ds->GetDigitalIn(1);

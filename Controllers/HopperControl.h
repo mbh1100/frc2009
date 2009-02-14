@@ -7,7 +7,7 @@
 class HopperControl
 {
 public:
-	HopperControl(Victor* leftHelixMotor, Victor* rightHelixMotor, Victor* sweeperMotor, Jaguar* shooterMotor);
+	HopperControl(Victor* leftHelixMotor, Victor* rightHelixMotor, Jaguar* sweeperMotor, Jaguar* shooterMotor);
 	virtual ~HopperControl();
 	
 	void Update(int helixSide, int helixDirection, bool limitLeftEntry, bool limitLeftBottom, bool limitLeftTop, 
@@ -20,11 +20,9 @@ public:
 	
 protected:
 	Shoot *m_shoot;
-	Jaguar *m_shooterMotor;
-	Victor *m_leftHelixMotor, *m_rightHelixMotor, *m_sweeperMotor;
-	static const float kHelixInSpeed = .2;
-	static const float kHelixOutSpeed = -.98;
-	static const float kSweeperSpeed = .98;
+	Jaguar *m_shooterMotor, *m_sweeperMotor;
+	Victor *m_leftHelixMotor, *m_rightHelixMotor;
+	
 	float m_helixSide, m_helixDirection;
 	
 	bool m_limitLeftEntry, m_limitLeftBottom, m_limitLeftTop;
@@ -38,8 +36,11 @@ protected:
 	
 	Timer *m_leftTimer, *m_rightTimer;
 	
-	static const double kMinTimePerEntry = .3;
-	static const double kMaxTimePerEntry = 1.0;
+	double kMinTimePerEntry;
+	double kMaxTimePerEntry;
+	float kHelixInSpeed;
+	float kHelixOutSpeed;
+	float kSweeperSpeed;
 };
 
 #endif
