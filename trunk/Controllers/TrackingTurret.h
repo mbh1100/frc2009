@@ -10,41 +10,34 @@
 #include "TrackingCamera.h"
 #include "../Devices/PIDJaguar.h"
 
+#define kTurretMaxInc .05
+#define kTurretManualInc .02
+#define kTurretAllowedError 30.0
+
+#define sign(x) (x < 0 ? -1 : 1)
+
 class TrackingTurret
 {
 public:
-	TrackingTurret(PIDOutput* turretMotor, Servo* cameraServo);
+	TrackingTurret(Servo* primary, Servo* secondary);
 	virtual ~TrackingTurret();
 	
-	/* New method for manual turret control */
-	void Manual(float turnMotor, float changeDistance);
-	void Automatic();
-	bool Update(bool manual, float turnMotor, float changeDistance);
-	
-	void ScanTarget(float currentX);
-	void ResetScan();
-	void StopTurret();
+	bool Update();
+	bool Update(int direction);
 
 protected:
+	void UpdateMotors();
+	
 	TrackingCamera *m_trackingCamera;
 	
 	/* Manual turning and speed variables*/
-	float m_turnMotor, m_changeDistance;
-	float m_turretDirection;
+	float m_motorPos;
+	int m_scanDirection;
 	
 	/* Declare Objects */
-	PIDControl *m_calcSpeedX;
-	PIDOutput *m_turretMotor;
+	Servo *m_primaryServo, *m_secondaryServo;
 	
-	/* Declare constants */
-	float m_pX, m_iX, m_dX;
-	float m_setpointX, m_maxInputX, m_minInputX, m_maxOutputX, m_minOutputX;	
-	float m_errorPercentX, m_errorIncrementX;
-	
-	bool m_inView;
-	bool m_targetFound;	
-	
-	Servo *m_cameraServo;
+	bool m_inView, m_targetFound;
 };
 
 #endif

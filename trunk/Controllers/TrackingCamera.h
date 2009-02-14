@@ -7,7 +7,9 @@
 #include "TrackAPI.h"
 #include "PIDSource.h"
 
-class TrackingCamera : public PIDSource
+#define kTargetAllowedHorizontalDifference 50.0
+
+class TrackingCamera
 {
 public:
 	TrackingCamera(bool topColorGreen);
@@ -16,11 +18,10 @@ public:
 	bool Update();
 	float GetTargetX();
 	float GetTargetY();
+	float GetTargetSize();
 	
 	bool TargetMoving();
-	float GetSetpoint();
-	
-	float PIDGet();
+
 
 protected:
 	/* Target & Camera Data */
@@ -31,6 +32,7 @@ protected:
 	bool m_topColor, m_foundPink, m_foundGreen;
 	ParticleAnalysisReport m_parGreen, m_parPink;
 	float m_greenX, m_greenY, m_pinkX, m_pinkY;
+	float m_targetSize;
 	float m_minPartToImage, m_maxPartToImage;
 };
 
