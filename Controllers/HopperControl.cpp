@@ -1,11 +1,15 @@
 #include "HopperControl.h"
 
-HopperControl::HopperControl(Victor* leftHelixMotor, Victor* rightHelixMotor, Victor* sweeperMotor)
+HopperControl::HopperControl(Victor* leftHelixMotor, Victor* rightHelixMotor, Victor* sweeperMotor, Jaguar* shooterMotor)
 {
+	m_shooterMotor = shooterMotor;
+	
 	m_leftHelixMotor = leftHelixMotor;
 	m_rightHelixMotor = rightHelixMotor;
 	m_sweeperMotor = sweeperMotor;
 		
+	m_shoot = new Shoot(m_shooterMotor, m_leftHelixMotor, m_rightHelixMotor);
+	
 	m_helixSide = 0;
 	m_helixDirection = 0;
 	
@@ -23,9 +27,14 @@ HopperControl::HopperControl(Victor* leftHelixMotor, Victor* rightHelixMotor, Vi
 	m_leftEntering = false;
 	m_rightEntering = false;
 	
-	m_currentCount = 0;
-	m_leftStartCount = 0;
-	m_rightStartCount = 0;
+	m_justShot = false;
+	m_shootPressed = false;
+	
+	m_direction = .5;
+	m_distance = 3.0;
+	
+	m_leftTimer = new Timer();
+	m_rightTimer = new Timer();
 }
 
 HopperControl::~HopperControl()
@@ -33,9 +42,13 @@ HopperControl::~HopperControl()
 	
 }
 
-void HopperControl::Update(int helixSide, int helixDirection, bool limitLeftEntry, bool limitLeftBottom, bool limitLeftTop, bool limitRightEntry, bool limitRightBottom, bool limitRightTop, UINT32 counter)
+void HopperControl::Update(int helixSide, int helixDirection, bool limitLeftEntry, bool limitLeftBottom, 
+		bool limitLeftTop, bool limitRightEntry, bool limitRightBottom, bool limitRightTop, bool shoot, float distance, float direction)
 {
 	/* Set variables based on input */
+	m_shootPressed = shoot;
+	m_distance = distance;
+	m_direction = direction;
 	m_helixDirection = helixDirection;
 	m_helixSide = helixSide;
 	
@@ -47,70 +60,92 @@ void HopperControl::Update(int helixSide, int helixDirection, bool limitLeftEntr
 	m_limitRightBottom = limitRightBottom;
 	m_limitRightTop = limitRightTop;
 	
-	m_currentCount = counter;
+	/* If shooting */
+	if (m_shootPressed)
+	{
+		if (!m_justShot)
+		{
+			m_shoot->InitialSet(m_ballsInLeft, m_ballsInRight, m_direction);
+			m_justShot = true;
+		}
+		m_sweeperMotor->Set(kSweeperSpeed);
+		m_shoot->Update(m_distance , m_limitLeftTop, m_limitRightTop);
+	}
 	
-	if (m_helixDirection == 0)
-	{
-		m_rightHelixMotor->Set(0.0);
-		m_leftHelixMotor->Set(0.0);
-		m_sweeperMotor->Set(0.0);
-		m_leftEntering = false;
-		m_rightEntering = false;
-	}
-	else if (m_helixDirection == -1)
-	{
-		/* Reverse all motors and spit the balls out the bottom */
-		m_rightHelixMotor->Set(kHelixOutSpeed);
-		m_leftHelixMotor->Set(kHelixOutSpeed);
-		m_sweeperMotor->Set(-kSweeperSpeed);
-		m_leftEntering = false;
-		m_rightEntering = false;
-		m_ballsInLeft = 0;
-		m_ballsInRight = 0;
-	}
+	/* If not shooting */
 	else
 	{
-		/* Count number of balls in each side as they enter */
-		if (m_limitLeftEntry && !m_leftEntering)
+		if (m_justShot)
 		{
-			m_leftEntering = true;
-			m_leftStartCount = 0;
-			m_ballsInRight++;
+			m_ballsInLeft = m_shoot->CountBallsLeft();
+			m_ballsInRight = m_shoot->CountBallsRight();
 		}
-		if (m_limitRightEntry && !m_rightEntering)
+		if (m_helixDirection == 0)
 		{
-			m_rightEntering = true;
-			m_rightStartCount = 0;
-			m_ballsInRight++;
-		}	
-		
-		/* If manual control for one side, set those motors */
-		if (m_helixSide > 0) /* Turns on right side only */
-		{
-			m_rightHelixMotor->Set(kHelixOutSpeed);
-			m_leftHelixMotor->Set(0.0);
-			
-			if (m_rightEntering)
-			{
-				if ((m_currentCount - m_rightStartCount >= 50 && m_limitRightBottom) || m_currentCount - m_rightStartCount <= 200)
-				{
-					m_rightEntering = false;
-				}
-			}
-		}
-		else if (m_helixSide < 0) /* Turns on left side only */
-		{
-			m_leftHelixMotor->Set(kHelixOutSpeed);
 			m_rightHelixMotor->Set(0.0);
-			if ((m_currentCount - m_leftStartCount >= 50 && m_limitLeftBottom) || m_currentCount - m_leftStartCount <= 200)
-			{
-				m_leftEntering = false;
-			}
+			m_leftHelixMotor->Set(0.0);
+			m_sweeperMotor->Set(0.0);
+			m_leftEntering = false;
+			m_rightEntering = false;
 		}
-		/* If sensor controlled, call SensorIntake */
+		else if (m_helixDirection == -1)
+		{
+			/* Reverse all motors and spit the balls out the bottom */
+			m_rightHelixMotor->Set(kHelixOutSpeed);
+			m_leftHelixMotor->Set(kHelixOutSpeed);
+			m_sweeperMotor->Set(-kSweeperSpeed);
+			m_leftEntering = false;
+			m_rightEntering = false;
+			m_ballsInLeft = 0;
+			m_ballsInRight = 0;
+		}
 		else
 		{
-			SensorIntake();
+			/* Count number of balls in each side as they enter */
+			if (m_limitLeftEntry && !m_leftEntering)
+			{
+				m_leftEntering = true;
+				m_leftTimer->Reset();
+				m_leftTimer->Start();
+				m_ballsInRight++;
+			}
+			if (m_limitRightEntry && !m_rightEntering)
+			{
+				m_rightEntering = true;
+				m_rightTimer->Reset();
+				m_rightTimer->Start();
+				m_ballsInRight++;
+			}	
+			
+			/* If manual control for one side, set those motors */
+			if (m_helixSide > 0) /* Turns on right side only */
+			{
+				m_rightHelixMotor->Set(kHelixOutSpeed);
+				m_leftHelixMotor->Set(0.0);
+				
+				if (m_rightEntering)
+				{
+					if ((m_rightTimer->Get() >= kMinTimePerEntry && m_limitRightBottom) || m_rightTimer->Get() >= kMaxTimePerEntry)
+					{
+						m_rightTimer->Stop();
+						m_rightEntering = false;
+					}
+				}
+			}
+			else if (m_helixSide < 0) /* Turns on left side only */
+			{
+				m_leftHelixMotor->Set(kHelixOutSpeed);
+				m_rightHelixMotor->Set(0.0);
+				if ((m_leftTimer->Get() >= kMinTimePerEntry && m_limitLeftBottom) || m_leftTimer->Get() >= kMaxTimePerEntry)
+				{
+					m_leftEntering = false;
+				}
+			}
+			/* If sensor controlled, call SensorIntake */
+			else
+			{
+				SensorIntake();
+			}
 		}
 	}
 }
@@ -124,10 +159,11 @@ void HopperControl::SensorIntake()
 	}
 	else
 	{
-		if ((m_currentCount - m_leftStartCount >= 50 && m_limitLeftBottom) || m_currentCount - m_leftStartCount <= 200)
+		if ((m_leftTimer->Get() >= kMinTimePerEntry && m_limitLeftBottom) || m_leftTimer->Get() >= kMaxTimePerEntry)
 		{
 			m_leftHelixMotor->Set(0.0);
 			m_leftEntering = false;
+			m_leftTimer->Stop();
 		}
 		else
 		{
@@ -142,10 +178,11 @@ void HopperControl::SensorIntake()
 	}
 	else
 	{
-		if ((m_currentCount - m_rightStartCount >= 50 && m_limitRightBottom) || m_currentCount - m_rightStartCount <= 200)
+		if ((m_rightTimer->Get() >= kMinTimePerEntry && m_limitRightBottom) || m_rightTimer->Get() >= kMaxTimePerEntry)
 		{
 			m_rightHelixMotor->Set(0.0);
 			m_rightEntering = false;
+			m_rightTimer->Stop();
 		}
 		else
 		{

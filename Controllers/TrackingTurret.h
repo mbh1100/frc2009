@@ -13,13 +13,13 @@
 class TrackingTurret
 {
 public:
-	TrackingTurret(PIDOutput* turretMotor, SpeedController* shooterMotor, Servo* cameraServo);
+	TrackingTurret(PIDOutput* turretMotor, Servo* cameraServo);
 	virtual ~TrackingTurret();
 	
 	/* New method for manual turret control */
 	void Manual(float turnMotor, float changeDistance);
 	void Automatic();
-	bool Update(bool manual, bool shoot, float turnMotor, float changeDistance);
+	bool Update(bool manual, float turnMotor, float changeDistance);
 	
 	void ScanTarget(float currentX);
 	void ResetScan();
@@ -32,13 +32,9 @@ protected:
 	float m_turnMotor, m_changeDistance;
 	float m_turretDirection;
 	
-	/* Distance of Target Variables */
-	float m_targetDistance;
-	
 	/* Declare Objects */
 	PIDControl *m_calcSpeedX;
 	PIDOutput *m_turretMotor;
-	SpeedController *m_shooterMotor;
 	
 	/* Declare constants */
 	float m_pX, m_iX, m_dX;
@@ -46,7 +42,7 @@ protected:
 	float m_errorPercentX, m_errorIncrementX;
 	
 	bool m_inView;
-	bool m_targetFound, m_shoot;	
+	bool m_targetFound;	
 	
 	Servo *m_cameraServo;
 };

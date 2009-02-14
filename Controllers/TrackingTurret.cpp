@@ -1,12 +1,11 @@
 #include "TrackingTurret.h"
 
-TrackingTurret::TrackingTurret(PIDOutput* turretMotor, SpeedController* shooterMotor, Servo* cameraServo)
+TrackingTurret::TrackingTurret(PIDOutput* turretMotor, Servo* cameraServo)
 {
 	m_trackingCamera = new TrackingCamera(true);
 	
 	m_cameraServo = cameraServo;
 	m_turretMotor = turretMotor;
-	m_shooterMotor = shooterMotor;
 	
 	//All variables for PIDLoop for horizontal movement
 	m_pX = -0.3;  //-0.03    Faster: -0.035
@@ -36,8 +35,6 @@ TrackingTurret::TrackingTurret(PIDOutput* turretMotor, SpeedController* shooterM
 	
 	m_inView = false;
 	m_targetFound = false;
-	m_shoot = false;
-	m_targetDistance = 3.0;
 }
 
 TrackingTurret::~TrackingTurret()
@@ -48,6 +45,8 @@ TrackingTurret::~TrackingTurret()
 /* Manual override on turret turning */
 void TrackingTurret::Manual(float turnMotor, float changeDistance)
 {	
+	m_calcSpeedX->Disable();
+	
 	/* TODO: This makes no sense */
 	/* Ranges for turning 
 	 * if less than c. 1.2 V, continue turning LEFT
@@ -80,6 +79,7 @@ void TrackingTurret::Manual(float turnMotor, float changeDistance)
 		m_turretDirection = 0.0;
 	}
 	
+	/* Determine if target has been found so LEDs can turn on */
 	m_trackingCamera->Update();
 	
 	if (fabs(m_trackingCamera->GetTargetX()) < 100)
@@ -127,10 +127,8 @@ void TrackingTurret::Automatic()
 	}
 }
 
-bool TrackingTurret::Update(bool manual, bool shoot, float turnMotor, float changeDistance)
-{
-	m_shoot = shoot;
-	
+bool TrackingTurret::Update(bool manual, float turnMotor, float changeDistance)
+{	
 	if (manual)
 	{
 		Manual(turnMotor, changeDistance);
@@ -138,11 +136,6 @@ bool TrackingTurret::Update(bool manual, bool shoot, float turnMotor, float chan
 	else
 	{
 		Automatic();
-	}
-	
-	if (m_shoot)
-	{
-		//TODO: Shooter
 	}
 	
 	return m_targetFound;
