@@ -2,15 +2,16 @@
 #define __HOPPERCONTROL_H__
 
 #include "WPILib.h"
+#include "Shoot.h"
 
 class HopperControl
 {
 public:
-	HopperControl(Victor* leftHelixMotor, Victor* rightHelixMotor, Victor* sweeperMotor);
+	HopperControl(Victor* leftHelixMotor, Victor* rightHelixMotor, Victor* sweeperMotor, Jaguar* shooterMotor);
 	virtual ~HopperControl();
 	
 	void Update(int helixSide, int helixDirection, bool limitLeftEntry, bool limitLeftBottom, bool limitLeftTop, 
-			bool limitRightEntry, bool limitRightBottom, bool limitRightTop, UINT32 counter);
+			bool limitRightEntry, bool limitRightBottom, bool limitRightTop, bool shoot, float distance, float direction);
 	void SensorIntake();
 	void Disable();
 	void SetBallCount(int ballsLeft, int ballsRight);
@@ -18,6 +19,8 @@ public:
 	int GetBallCountRight();
 	
 protected:
+	Shoot *m_shoot;
+	Jaguar *m_shooterMotor;
 	Victor *m_leftHelixMotor, *m_rightHelixMotor, *m_sweeperMotor;
 	static const float kHelixInSpeed = .2;
 	static const float kHelixOutSpeed = -.98;
@@ -30,7 +33,13 @@ protected:
 	int m_ballsInLeft, m_ballsInRight;
 	bool m_leftEntering, m_rightEntering;
 	
-	UINT32 m_leftStartCount, m_rightStartCount, m_currentCount;
+	bool m_shootPressed, m_justShot;
+	float m_direction, m_distance;
+	
+	Timer *m_leftTimer, *m_rightTimer;
+	
+	static const double kMinTimePerEntry = .3;
+	static const double kMaxTimePerEntry = 1.0;
 };
 
 #endif

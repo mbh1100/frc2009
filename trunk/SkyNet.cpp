@@ -17,21 +17,17 @@ SkyNet::SkyNet()
 	m_analogModules[0]->SetAverageBits(1,8);
 	m_analogModules[1]->SetAverageBits(1,8);
 	
-	/* Initialize Camera motors and control */
-	m_turretMotor = m_hardwareInterface->GetPIDJaguar(kTurretModule, kTurretPWM);
+	/* Initialize Camera motors and control */	
 	m_shooterMotor = m_hardwareInterface->GetJaguar(kShooterModule, kShooterPWM);
 	m_leftEmptyCell = m_hardwareInterface->GetVictor(kLeftCellHolderModule, kLeftCellHolderPWM);
 	m_rightEmptyCell = m_hardwareInterface->GetVictor(kRightCellHolderModule, kRightCellHolderPWM);
 	m_leftJoystick = m_hardwareInterface->GetJoystick(kLeftJoystickPort);
 	m_rightJoystick = m_hardwareInterface->GetJoystick(kRightJoystickPort);
 	
-	m_turretMotor->EnableDeadbandElimination(true);
-	m_turretMotor->SetBounds(255, 136, 128, 120, 0);
-	
 	m_shooterMotor->EnableDeadbandElimination(true);
 	m_shooterMotor->SetBounds(255, 136, 128, 120, 0);
 	
-	m_trackingTurret = new TrackingTurret(m_turretMotor, m_shooterMotor, m_cameraServo);
+	m_trackingTurret = new TrackingTurret(m_turretMotor, m_turretServoOne);
 	
 	m_manual = 0;
 	m_shoot = 0;
@@ -62,7 +58,10 @@ SkyNet::SkyNet()
 	m_drive = new TankDrive(m_leftDriveMotor, m_rightDriveMotor, m_leftDriveEncoder, m_rightDriveEncoder);
 	
 	
-	/* Sweeper and Hopper */	
+	/* Sweeper, Hopper, Shooter */	
+	m_turretServoOne = m_hardwareInterface->GetServo(kTurretOneModule, kTurretOnePWM);
+	m_turretServoTwo = m_hardwareInterface->GetServo(kTurretTwoModule, kTurretTwoPWM);
+	
 	m_leftHelixMotor = m_hardwareInterface->GetVictor(kLeftHelixModule, kLeftHelixPWM);
 	m_rightHelixMotor = m_hardwareInterface->GetVictor(kRightHelixModule, kRightHelixPWM);
 	m_sweeperMotor = m_hardwareInterface->GetVictor(kSweeperModule,kSweeperPWM);
@@ -77,7 +76,7 @@ SkyNet::SkyNet()
 	m_rightHelixBottomLimit = new DigitalInput(kRightLiftBottomLimitModule, kRightLiftBottomLimitChannel);
 	m_rightHelixTopLimit = new DigitalInput(kRightLiftTopLimitModule, kRightLiftTopLimitChannel);
 	
-	m_hopperControl = new HopperControl(m_leftHelixMotor, m_rightHelixMotor, m_sweeperMotor);
+	m_hopperControl = new HopperControl(m_leftHelixMotor, m_rightHelixMotor, m_sweeperMotor, m_shooterMotor);
 	
 	
 	/* Empty Cell Variables & Constants */
@@ -87,10 +86,10 @@ SkyNet::SkyNet()
 	m_emptyCellControl = new EmptyCell(m_leftEmptyCell, m_rightEmptyCell);
 	
 	//TODO: Talk to Mike and see if it should somehow go through HardwareInterface
-	m_leftCellLoaded = new DigitalInput(kLeftCellLoadLimitModule, kLeftCellLoadLimitChannel);
-	m_rightCellLoaded = new DigitalInput(kRightCellLoadLimitModule, kRightCellLoadLimitChannel);
-	m_leftCellCentered = new DigitalInput(kLeftCellCenterLimitModule, kLeftCellCenterLimitChannel);
-	m_rightCellCentered = new DigitalInput(kRightCellCenterLimitModule, kRightCellCenterLimitChannel);
+	m_leftCellBottom = new DigitalInput(kLeftCellBottomLimitModule, kLeftCellBottomLimitChannel);
+	m_rightCellBottom = new DigitalInput(kRightCellBottomLimitModule, kRightCellBottomLimitChannel);
+	m_leftCellTop = new DigitalInput(kLeftCellTopLimitModule, kLeftCellTopLimitChannel);
+	m_rightCellTop = new DigitalInput(kRightCellTopLimitModule, kRightCellTopLimitChannel);
 	
 	m_release = 0;
 }
@@ -117,7 +116,6 @@ void SkyNet::TeleopInit()
 	printf("Inititializing Teleop Mode..\r\n");
 	m_teleCount = 0;
 	
-	//m_calcLeftDrive->Enable();
 	m_trackingTurret->StopTurret();
 }
 
@@ -149,7 +147,7 @@ void SkyNet::AutonomousPeriodic()
 		m_setDistance = 0.0;
 		
 		//Change in the near future
-		m_trackingTurret->Update(m_manual, m_shoot, m_turnMotor, m_setDistance);
+		m_trackingTurret->Update(m_manual, m_turnMotor, m_setDistance);
 	}
 	
 	if ((m_autoCount % 4) == 0)
@@ -200,18 +198,9 @@ void SkyNet::TeleopPeriodic()
 		
 		/* Empty Cell Control */
 		m_release = m_ds->GetDigitalIn(kCellSwitch);
-		m_emptyCellControl->Update(m_release, m_leftCellLoaded->Get(), m_rightCellLoaded->Get(), m_leftCellCentered->Get(), m_rightCellCentered->Get(), m_teleCount);
+		m_emptyCellControl->Update(m_release, m_leftCellBottom->Get(), m_rightCellBottom->Get(), m_leftCellTop->Get(), m_rightCellTop->Get());
 		
 		printf("Servo at: %f\r\n", (m_leftJoystick->GetThrottle() + 1.0)/2.1);
-		
-		/* Hopper and Sweeper Control */
-		if (!m_shoot)
-		{
-			m_helixSide = 0;//m_ds->GetAnalogIn(1);
-			m_helixDirection = 0;//m_ds->GetAnalogIn(2);
-			m_hopperControl->Update(m_helixSide, m_helixDirection, m_leftHelixEntryLimit->Get(), m_leftHelixBottomLimit->Get(),
-					m_leftHelixTopLimit->Get(), m_rightHelixEntryLimit->Get(), m_rightHelixBottomLimit->Get(), m_rightHelixTopLimit->Get(), m_teleCount);
-		}
 	}
 	
 	if ((m_teleCount % 10) == 0)
@@ -222,7 +211,7 @@ void SkyNet::TeleopPeriodic()
 		m_turnMotor = m_ds->GetAnalogIn(3);
 		m_setDistance = m_ds->GetAnalogIn(4);
 		
-		if (m_trackingTurret->Update(m_manual, m_shoot, m_turnMotor, m_setDistance))
+		if (m_trackingTurret->Update(m_manual, m_turnMotor, m_setDistance))
 		{
 			/* Turn on LEDs */
 			m_ds->SetDigitalOut(kTargetAquiredLED, 1);
@@ -232,7 +221,13 @@ void SkyNet::TeleopPeriodic()
 		{
 			/* Turn off LEDs */
 			m_ds->SetDigitalOut(kTargetAquiredLED, 0);			
-		}		
+		}
+		
+		/* Hopper, Sweeper, and Shooter Control */
+		m_helixSide = 0;//m_ds->GetAnalogIn(1);
+		m_helixDirection = 0;//m_ds->GetAnalogIn(2);
+		m_hopperControl->Update(m_helixSide, m_helixDirection, m_leftHelixEntryLimit->Get(), m_leftHelixBottomLimit->Get(),
+				m_leftHelixTopLimit->Get(), m_rightHelixEntryLimit->Get(), m_rightHelixBottomLimit->Get(), m_rightHelixTopLimit->Get(), m_shoot, m_setDistance, m_turretServoOne->Get());
 	}	
 }
 

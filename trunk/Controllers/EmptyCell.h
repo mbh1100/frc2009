@@ -9,20 +9,14 @@ public:
 	EmptyCell(Victor* leftMotor, Victor* rightMotor);
 	virtual ~EmptyCell();
 	
-	void Update(bool release, bool loadedLeft, bool loadedRight, bool limitLeft, bool limitRight, UINT32 counter);
-	void Release();
-	void Store();
+	void Update(bool release, bool limitLeftBottom, bool limitRightBottom, bool limitLeftTop, bool limitRightTop);
 	
 protected:
 	Victor *m_leftMotor, *m_rightMotor;
-	bool m_release, m_loadedLeft, m_loadedRight, m_centerLeft, m_centerRight;
 	
-	bool m_releaseProcess, m_storeProcess, m_stored;
+	bool m_release, m_releaseProcess, m_limitLeftBottom, m_limitRightBottom, m_limitLeftTop, m_limitRightTop;
 	
 	static const float kEmptyCellSpeed = .2;
-	
-	UINT32 m_counter;
-	UINT32 m_startPoint;
 };
 
 #endif
