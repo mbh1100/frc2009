@@ -1,7 +1,13 @@
 #include "HopperControl.h"
 
-HopperControl::HopperControl(Victor* leftHelixMotor, Victor* rightHelixMotor, Victor* sweeperMotor, Jaguar* shooterMotor)
+HopperControl::HopperControl(Victor* leftHelixMotor, Victor* rightHelixMotor, Jaguar* sweeperMotor, Jaguar* shooterMotor)
 {
+	kMinTimePerEntry = .3;
+	kMaxTimePerEntry = 1.0;
+	kHelixInSpeed = .2;
+	kHelixOutSpeed = -.98;
+	kSweeperSpeed = .98;
+	
 	m_shooterMotor = shooterMotor;
 	
 	m_leftHelixMotor = leftHelixMotor;

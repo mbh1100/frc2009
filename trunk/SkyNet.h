@@ -35,6 +35,10 @@ protected:
 	Joystick *m_leftJoystick;
 	Joystick *m_rightJoystick;
 	
+	// Joysticks on USB 3 and 4 - Diagnostics only
+	Joystick *m_rightTestJoystick;
+	Joystick *m_leftTestJoystick;
+	
 	/* Drive Variables */
 	PIDEncoder *m_leftDriveEncoder, *m_rightDriveEncoder;
 	PIDJaguar *m_leftDriveMotor, *m_rightDriveMotor;
@@ -42,7 +46,8 @@ protected:
 	
 	/* Sweeper and Hopper Variables */
 	HopperControl *m_hopperControl;
-	Victor *m_leftHelixMotor, *m_rightHelixMotor, *m_sweeperMotor;
+	Victor *m_leftHelixMotor, *m_rightHelixMotor;
+	Jaguar *m_sweeperMotor;
 	int m_helixSide, m_helixDirection;
 	DigitalInput *m_leftHelixEntryLimit, *m_leftHelixBottomLimit, *m_leftHelixTopLimit;
 	DigitalInput *m_rightHelixEntryLimit, *m_rightHelixBottomLimit, *m_rightHelixTopLimit;
@@ -70,24 +75,24 @@ protected:
 	
 	/* PWM Constants (Relative Modules) */
 	static const UINT8 kLeftDriveModule       = 0; //J
-	static const UINT8 kRightDriveModule      = 0; //J
-	static const UINT8 kShooterModule         = 0; //J
-	static const UINT8 kSweeperModule         = 0; //V
+	static const UINT8 kRightDriveModule      = 1; //J
+	static const UINT8 kShooterModule         = 1; //J
+	static const UINT8 kSweeperModule         = 0; //J
 	static const UINT8 kLeftHelixModule       = 0; //V
-	static const UINT8 kRightHelixModule      = 0; //V
+	static const UINT8 kRightHelixModule      = 1; //V
 	static const UINT8 kLeftCellHolderModule  = 0; //V
-	static const UINT8 kRightCellHolderModule = 0; //V
+	static const UINT8 kRightCellHolderModule = 1; //V
 	static const UINT8 kTurretOneModule       = 0; //S
 	static const UINT8 kTurretTwoModule		  = 0; //S
 	
 	static const UINT8 kLeftDrivePWM       = 1;  //J
-	static const UINT8 kRightDrivePWM      = 2;  //J
+	static const UINT8 kRightDrivePWM      = 1;  //J
 	static const UINT8 kShooterPWM         = 3;  //J
-	static const UINT8 kSweeperPWM         = 4;  //V
-	static const UINT8 kLeftHelixPWM       = 5;  //V
-	static const UINT8 kRightHelixPWM      = 6;  //V
-	static const UINT8 kLeftCellHolderPWM  = 7;  //V
-	static const UINT8 kRightCellHolderPWM = 8;  //V
+	static const UINT8 kSweeperPWM         = 3;  //J
+	static const UINT8 kLeftHelixPWM       = 2;  //V
+	static const UINT8 kRightHelixPWM      = 2;  //V
+	static const UINT8 kLeftCellHolderPWM  = 4;  //V
+	static const UINT8 kRightCellHolderPWM = 4;  //V
 	static const UINT8 kTurretOnePWM       = 9;  //S
 	static const UINT8 kTurretTwoPWM	   = 10; //S
 	
