@@ -12,6 +12,10 @@ public:
 	virtual ~PIDServo();
 	
 	void PIDWrite(float output);
+	void SetDirection(int direction);
+		
+protected:
+	int m_direction;
 };
 
 #endif //PIDSERVO_H

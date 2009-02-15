@@ -99,33 +99,33 @@ protected:
 	/* cRIO Digital IO Constants (Literal Modules)*/
 	static const UINT8 kLeftDriveEncoderAModule    = 4;
 	static const UINT8 kLeftDriveEncoderBModule    = 4;
-	static const UINT8 kRightDriveEncoderAModule   = 4;
-	static const UINT8 kRightDriveEncoderBModule   = 4;
+	static const UINT8 kRightDriveEncoderAModule   = 6;
+	static const UINT8 kRightDriveEncoderBModule   = 6;
 	static const UINT8 kLeftCellBottomLimitModule  = 4;
-	static const UINT8 kRightCellBottomLimitModule = 4;
+	static const UINT8 kRightCellBottomLimitModule = 6;
 	static const UINT8 kLeftCellTopLimitModule     = 4;
-	static const UINT8 kRightCellTopLimitModule    = 4;
+	static const UINT8 kRightCellTopLimitModule    = 6;
 	static const UINT8 kLeftLiftEntryLimitModule   = 4;
 	static const UINT8 kLeftLiftBottomLimitModule  = 4;
 	static const UINT8 kLeftLiftTopLimitModule     = 4;
-	static const UINT8 kRightLiftEntryLimitModule  = 4;
-	static const UINT8 kRightLiftBottomLimitModule = 4;
-	static const UINT8 kRightLiftTopLimitModule    = 4;
+	static const UINT8 kRightLiftEntryLimitModule  = 6;
+	static const UINT8 kRightLiftBottomLimitModule = 6;
+	static const UINT8 kRightLiftTopLimitModule    = 6;
 	
 	static const UINT8 kLeftDriveEncoderAChannel    = 1;
 	static const UINT8 kLeftDriveEncoderBChannel    = 2;
-	static const UINT8 kRightDriveEncoderAChannel   = 3;
-	static const UINT8 kRightDriveEncoderBChannel   = 4;
-	static const UINT8 kLeftCellBottomLimitChannel  = 5;
-	static const UINT8 kRightCellBottomLimitChannel = 6;
-	static const UINT8 kLeftCellTopLimitChannel     = 7;
-	static const UINT8 kRightCellTopLimitChannel    = 8;
-	static const UINT8 kLeftLiftEntryLimitChannel   = 9;
-	static const UINT8 kLeftLiftBottomLimitChannel  = 10;
-	static const UINT8 kLeftLiftTopLimitChannel     = 11;
-	static const UINT8 kRightLiftEntryLimitChannel  = 12;
-	static const UINT8 kRightLiftBottomLimitChannel = 13;
-	static const UINT8 kRightLiftTopLimitChannel    = 14;
+	static const UINT8 kRightDriveEncoderAChannel   = 1;
+	static const UINT8 kRightDriveEncoderBChannel   = 2;
+	static const UINT8 kLeftCellBottomLimitChannel  = 3;
+	static const UINT8 kRightCellBottomLimitChannel = 3;
+	static const UINT8 kLeftCellTopLimitChannel     = 4;
+	static const UINT8 kRightCellTopLimitChannel    = 4;
+	static const UINT8 kLeftLiftEntryLimitChannel   = 5;
+	static const UINT8 kLeftLiftBottomLimitChannel  = 6;
+	static const UINT8 kLeftLiftTopLimitChannel     = 7;
+	static const UINT8 kRightLiftEntryLimitChannel  = 5;
+	static const UINT8 kRightLiftBottomLimitChannel = 6;
+	static const UINT8 kRightLiftTopLimitChannel    = 7;
 	
 	/* cRIO Analog In Constants */
 	

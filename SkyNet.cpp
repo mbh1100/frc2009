@@ -44,7 +44,8 @@ SkyNet::SkyNet()
 	
 	m_rightDriveMotor = m_hardwareInterface->GetPIDJaguar(kRightDriveModule, kRightDrivePWM);
 	m_rightDriveMotor->EnableDeadbandElimination(true);
-	m_rightDriveMotor->SetBounds(255, 136, 128, 120, 0);	
+	m_rightDriveMotor->SetBounds(255, 136, 128, 120, 0);
+	m_rightDriveMotor->SetDirection(-1);
 	
 	m_leftDriveEncoder = new PIDEncoder(kLeftDriveEncoderAModule, kLeftDriveEncoderAChannel, kLeftDriveEncoderBModule, kLeftDriveEncoderBChannel);
 	m_leftDriveEncoder->SetDistancePerTick(-0.001);
@@ -193,45 +194,62 @@ void SkyNet::TeleopPeriodic()
 	{
 		
 		/* Begin Diagnostic Code */
-		m_leftDriveMotor->Set(m_leftTestJoystick->GetY());
-		m_rightDriveMotor->Set(m_rightTestJoystick->GetY());
+		/*m_leftDriveMotor->Set(-m_leftTestJoystick->GetY()*.98);
+		m_rightDriveMotor->Set(m_rightTestJoystick->GetY()*.98);
 		
 		if (m_rightTestJoystick->GetTrigger())
 		{
-			m_sweeperMotor->Set(.98);
+			m_sweeperMotor->Set(-.98);
 		}
 		else if (m_rightTestJoystick->GetTop())
 		{
-			m_sweeperMotor->Set(-.98);
+			m_sweeperMotor->Set(.98);
 		}
 		else
 		{
 			m_sweeperMotor->Set(0.0);
 		}
-		if (m_rightTestJoystick->GetRawButton(11))
-		{
-			m_leftHelixMotor->Set(.98);
-		}
-		else if (m_rightTestJoystick->GetRawButton(10))
+		if (m_leftTestJoystick->GetTrigger())
 		{
 			m_leftHelixMotor->Set(-.98);
-		}
-		else
-		{
-			m_leftHelixMotor->Set(0.0);
-		}
-		if (m_rightTestJoystick->GetRawButton(6))
-		{
 			m_rightHelixMotor->Set(.98);
 		}
-		else if (m_rightTestJoystick->GetRawButton(7))
-		{
-			m_rightHelixMotor->Set(-.98);
-		}
 		else
 		{
-			m_rightHelixMotor->Set(0.0);
+			if (m_rightTestJoystick->GetRawButton(11))
+			{
+				m_leftHelixMotor->Set(-.98);
+			}
+			else if (m_rightTestJoystick->GetRawButton(6))
+			{
+				m_leftHelixMotor->Set(.98);
+			}
+			else
+			{
+				m_leftHelixMotor->Set(0.0);
+			}
+			if (m_rightTestJoystick->GetRawButton(10))
+			{
+				m_rightHelixMotor->Set(.98);
+			}
+			else if (m_rightTestJoystick->GetRawButton(7))
+			{
+				m_rightHelixMotor->Set(-.98);
+			}
+			else
+			{
+				m_rightHelixMotor->Set(0.0);
+			}
 		}
+		
+		if (m_rightTestJoystick->GetRawButton(3))
+		{
+			m_shooterMotor->Set(.98);
+		}
+		if (m_rightTestJoystick->GetRawButton(4))
+		{
+			m_shooterMotor->Set(0.0);
+		}*/
 		/* End Diagnostic Code */
 		
 		m_priorPacketNumber = m_ds->GetPacketNumber();
