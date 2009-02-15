@@ -12,6 +12,10 @@ public:
 	virtual ~PIDJaguar();
 	
 	void PIDWrite(float output);
+	void SetDirection(int direction);
+	
+protected:
+	int m_direction;
 };
 
 #endif //PIDJAGUAR_H

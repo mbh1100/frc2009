@@ -4,7 +4,7 @@
  */
 PIDVictor::PIDVictor(UINT32 slot, UINT32 channel) : Victor::Victor(slot, channel)
 {
-	
+	m_direction = 1;
 }
 
 PIDVictor::~PIDVictor()
@@ -16,5 +16,11 @@ PIDVictor::~PIDVictor()
  */
 void PIDVictor::PIDWrite(float output)
 {
-	Set(output);
+	Set(output * (double)m_direction);
+}
+
+/* Set the direction of positive input */
+void PIDVictor::SetDirection(int direction)
+{
+	m_direction = direction;
 }

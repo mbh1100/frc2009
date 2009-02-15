@@ -4,7 +4,7 @@
  */
 PIDJaguar::PIDJaguar(UINT32 slot, UINT32 channel) : Jaguar::Jaguar(slot, channel)
 {
-	
+	m_direction = 1;
 }
 
 PIDJaguar::~PIDJaguar()
@@ -16,7 +16,11 @@ PIDJaguar::~PIDJaguar()
  */
 void PIDJaguar::PIDWrite(float output)
 {
-	printf("%d PIDJag in value: %f\r\n", (int)this, output);
-	Set(output);
-	printf("%d PIDJag out value: %f\r\n", (int)this, Get());
+	Set(output * (double)m_direction);
+}
+
+/* Set the direction of positive input */
+void PIDJaguar::SetDirection(int direction)
+{
+	m_direction = direction;
 }

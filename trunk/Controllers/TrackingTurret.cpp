@@ -1,6 +1,6 @@
 #include "TrackingTurret.h"
 
-TrackingTurret::TrackingTurret(Servo* primary, Servo* secondary)
+TrackingTurret::TrackingTurret(PIDServo* primary, PIDServo* secondary)
 {
 	m_trackingCamera = new TrackingCamera(true);
 	
@@ -77,5 +77,5 @@ void TrackingTurret::UpdateMotors()
 	}
 	
 	m_primaryServo->Set(m_motorPos);
-	m_secondaryServo->Set(1.0 - m_motorPos);
+	m_secondaryServo->Set(m_motorPos);
 }
