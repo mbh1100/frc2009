@@ -2,11 +2,12 @@
 
 HopperControl::HopperControl(Victor* leftHelixMotor, Victor* rightHelixMotor, Jaguar* sweeperMotor, Jaguar* shooterMotor)
 {
-	kMinTimePerEntry = .3;
-	kMaxTimePerEntry = 1.0;
-	kHelixInSpeed = .2;
+	kMinTimePerEntry = .1;
+	kMaxTimePerEntry = .75;
+	kHelixInSpeed = .8;
 	kHelixOutSpeed = -.98;
-	kSweeperSpeed = .98;
+	kSweeperSpeedIn = .98;
+	kSweeperSpeedOut = -.98;
 	
 	m_shooterMotor = shooterMotor;
 	
@@ -23,9 +24,15 @@ HopperControl::HopperControl(Victor* leftHelixMotor, Victor* rightHelixMotor, Ja
 	m_limitLeftBottom = false;
 	m_limitLeftTop = false;
 	
+	m_lastLeftEntry = false;
+	m_lastRightEntry = false;
+	
 	m_limitRightEntry = false;
 	m_limitRightBottom = false;
 	m_limitRightTop = false;
+	
+	m_lastLeftBottom = false;
+	m_lastRightBottom = false;
 	
 	m_ballsInLeft = 0;
 	m_ballsInRight = 0;
@@ -41,6 +48,8 @@ HopperControl::HopperControl(Victor* leftHelixMotor, Victor* rightHelixMotor, Ja
 	
 	m_leftTimer = new Timer();
 	m_rightTimer = new Timer();
+	m_leftTimer->Start();
+	m_rightTimer->Start();
 }
 
 HopperControl::~HopperControl()
@@ -58,13 +67,17 @@ void HopperControl::Update(int helixSide, int helixDirection, bool limitLeftEntr
 	m_helixDirection = helixDirection;
 	m_helixSide = helixSide;
 	
-	m_limitLeftEntry = limitLeftEntry;
-	m_limitLeftBottom = limitLeftBottom;
-	m_limitLeftTop = limitLeftTop;
+	m_limitLeftEntry = !limitLeftEntry;
+	m_limitLeftBottom = !limitLeftBottom;
+	m_limitLeftTop = !limitLeftTop;
 	
-	m_limitRightEntry = limitRightEntry;
-	m_limitRightBottom = limitRightBottom;
-	m_limitRightTop = limitRightTop;
+	printf("Number of Balls Left:  %d\r\n", m_ballsInLeft);
+	printf("Number of Balls Right:  %d\r\n", m_ballsInRight);
+		
+	
+	m_limitRightEntry = !limitRightEntry;
+	m_limitRightBottom = !limitRightBottom;
+	m_limitRightTop = !limitRightTop;
 	
 	/* If shooting */
 	if (m_shootPressed)
@@ -74,7 +87,7 @@ void HopperControl::Update(int helixSide, int helixDirection, bool limitLeftEntr
 			m_shoot->InitialSet(m_ballsInLeft, m_ballsInRight, m_direction);
 			m_justShot = true;
 		}
-		m_sweeperMotor->Set(kSweeperSpeed);
+		m_sweeperMotor->Set(kSweeperSpeedIn);
 		m_shoot->Update(m_distance , m_limitLeftTop, m_limitRightTop);
 	}
 	
@@ -85,6 +98,7 @@ void HopperControl::Update(int helixSide, int helixDirection, bool limitLeftEntr
 		{
 			m_ballsInLeft = m_shoot->CountBallsLeft();
 			m_ballsInRight = m_shoot->CountBallsRight();
+			m_justShot = false;
 		}
 		if (m_helixDirection == 0)
 		{
@@ -99,7 +113,7 @@ void HopperControl::Update(int helixSide, int helixDirection, bool limitLeftEntr
 			/* Reverse all motors and spit the balls out the bottom */
 			m_rightHelixMotor->Set(kHelixOutSpeed);
 			m_leftHelixMotor->Set(kHelixOutSpeed);
-			m_sweeperMotor->Set(-kSweeperSpeed);
+			m_sweeperMotor->Set(kSweeperSpeedOut);
 			m_leftEntering = false;
 			m_rightEntering = false;
 			m_ballsInLeft = 0;
@@ -107,15 +121,16 @@ void HopperControl::Update(int helixSide, int helixDirection, bool limitLeftEntr
 		}
 		else
 		{
+			m_sweeperMotor->Set(kSweeperSpeedIn);
 			/* Count number of balls in each side as they enter */
-			if (m_limitLeftEntry && !m_leftEntering)
+			if (m_limitLeftEntry && !m_lastLeftEntry)
 			{
 				m_leftEntering = true;
 				m_leftTimer->Reset();
 				m_leftTimer->Start();
-				m_ballsInRight++;
+				m_ballsInLeft++;
 			}
-			if (m_limitRightEntry && !m_rightEntering)
+			if (m_limitRightEntry && !m_lastRightEntry)
 			{
 				m_rightEntering = true;
 				m_rightTimer->Reset();
@@ -154,6 +169,11 @@ void HopperControl::Update(int helixSide, int helixDirection, bool limitLeftEntr
 			}
 		}
 	}
+	m_lastLeftEntry = m_limitLeftEntry;
+	m_lastRightEntry = m_limitRightEntry;
+	
+	m_lastLeftBottom = m_limitLeftBottom;
+	m_lastRightBottom = m_limitRightBottom;
 }
 
 void HopperControl::SensorIntake()
@@ -165,11 +185,11 @@ void HopperControl::SensorIntake()
 	}
 	else
 	{
-		if ((m_leftTimer->Get() >= kMinTimePerEntry && m_limitLeftBottom) || m_leftTimer->Get() >= kMaxTimePerEntry)
+		if ((m_limitLeftBottom && !m_lastLeftBottom) || m_leftTimer->Get() >= kMaxTimePerEntry)
 		{
 			m_leftHelixMotor->Set(0.0);
 			m_leftEntering = false;
-			m_leftTimer->Stop();
+			m_rightTimer->Stop();
 		}
 		else
 		{
@@ -184,7 +204,7 @@ void HopperControl::SensorIntake()
 	}
 	else
 	{
-		if ((m_rightTimer->Get() >= kMinTimePerEntry && m_limitRightBottom) || m_rightTimer->Get() >= kMaxTimePerEntry)
+		if ((m_limitRightBottom && !m_lastRightBottom) || m_rightTimer->Get() >= kMaxTimePerEntry)
 		{
 			m_rightHelixMotor->Set(0.0);
 			m_rightEntering = false;

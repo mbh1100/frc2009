@@ -53,7 +53,7 @@ public:
 	static const UINT8 kJoystickButtons = 12;
 	static const UINT8 kDriverStationDigitalOuts = 8;
 	static const UINT8 kDriverStationDigitalIns = 8;
-	static const UINT8 kDriverStationAnalogIns = 8;
+	static const UINT8 kDriverStationAnalogIns = 4;
 	
 protected:
 	AnalogModule *m_analogModules[kAnalogModules];

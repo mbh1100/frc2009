@@ -27,6 +27,8 @@ protected:
 	
 	bool m_limitLeftEntry, m_limitLeftBottom, m_limitLeftTop;
 	bool m_limitRightEntry, m_limitRightBottom, m_limitRightTop;
+	bool m_lastLeftEntry, m_lastRightEntry;
+	bool m_lastLeftBottom, m_lastRightBottom;
 	
 	int m_ballsInLeft, m_ballsInRight;
 	bool m_leftEntering, m_rightEntering;
@@ -40,7 +42,8 @@ protected:
 	double kMaxTimePerEntry;
 	float kHelixInSpeed;
 	float kHelixOutSpeed;
-	float kSweeperSpeed;
+	float kSweeperSpeedIn;
+	float kSweeperSpeedOut;
 };
 
 #endif

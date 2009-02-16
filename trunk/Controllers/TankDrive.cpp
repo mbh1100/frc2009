@@ -10,9 +10,9 @@ TankDrive::TankDrive(PIDJaguar* leftMotor, PIDJaguar* rightMotor, PIDEncoder* le
 	m_rightEncoder = rightEncoder;
 	
 	//initial P, I, D settings need to be determined for drive motor CIMs
-	m_p = -0.008;  		  //
-	m_i = -0.00; 		  //
-	m_d = -0.00;          //
+	m_p = 0.03;  		  //
+	m_i = 0.00; 		  //
+	m_d = 0.00;          //
 	
 	m_setpointLeft = 0.0;
 	m_setpointRight = 0.0;
