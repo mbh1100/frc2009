@@ -4,6 +4,9 @@
 #include "AdvMotorController.h"
 #include "Servo.h"
 
+/* Advanced Servo using the features of the Advanced Motor
+ * Controller interface.
+ */
 class AdvServo : public Servo, public AdvMotorController
 {
 public:
