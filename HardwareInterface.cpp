@@ -225,13 +225,15 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 	{
 		dashboardPacker.AddCluster();
 		
+		dashboardPacker.AddCluster();
+		
 		dashboardPacker.AddFloat(m_joysticks[port]->GetX());
 		dashboardPacker.AddFloat(m_joysticks[port]->GetY());
 		dashboardPacker.AddFloat(m_joysticks[port]->GetZ());
 		dashboardPacker.AddFloat(m_joysticks[port]->GetTwist());
 		dashboardPacker.AddFloat(m_joysticks[port]->GetThrottle());
 		
-		dashboardPacker.AddCluster();
+		dashboardPacker.FinalizeCluster();
 		
 		UINT16 buttons = 0;
 		for (channel = kJoystickButtons; channel >= 1; channel--)
@@ -244,8 +246,6 @@ void HardwareInterface::UpdateDashboard(bool cameraState)
 			}
 		}
 		dashboardPacker.AddU16(buttons);
-		
-		dashboardPacker.FinalizeCluster();
 		
 		dashboardPacker.FinalizeCluster();
 	}
@@ -343,7 +343,7 @@ Victor* HardwareInterface::GetVictor(UINT8 moduleNum, UINT8 channel)
 		m_pwms[moduleNum][channel - 1] = new Victor(kDigitalSlotNumbers[moduleNum], channel);
 			
 		m_emergencyDisableList.push_back(m_pwms[moduleNum][channel - 1]);
-		
+		printf("Victor: %p\r\n", m_pwms[moduleNum][channel - 1]);
 		return (Victor*)(m_pwms[moduleNum][channel - 1]);
 	}
 	else
@@ -429,6 +429,20 @@ AdvServo* HardwareInterface::GetAdvServo(UINT8 moduleNum, UINT8 channel)
 		m_pwms[moduleNum][channel - 1] = new AdvServo(kDigitalSlotNumbers[moduleNum], channel);
 			
 		return (AdvServo*)(m_pwms[moduleNum][channel - 1]);
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+PIDServo* HardwareInterface::GetPIDServo(UINT8 moduleNum, UINT8 channel)
+{
+	if (m_pwms[moduleNum][channel - 1] == NULL)
+	{
+		m_pwms[moduleNum][channel - 1] = new PIDServo(kDigitalSlotNumbers[moduleNum], channel);
+			
+		return (PIDServo*)(m_pwms[moduleNum][channel - 1]);
 	}
 	else
 	{

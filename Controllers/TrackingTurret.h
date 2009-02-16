@@ -12,7 +12,7 @@
 
 #define kTurretMaxInc .05
 #define kTurretManualInc .02
-#define kTurretAllowedError 30.0
+#define kTurretAllowedError 150.0
 
 #define sign(x) (x < 0 ? -1 : 1)
 
@@ -32,6 +32,7 @@ protected:
 	
 	/* Manual turning and speed variables*/
 	float m_motorPos;
+	float m_direction;
 	int m_scanDirection;
 	
 	/* Declare Objects */

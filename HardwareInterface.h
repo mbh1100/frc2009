@@ -9,6 +9,7 @@
 #include "Devices/SmartRelay.h"
 #include "Devices/PIDJaguar.h"
 #include "Devices/PIDVictor.h"
+#include "Devices/PIDServo.h"
 #include "Devices/AdvServo.h"
 
 #include <list>
@@ -41,6 +42,7 @@ public:
 	PIDJaguar* GetPIDJaguar(UINT8 moduleNum, UINT8 channel);
 	PIDVictor* GetPIDVictor(UINT8 moduleNum, UINT8 channel);
 	AdvServo* GetAdvServo(UINT8 moduleNum, UINT8 channel);
+	PIDServo* GetPIDServo(UINT8 moduleNum, UINT8 channel);
 	SmartRelay* GetSmartRelay(UINT8 moduleNum, UINT8 channel);
 	Solenoid* GetSolenoid(UINT8 channel);
 	Joystick* GetJoystick(UINT8 port);

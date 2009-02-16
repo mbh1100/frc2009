@@ -10,7 +10,7 @@ public:
 	HopperControl(Victor* leftHelixMotor, Victor* rightHelixMotor, Jaguar* sweeperMotor, Jaguar* shooterMotorOne, Victor* shooterMotorTwo);
 	virtual ~HopperControl();
 	
-	void Update(int helixSide, int helixDirection, bool limitLeftEntry, bool limitLeftBottom, bool limitLeftTop, 
+	void Update(bool manual, float helixSide, float helixDirection, bool limitLeftEntry, bool limitLeftBottom, bool limitLeftTop, 
 			bool limitRightEntry, bool limitRightBottom, bool limitRightTop, bool shoot, float distance, float direction);
 	void SensorIntake();
 	void Disable();
@@ -25,6 +25,7 @@ protected:
 	
 	float m_helixSide, m_helixDirection;
 	
+	bool m_manual;
 	bool m_limitLeftEntry, m_limitLeftBottom, m_limitLeftTop;
 	bool m_limitRightEntry, m_limitRightBottom, m_limitRightTop;
 	bool m_lastLeftEntry, m_lastRightEntry;

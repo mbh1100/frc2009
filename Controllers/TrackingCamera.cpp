@@ -70,6 +70,7 @@ bool TrackingCamera::Update()
 	/* Determine if pink and green are correctly oriented */
 	if (m_foundPink && m_foundGreen)
 	{		
+		printf("FOUND AT..PX:%lf PY:%lf GX:%lf GY:%lf\r\n", m_pinkX, m_pinkY, m_greenX, m_greenY);
 		if (m_topColor)
 		{
 			if (m_greenY < m_pinkY && fabs(m_greenX - m_pinkX) <= kTargetAllowedHorizontalDifference)

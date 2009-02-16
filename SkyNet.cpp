@@ -2,7 +2,7 @@
 
 SkyNet::SkyNet()
 {
-     	printf("Initializing..\r\n");
+     printf("Initializing..\r\n");
 	
 	/* Initialize Hardware Interface & Driver station*/
 	m_hardwareInterface = new HardwareInterface(true, true);
@@ -38,8 +38,6 @@ SkyNet::SkyNet()
 	m_shooterMotorTwo->EnableDeadbandElimination(true);
 	m_shooterMotorTwo->SetBounds(255, 136, 128, 120, 0);
 	
-	//m_trackingTurret = new TrackingTurret(m_turretMotor, m_turretServoOne);
-	
 	m_manual = 0;
 	m_shoot = 0;
 	m_turnMotor = 0.0;
@@ -74,9 +72,13 @@ SkyNet::SkyNet()
 	
 	/* Sweeper, Hopper, Shooter */	
 	m_turretServoOne = m_hardwareInterface->GetAdvServo(kTurretOneModule, kTurretOnePWM);
+	((AdvMotorController*)m_turretServoOne)->SetBounds(.8, .2);
 	
 	m_turretServoTwo = m_hardwareInterface->GetAdvServo(kTurretTwoModule, kTurretTwoPWM);
+	((AdvMotorController*)m_turretServoTwo)->SetBounds(.8, .2);
 	m_turretServoTwo->SetDirection(kMotorReverse);
+	
+	m_trackingTurret = new TrackingTurret(m_turretServoOne, m_turretServoTwo);
 	
 	m_leftHelixMotor = m_hardwareInterface->GetVictor(kLeftHelixModule, kLeftHelixPWM);
 	m_rightHelixMotor = m_hardwareInterface->GetVictor(kRightHelixModule, kRightHelixPWM);
@@ -87,11 +89,6 @@ SkyNet::SkyNet()
 	
 	m_hopperControl = new HopperControl(m_leftHelixMotor, m_rightHelixMotor, m_sweeperMotor, m_shooterMotorOne, m_shooterMotorTwo);
 	
-	
-	/* Empty Cell Variables & Constants */
-	m_leftEmptyCell = m_hardwareInterface->GetVictor(kLeftCellHolderModule, kLeftCellHolderPWM);
-	m_rightEmptyCell = m_hardwareInterface->GetVictor(kRightCellHolderModule, kRightCellHolderPWM);
-
 	m_emptyCellControl = new EmptyCell(m_leftEmptyCell, m_rightEmptyCell);
 	
 	m_release = 0;
@@ -118,8 +115,6 @@ void SkyNet::TeleopInit()
 {
 	printf("Inititializing Teleop Mode..\r\n");
 	m_teleCount = 0;
-	
-	//m_trackingTurret->StopTurret();
 }
 
 void SkyNet::DisabledPeriodic()
@@ -179,28 +174,78 @@ void SkyNet::TeleopPeriodic()
 	if ((m_teleCount % 4) == 0)
 	{
 		/* Runs at 50Hz */
+		/* Turret, shooter, and camera servo code */
+		m_manual = (m_ds->GetDigitalIn(kOverRideSwitch));
+		m_turnMotor = m_ds->GetAnalogIn(kTurretAngleSwitch);
+		//TODO: MOVE THIS
+		m_setDistance = m_ds->GetAnalogIn(kShootingDistanceSwitch);
+		
+		if (m_manual)
+		{
+			if (m_trackingTurret->Update(m_turnMotor))
+			{
+				m_ds->SetDigitalOut(kTargetAquiredLED, 1);
+			}
+			else
+			{
+				m_ds->SetDigitalOut(kTargetAquiredLED, 0);			
+			}
+		}
+		else
+		{
+			if (m_trackingTurret->Update())
+			{
+				m_ds->SetDigitalOut(kTargetAquiredLED, 1);
+				
+			}
+			else
+			{
+				m_ds->SetDigitalOut(kTargetAquiredLED, 0);			
+			}
+		}
+		
+		
 		/* Hopper, Sweeper, and Shooter Control */
-		//m_helixSide = 0;//m_ds->GetAnalogIn(1);
-		//m_helixDirection = 1;//m_ds->GetAnalogIn(2);
-		//m_hopperControl->Update(m_helixSide, m_helixDirection, m_leftHelixEntryLimit->Get(), m_leftHelixBottomLimit->Get(),
-		//		m_leftHelixTopLimit->Get(), m_rightHelixEntryLimit->Get(), m_rightHelixBottomLimit->Get(), m_rightHelixTopLimit->Get(), m_shoot, m_setDistance, m_turretServoOne->Get());
-
-	
+		m_shoot = !(m_ds->GetDigitalIn(kShootButton));
+		m_helixSide = m_ds->GetAnalogIn(kHelixSideSwitch);
+		m_helixDirection = m_ds->GetAnalogIn(kHelixDirectionSwitch);
+		m_turnMotor = m_ds->GetAnalogIn(kTurretAngleSwitch);
+		m_setDistance = m_ds->GetAnalogIn(kShootingDistanceSwitch);
+		m_hopperControl->Update(m_manual, m_helixSide, m_helixDirection, 
+				(bool)m_digitalModules[kLeftLiftEntryLimitModule]->GetDIO(kLeftLiftEntryLimitChannel), 
+				(bool)m_digitalModules[kLeftLiftBottomLimitModule]->GetDIO(kLeftLiftBottomLimitChannel),
+				(bool)m_digitalModules[kLeftLiftTopLimitModule]->GetDIO(kLeftLiftTopLimitChannel),
+				(bool)m_digitalModules[kRightLiftEntryLimitModule]->GetDIO(kRightLiftEntryLimitChannel), 
+				(bool)m_digitalModules[kRightLiftBottomLimitModule]->GetDIO(kRightLiftBottomLimitChannel),
+				(bool)m_digitalModules[kRightLiftTopLimitModule]->GetDIO(kRightLiftTopLimitChannel), m_shoot, m_turnMotor, m_setDistance);
+		
+		
+		/* Empty Cell Control */
+		m_release = !(m_ds->GetDigitalIn(kCellSwitch));
+		m_emptyCellControl->Update(m_release, 
+				m_digitalModules[kLeftCellBottomLimitModule]->GetDIO(kLeftCellBottomLimitChannel), 
+				m_digitalModules[kRightCellBottomLimitModule]->GetDIO(kRightCellBottomLimitChannel), 
+				m_digitalModules[kLeftCellTopLimitModule]->GetDIO(kLeftCellTopLimitChannel), 
+				m_digitalModules[kRightCellTopLimitModule]->GetDIO(kRightCellTopLimitChannel));
+		
 		m_hardwareInterface->UpdateDashboard(true);
 	}
 	
 	if ((m_teleCount % 2) == 0)
 	{
 		/* Runs at 100Hz */
+		/* Tank Drive */
+		m_leftDriveMotor->Set(-m_leftTestJoystick->GetY()*.98);
+		m_rightDriveMotor->Set(m_rightTestJoystick->GetY()*.98);
 	}
 	
 	if (m_ds->GetPacketNumber() != m_priorPacketNumber)
 	{
 		
 		/* Begin Diagnostic Code */
-		m_turretServoOne->Set(1.0);
+		/*m_turretServoOne->Set(1.0);
 		m_turretServoTwo->Set(1.0);
-		/*m_leftDriveMotor->Set(-m_leftTestJoystick->GetY()*.98);
+		m_leftDriveMotor->Set(-m_leftTestJoystick->GetY()*.98);
 		m_rightDriveMotor->Set(m_rightTestJoystick->GetY()*.98);
 		
 		printf("Encoder Right: %d, Encoder Left: %d \n\r", m_rightDriveEncoder->Get(), m_leftDriveEncoder->Get());
@@ -262,7 +307,7 @@ void SkyNet::TeleopPeriodic()
 		{
 			m_shooterMotorOne->Set(0.0);
 			m_shooterMotorTwo->Set(0.0);
-		} 
+		}
 		
 		m_ds->SetDigitalOut(1, true);*/
 		/* End Diagnostic Code */
@@ -272,7 +317,7 @@ void SkyNet::TeleopPeriodic()
 		/* Code dependent on driverstation/human input here */
 		
 		/* Tank Drive */
-		if (m_leftJoystick->GetRawButton(3))
+		/*if (m_leftJoystick->GetRawButton(3))
 		{
 			m_drivePID = true;
 		}
@@ -282,57 +327,20 @@ void SkyNet::TeleopPeriodic()
 		}
 		if (m_drivePID)
 		{
-			m_drive->SetSetpoint(-m_leftJoystick->GetY()* 5.0, -m_rightJoystick->GetY()* 5.0);
-			m_drive->Update();
+			//m_drive->SetSetpoint(-m_leftJoystick->GetY()* 5.0, -m_rightJoystick->GetY()* 5.0);
+			//m_drive->Update();
 		}
 		else
 		{
 			m_leftDriveMotor->Set(-m_leftJoystick->GetY());
 			m_rightDriveMotor->Set(-m_rightJoystick->GetY());
-		}
-		
-		/* Empty Cell Control */
-		m_release = !(m_ds->GetDigitalIn(kCellSwitch));
-		m_emptyCellControl->Update(m_release, 
-				m_digitalModules[kLeftCellBottomLimitModule]->GetDIO(kLeftCellBottomLimitChannel), 
-				m_digitalModules[kRightCellBottomLimitModule]->GetDIO(kRightCellBottomLimitChannel), 
-				m_digitalModules[kLeftCellTopLimitModule]->GetDIO(kLeftCellTopLimitChannel), 
-				m_digitalModules[kRightCellTopLimitModule]->GetDIO(kRightCellTopLimitChannel));
+		}*/
+
 	}
 	
 	if ((m_teleCount % 10) == 0)
 	{
-		/* Turret, shooter, and camera servo code */
-		m_manual = (m_ds->GetDigitalIn(kOverRideSwitch));
-		m_shoot = !(m_ds->GetDigitalIn(kShootButton));
-		m_turnMotor = m_ds->GetAnalogIn(kTurretAngleSwitch);
-		//TODO: MOVE THIS
-		m_setDistance = m_ds->GetAnalogIn(kShootingDistanceSwitch);
-		
-		/*if (m_manual)
-		{
-			if (m_trackingTurret->Update(m_turnMotor))
-			{
-				m_ds->SetDigitalOut(kTargetAquiredLED, 1);
-			}
-			else
-			{
-				m_ds->SetDigitalOut(kTargetAquiredLED, 0);			
-			}
-		}
-		else
-		{
-			if (m_trackingTurret->Update())
-			{
-				m_ds->SetDigitalOut(kTargetAquiredLED, 1);
-				
-			}
-			else
-			{
-				m_ds->SetDigitalOut(kTargetAquiredLED, 0);			
-			}
-			
-		}*/
+
 	}	
 }
 
