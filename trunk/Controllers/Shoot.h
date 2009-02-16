@@ -6,7 +6,7 @@
 class Shoot
 {
 public:
-	Shoot(Jaguar* shootMotor, Victor* leftHelixMotor, Victor* rightHelixMotor);
+	Shoot(Jaguar* shootMotorOne, Victor* shootMotorTwo, Victor* leftHelixMotor, Victor* rightHelixMotor);
 	virtual ~Shoot();
 	
 	void Update(float distance, bool limitLeft, bool limitRight);
@@ -19,8 +19,8 @@ public:
 	void Disable();
 	
 protected:
-	Jaguar *m_shootMotor;
-	Victor *m_leftHelixMotor, *m_rightHelixMotor;
+	Jaguar *m_shootMotorOne;
+	Victor *m_shootMotorTwo, *m_leftHelixMotor, *m_rightHelixMotor;
 	
 	Timer *m_leftTimer, *m_rightTimer;
 	

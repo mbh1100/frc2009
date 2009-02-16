@@ -16,6 +16,8 @@ protected:
 	
 	bool m_release, m_releaseProcess, m_limitLeftBottom, m_limitRightBottom, m_limitLeftTop, m_limitRightTop;
 	
+	Timer *m_holdTimer;
+	
 	float kEmptyCellSpeed;
 };
 

@@ -1,6 +1,6 @@
 #include "TrackingTurret.h"
 
-TrackingTurret::TrackingTurret(PIDServo* primary, PIDServo* secondary)
+TrackingTurret::TrackingTurret(AdvServo* primary, AdvServo* secondary)
 {
 	m_trackingCamera = new TrackingCamera(true);
 	
@@ -47,7 +47,7 @@ bool TrackingTurret::Update()
 	return m_targetFound;
 }
 
-bool TrackingTurret::Update(int direction)
+bool TrackingTurret::Update(float direction)
 {	
 	m_inView = m_trackingCamera->Update();
 	

@@ -14,6 +14,9 @@ EmptyCell::EmptyCell(Victor* leftMotor, Victor* rightMotor)
 	m_limitRightBottom = false;
 	m_limitLeftTop = false;
 	m_limitRightTop = false;
+	
+	m_holdTimer = new Timer();
+	m_holdTimer->Reset();
 }
 
 EmptyCell::~EmptyCell()
@@ -25,10 +28,10 @@ void EmptyCell::Update(bool release, bool limitLeftBottom, bool limitRightBottom
 {
 	m_release = release;
 	
-	m_limitLeftBottom = limitLeftBottom;
-	m_limitRightBottom = limitRightBottom;
-	m_limitLeftTop = limitLeftTop;
-	m_limitRightTop = limitRightTop;
+	m_limitLeftBottom = !limitLeftBottom;
+	m_limitRightBottom = !limitRightBottom;
+	m_limitLeftTop = !limitLeftTop;
+	m_limitRightTop = !limitRightTop;
 	
 	/* Check to see if release button pressed */
 	if (m_release && !m_releaseProcess)
@@ -54,6 +57,16 @@ void EmptyCell::Update(bool release, bool limitLeftBottom, bool limitRightBottom
 		else
 		{
 			m_rightMotor->Set(0.0);
+		}
+		if (m_limitLeftTop && m_limitRightTop && m_holdTimer->Get() == 0)
+		{
+			m_holdTimer->Start();			
+		}
+		if (m_limitLeftTop && m_limitRightTop && m_holdTimer->Get() >= 2.0)
+		{
+			m_holdTimer->Stop();
+			m_holdTimer->Reset();
+			m_releaseProcess = false;
 		}
 	}
 	else

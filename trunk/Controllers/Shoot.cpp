@@ -1,8 +1,9 @@
 #include "Shoot.h"
 
-Shoot::Shoot(Jaguar* shootMotor, Victor* leftHelixMotor, Victor* rightHelixMotor)
+Shoot::Shoot(Jaguar* shootMotorOne, Victor* shootMotorTwo, Victor* leftHelixMotor, Victor* rightHelixMotor)
 {
-	m_shootMotor = shootMotor;
+	m_shootMotorOne = shootMotorOne;
+	m_shootMotorTwo = shootMotorTwo;
 	m_leftHelixMotor = leftHelixMotor;
 	m_rightHelixMotor = rightHelixMotor;
 	
@@ -47,7 +48,8 @@ void Shoot::Update(float distance, bool limitLeft, bool limitRight)
 	m_limitLeft = limitLeft;
 	m_limitRight = limitRight;
 	
-	m_shootMotor->Set(Distance());
+	m_shootMotorOne->Set(Distance());
+	m_shootMotorTwo->Set(.98);
 	
 	SideShooting();
 	
