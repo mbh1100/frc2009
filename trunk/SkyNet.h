@@ -15,6 +15,7 @@
 #include "Devices/PIDEncoder.h"
 #include "Devices/PIDJaguar.h"
 #include "Devices/PIDVictor.h"
+#include "Devices/PIDServo.h"
 #include "Devices/AdvServo.h"
 #include "Devices/AdvMotorController.h"
 #include "Controllers/HopperControl.h"
@@ -52,9 +53,7 @@ protected:
 	HopperControl *m_hopperControl;
 	Victor *m_leftHelixMotor, *m_rightHelixMotor;
 	Jaguar *m_sweeperMotor;
-	int m_helixSide, m_helixDirection;
-	DigitalInput *m_leftHelixEntryLimit, *m_leftHelixBottomLimit, *m_leftHelixTopLimit;
-	DigitalInput *m_rightHelixEntryLimit, *m_rightHelixBottomLimit, *m_rightHelixTopLimit;
+	float m_helixSide, m_helixDirection;
 	
 	/* Turret and Shooter Variables */
 	PIDJaguar *m_turretMotor;
@@ -104,11 +103,13 @@ protected:
 	static const UINT8 kTurretTwoPWM	   = 10; //S
 	
 	
+	/* cRIO Digital IO Constants (Literal Modules) */
+	static const UINT8 kLeftDriveEncoderAModule    = 4;
+	static const UINT8 kLeftDriveEncoderBModule    = 4;
+	static const UINT8 kRightDriveEncoderAModule   = 6;
+	static const UINT8 kRightDriveEncoderBModule   = 6;
+	
 	/* cRIO Digital IO Constants (Relative Modules)*/
-	static const UINT8 kLeftDriveEncoderAModule    = 0;
-	static const UINT8 kLeftDriveEncoderBModule    = 0;
-	static const UINT8 kRightDriveEncoderAModule   = 1;
-	static const UINT8 kRightDriveEncoderBModule   = 1;
 	static const UINT8 kLeftCellBottomLimitModule  = 0;
 	static const UINT8 kRightCellBottomLimitModule = 1;
 	static const UINT8 kLeftCellTopLimitModule     = 0;
@@ -124,10 +125,10 @@ protected:
 	static const UINT8 kLeftDriveEncoderBChannel    = 2;
 	static const UINT8 kRightDriveEncoderAChannel   = 1;
 	static const UINT8 kRightDriveEncoderBChannel   = 2;
-	static const UINT8 kLeftCellBottomLimitChannel  = 3;
-	static const UINT8 kRightCellBottomLimitChannel = 3;
-	static const UINT8 kLeftCellTopLimitChannel     = 4;
-	static const UINT8 kRightCellTopLimitChannel    = 4;
+	static const UINT8 kLeftCellBottomLimitChannel  = 13;
+	static const UINT8 kRightCellBottomLimitChannel = 13;
+	static const UINT8 kLeftCellTopLimitChannel     = 14;
+	static const UINT8 kRightCellTopLimitChannel    = 14;
 	static const UINT8 kLeftLiftEntryLimitChannel   = 5;
 	static const UINT8 kLeftLiftBottomLimitChannel  = 6;
 	static const UINT8 kLeftLiftTopLimitChannel     = 7;

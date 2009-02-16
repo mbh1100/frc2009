@@ -51,6 +51,8 @@ void Shoot::Update(float distance, bool limitLeft, bool limitRight)
 	m_shootMotorOne->Set(Distance());
 	m_shootMotorTwo->Set(.98);
 	
+	printf("ShooterSpeed: %lf\r\n", m_shootMotorOne->Get());
+	
 	SideShooting();
 	
 	CountBallsLeft();
@@ -59,23 +61,23 @@ void Shoot::Update(float distance, bool limitLeft, bool limitRight)
 
 float Shoot::Distance()
 {
-	if (m_distance < 50)
+	if (m_distance < 200)
 	{
 		return .17;
 	}
-	else if (m_distance < 100)
+	else if (m_distance < 350)
 	{
 		return .33;
 	}
-	else if (m_distance < 150)
+	else if (m_distance < 500)
 	{
 		return .5;
 	}
-	else if (m_distance < 200)
+	else if (m_distance < 650)
 	{
 		return .67;
 	}
-	else if (m_distance < 250)
+	else if (m_distance < 775)
 	{
 		return .83;
 	}
@@ -167,4 +169,6 @@ void Shoot::Disable()
 {
 	m_rightHelixMotor->Set(0.0);
 	m_leftHelixMotor->Set(0.0);
+	m_shootMotorOne->Set(0.0);
+	m_shootMotorTwo->Set(0.0);
 }

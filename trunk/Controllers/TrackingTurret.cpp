@@ -11,6 +11,8 @@ TrackingTurret::TrackingTurret(AdvServo* primary, AdvServo* secondary)
 	
 	m_inView = false;
 	m_targetFound = false;
+	
+	m_direction = .5;
 }
 
 TrackingTurret::~TrackingTurret()
@@ -27,8 +29,8 @@ bool TrackingTurret::Update()
 	{
 		if (fabs(m_trackingCamera->GetTargetX()) > kTurretAllowedError)
 		{
-			m_scanDirection = sign(m_trackingCamera->GetTargetX());
-			m_motorPos += kTurretMaxInc * m_trackingCamera->GetTargetSize() * m_scanDirection;
+			//m_scanDirection = -sign(m_trackingCamera->GetTargetX());
+			m_motorPos += -kTurretMaxInc * m_trackingCamera->GetTargetX()/1000;
 		
 			m_targetFound = false;
 		}
@@ -51,6 +53,18 @@ bool TrackingTurret::Update(float direction)
 {	
 	m_inView = m_trackingCamera->Update();
 	
+	m_direction = direction;
+	if (m_direction > 700)
+	{
+		m_direction = 700;
+	}
+	else if (m_direction < 350)
+	{
+		m_direction = 350;
+	}
+	m_direction -= 350;
+	m_direction = m_direction/350;
+	
 	if (fabs(m_trackingCamera->GetTargetX()) > kTurretAllowedError)
 	{
 		m_targetFound = false;
@@ -60,7 +74,7 @@ bool TrackingTurret::Update(float direction)
 		m_targetFound = true;
 	}
 	
-	m_motorPos += kTurretManualInc * (double)direction;
+	m_motorPos = (double)m_direction;
 	
 	UpdateMotors();
 	
@@ -69,9 +83,9 @@ bool TrackingTurret::Update(float direction)
 
 void TrackingTurret::UpdateMotors()
 {
-	if (m_motorPos > 1.0 || m_motorPos < 0.0)
+	if (m_motorPos > .8 || m_motorPos < 0.2)
 	{
-		m_motorPos = m_scanDirection == -1 ? 0.0 : 1.0;
+		m_motorPos = m_scanDirection == -1 ? 0.2 : 0.8;
 		
 		m_scanDirection *= -1;
 	}

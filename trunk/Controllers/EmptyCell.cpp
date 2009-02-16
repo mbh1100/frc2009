@@ -87,7 +87,7 @@ void EmptyCell::Update(bool release, bool limitLeftBottom, bool limitRightBottom
 		}
 		else
 		{
-			m_rightMotor->Set(-kEmptyCellSpeed);
+			m_rightMotor->Set(0.0);
 		}
 	}
 }

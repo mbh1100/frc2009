@@ -44,6 +44,8 @@ HopperControl::HopperControl(Victor* leftHelixMotor, Victor* rightHelixMotor, Ja
 	m_justShot = false;
 	m_shootPressed = false;
 	
+	m_manual = false;
+	
 	m_direction = .5;
 	m_distance = 3.0;
 	
@@ -58,7 +60,7 @@ HopperControl::~HopperControl()
 	
 }
 
-void HopperControl::Update(int helixSide, int helixDirection, bool limitLeftEntry, bool limitLeftBottom, 
+void HopperControl::Update(bool manual, float helixSide, float helixDirection, bool limitLeftEntry, bool limitLeftBottom, 
 		bool limitLeftTop, bool limitRightEntry, bool limitRightBottom, bool limitRightTop, bool shoot, float distance, float direction)
 {
 	/* Set variables based on input */
@@ -67,6 +69,8 @@ void HopperControl::Update(int helixSide, int helixDirection, bool limitLeftEntr
 	m_direction = direction;
 	m_helixDirection = helixDirection;
 	m_helixSide = helixSide;
+	
+	m_manual = manual;
 	
 	m_limitLeftEntry = !limitLeftEntry;
 	m_limitLeftBottom = !limitLeftBottom;
@@ -100,8 +104,9 @@ void HopperControl::Update(int helixSide, int helixDirection, bool limitLeftEntr
 			m_ballsInLeft = m_shoot->CountBallsLeft();
 			m_ballsInRight = m_shoot->CountBallsRight();
 			m_justShot = false;
+			m_shoot->Disable();
 		}
-		if (m_helixDirection == 0)
+		if (m_helixDirection >= 250 && m_helixDirection <= 750)
 		{
 			m_rightHelixMotor->Set(0.0);
 			m_leftHelixMotor->Set(0.0);
@@ -109,7 +114,7 @@ void HopperControl::Update(int helixSide, int helixDirection, bool limitLeftEntr
 			m_leftEntering = false;
 			m_rightEntering = false;
 		}
-		else if (m_helixDirection == -1)
+		else if (m_helixDirection > 750)
 		{
 			/* Reverse all motors and spit the balls out the bottom */
 			m_rightHelixMotor->Set(kHelixOutSpeed);
@@ -140,9 +145,9 @@ void HopperControl::Update(int helixSide, int helixDirection, bool limitLeftEntr
 			}	
 			
 			/* If manual control for one side, set those motors */
-			if (m_helixSide > 0) /* Turns on right side only */
+			if (m_helixSide > 750) /* Turns on right side only */
 			{
-				m_rightHelixMotor->Set(kHelixOutSpeed);
+				m_rightHelixMotor->Set(kHelixInSpeed);
 				m_leftHelixMotor->Set(0.0);
 				
 				if (m_rightEntering)
@@ -154,14 +159,19 @@ void HopperControl::Update(int helixSide, int helixDirection, bool limitLeftEntr
 					}
 				}
 			}
-			else if (m_helixSide < 0) /* Turns on left side only */
+			else if (m_helixSide < 250) /* Turns on left side only */
 			{
-				m_leftHelixMotor->Set(kHelixOutSpeed);
+				m_leftHelixMotor->Set(kHelixInSpeed);
 				m_rightHelixMotor->Set(0.0);
 				if ((m_leftTimer->Get() >= kMinTimePerEntry && m_limitLeftBottom) || m_leftTimer->Get() >= kMaxTimePerEntry)
 				{
 					m_leftEntering = false;
 				}
+			}
+			else if (m_manual)
+			{
+				m_leftHelixMotor->Set(kHelixInSpeed);
+				m_rightHelixMotor->Set(kHelixInSpeed);
 			}
 			/* If sensor controlled, call SensorIntake */
 			else
