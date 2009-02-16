@@ -54,7 +54,8 @@ protected:
 	
 	/* Turret and Shooter Variables */
 	PIDJaguar *m_turretMotor;
-	Jaguar *m_shooterMotor;
+	Jaguar *m_shooterMotorOne;
+	Victor *m_shooterMotorTwo;
 	Servo *m_turretServoOne, *m_turretServoTwo;
 	TrackingTurret *m_trackingTurret;
 	bool m_manual, m_shoot;
@@ -76,7 +77,8 @@ protected:
 	/* PWM Constants (Relative Modules) */
 	static const UINT8 kLeftDriveModule       = 0; //J
 	static const UINT8 kRightDriveModule      = 1; //J
-	static const UINT8 kShooterModule         = 1; //J
+	static const UINT8 kShooterOneModule      = 1; //J
+	static const UINT8 kShooterTwoModule	  = 1; //V
 	static const UINT8 kSweeperModule         = 0; //J
 	static const UINT8 kLeftHelixModule       = 0; //V
 	static const UINT8 kRightHelixModule      = 1; //V
@@ -87,7 +89,8 @@ protected:
 	
 	static const UINT8 kLeftDrivePWM       = 1;  //J
 	static const UINT8 kRightDrivePWM      = 1;  //J
-	static const UINT8 kShooterPWM         = 3;  //J
+	static const UINT8 kShooterOnePWM      = 3;  //J
+	static const UINT8 kShooterTwoPWM	   = 6;  //V
 	static const UINT8 kSweeperPWM         = 3;  //J
 	static const UINT8 kLeftHelixPWM       = 2;  //V
 	static const UINT8 kRightHelixPWM      = 2;  //V
@@ -95,6 +98,7 @@ protected:
 	static const UINT8 kRightCellHolderPWM = 4;  //V
 	static const UINT8 kTurretOnePWM       = 9;  //S
 	static const UINT8 kTurretTwoPWM	   = 10; //S
+	
 	
 	/* cRIO Digital IO Constants (Literal Modules)*/
 	static const UINT8 kLeftDriveEncoderAModule    = 4;
@@ -130,12 +134,13 @@ protected:
 	/* cRIO Analog In Constants */
 	
 	/* Joystick Constants */
-	static const UINT8 kRightJoystickPort = 1;
-	static const UINT8 kLeftJoystickPort  = 2;
+	static const UINT8 kLeftJoystickPort  = 1;
+	static const UINT8 kRightJoystickPort = 2;
 	
 	/* Driver Station Digital In Constants */
-	static const UINT8 kOverrideSwitch = 1;
+	static const UINT8 kShootButton	   = 1;
 	static const UINT8 kCellSwitch     = 2;
+	static const UINT8 kOverRideSwitch = 3;
 	
 	/* Driver Station Analog In Constants */
 	static const UINT8 kHelixSideSwitch        = 1;
