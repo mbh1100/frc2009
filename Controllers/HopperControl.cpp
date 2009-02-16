@@ -1,6 +1,6 @@
 #include "HopperControl.h"
 
-HopperControl::HopperControl(Victor* leftHelixMotor, Victor* rightHelixMotor, Jaguar* sweeperMotor, Jaguar* shooterMotor)
+HopperControl::HopperControl(Victor* leftHelixMotor, Victor* rightHelixMotor, Jaguar* sweeperMotor, Jaguar* shooterMotorOne, Victor* shooterMotorTwo)
 {
 	kMinTimePerEntry = .1;
 	kMaxTimePerEntry = .75;
@@ -9,13 +9,14 @@ HopperControl::HopperControl(Victor* leftHelixMotor, Victor* rightHelixMotor, Ja
 	kSweeperSpeedIn = .98;
 	kSweeperSpeedOut = -.98;
 	
-	m_shooterMotor = shooterMotor;
+	m_shooterMotorOne = shooterMotorOne;
+	m_shooterMotorTwo = shooterMotorTwo;
 	
 	m_leftHelixMotor = leftHelixMotor;
 	m_rightHelixMotor = rightHelixMotor;
 	m_sweeperMotor = sweeperMotor;
 		
-	m_shoot = new Shoot(m_shooterMotor, m_leftHelixMotor, m_rightHelixMotor);
+	m_shoot = new Shoot(m_shooterMotorOne, m_shooterMotorTwo, m_leftHelixMotor, m_rightHelixMotor);
 	
 	m_helixSide = 0;
 	m_helixDirection = 0;

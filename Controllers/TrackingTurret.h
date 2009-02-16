@@ -8,7 +8,7 @@
 #include "PIDControl.h"
 #include "PIDController.h"
 #include "TrackingCamera.h"
-#include "../Devices/PIDServo.h"
+#include "../Devices/AdvServo.h"
 
 #define kTurretMaxInc .05
 #define kTurretManualInc .02
@@ -19,11 +19,11 @@
 class TrackingTurret
 {
 public:
-	TrackingTurret(PIDServo* primary, PIDServo* secondary);
+	TrackingTurret(AdvServo* primary, AdvServo* secondary);
 	virtual ~TrackingTurret();
 	
 	bool Update();
-	bool Update(int direction);
+	bool Update(float direction);
 
 protected:
 	void UpdateMotors();
@@ -35,7 +35,7 @@ protected:
 	int m_scanDirection;
 	
 	/* Declare Objects */
-	PIDServo *m_primaryServo, *m_secondaryServo;
+	AdvServo *m_primaryServo, *m_secondaryServo;
 	
 	bool m_inView, m_targetFound;
 };

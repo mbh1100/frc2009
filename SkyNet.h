@@ -14,6 +14,9 @@
 #include "HardwareInterface.h"
 #include "Devices/PIDEncoder.h"
 #include "Devices/PIDJaguar.h"
+#include "Devices/PIDVictor.h"
+#include "Devices/AdvServo.h"
+#include "Devices/AdvMotorController.h"
 #include "Controllers/HopperControl.h"
 #include "Controllers/EmptyCell.h"
 
@@ -43,6 +46,7 @@ protected:
 	PIDEncoder *m_leftDriveEncoder, *m_rightDriveEncoder;
 	PIDJaguar *m_leftDriveMotor, *m_rightDriveMotor;
 	TankDrive *m_drive;
+	bool m_drivePID;
 	
 	/* Sweeper and Hopper Variables */
 	HopperControl *m_hopperControl;
@@ -56,7 +60,7 @@ protected:
 	PIDJaguar *m_turretMotor;
 	Jaguar *m_shooterMotorOne;
 	Victor *m_shooterMotorTwo;
-	Servo *m_turretServoOne, *m_turretServoTwo;
+	AdvServo *m_turretServoOne, *m_turretServoTwo;
 	TrackingTurret *m_trackingTurret;
 	bool m_manual, m_shoot;
 	float m_turnMotor, m_setDistance;
@@ -64,11 +68,11 @@ protected:
 	/* Empty Cell Variables & Constants */
 	EmptyCell *m_emptyCellControl;
 	Victor *m_leftEmptyCell, *m_rightEmptyCell;
-	DigitalInput *m_leftCellBottom, *m_rightCellBottom, *m_leftCellTop, *m_rightCellTop;
 	bool m_release;
 	static const float kEmptyCellSpeed = .2;
 		
 	AnalogModule *m_analogModules[SensorBase::kAnalogModules];
+	DigitalModule *m_digitalModules[SensorBase::kDigitalModules];
 	
 	DriverStation *m_ds;
 		
@@ -100,21 +104,21 @@ protected:
 	static const UINT8 kTurretTwoPWM	   = 10; //S
 	
 	
-	/* cRIO Digital IO Constants (Literal Modules)*/
-	static const UINT8 kLeftDriveEncoderAModule    = 4;
-	static const UINT8 kLeftDriveEncoderBModule    = 4;
-	static const UINT8 kRightDriveEncoderAModule   = 6;
-	static const UINT8 kRightDriveEncoderBModule   = 6;
-	static const UINT8 kLeftCellBottomLimitModule  = 4;
-	static const UINT8 kRightCellBottomLimitModule = 6;
-	static const UINT8 kLeftCellTopLimitModule     = 4;
-	static const UINT8 kRightCellTopLimitModule    = 6;
-	static const UINT8 kLeftLiftEntryLimitModule   = 4;
-	static const UINT8 kLeftLiftBottomLimitModule  = 4;
-	static const UINT8 kLeftLiftTopLimitModule     = 4;
-	static const UINT8 kRightLiftEntryLimitModule  = 6;
-	static const UINT8 kRightLiftBottomLimitModule = 6;
-	static const UINT8 kRightLiftTopLimitModule    = 6;
+	/* cRIO Digital IO Constants (Relative Modules)*/
+	static const UINT8 kLeftDriveEncoderAModule    = 0;
+	static const UINT8 kLeftDriveEncoderBModule    = 0;
+	static const UINT8 kRightDriveEncoderAModule   = 1;
+	static const UINT8 kRightDriveEncoderBModule   = 1;
+	static const UINT8 kLeftCellBottomLimitModule  = 0;
+	static const UINT8 kRightCellBottomLimitModule = 1;
+	static const UINT8 kLeftCellTopLimitModule     = 0;
+	static const UINT8 kRightCellTopLimitModule    = 1;
+	static const UINT8 kLeftLiftEntryLimitModule   = 0;
+	static const UINT8 kLeftLiftBottomLimitModule  = 0; 
+	static const UINT8 kLeftLiftTopLimitModule     = 0;
+	static const UINT8 kRightLiftEntryLimitModule  = 1;
+	static const UINT8 kRightLiftBottomLimitModule = 1;
+	static const UINT8 kRightLiftTopLimitModule    = 1;
 	
 	static const UINT8 kLeftDriveEncoderAChannel    = 1;
 	static const UINT8 kLeftDriveEncoderBChannel    = 2;

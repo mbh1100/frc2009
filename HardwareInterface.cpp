@@ -422,13 +422,13 @@ PIDVictor* HardwareInterface::GetPIDVictor(UINT8 moduleNum, UINT8 channel)
  * Note that the module number is not literal, 0 is the first slot 
  * in kDigitalSlotNumbers, 1 is the second, ect...
  */
-PIDServo* HardwareInterface::GetPIDServo(UINT8 moduleNum, UINT8 channel)
+AdvServo* HardwareInterface::GetAdvServo(UINT8 moduleNum, UINT8 channel)
 {
 	if (m_pwms[moduleNum][channel - 1] == NULL)
 	{
-		m_pwms[moduleNum][channel - 1] = new PIDServo(kDigitalSlotNumbers[moduleNum], channel);
+		m_pwms[moduleNum][channel - 1] = new AdvServo(kDigitalSlotNumbers[moduleNum], channel);
 			
-		return (PIDServo*)(m_pwms[moduleNum][channel - 1]);
+		return (AdvServo*)(m_pwms[moduleNum][channel - 1]);
 	}
 	else
 	{

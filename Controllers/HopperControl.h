@@ -7,7 +7,7 @@
 class HopperControl
 {
 public:
-	HopperControl(Victor* leftHelixMotor, Victor* rightHelixMotor, Jaguar* sweeperMotor, Jaguar* shooterMotor);
+	HopperControl(Victor* leftHelixMotor, Victor* rightHelixMotor, Jaguar* sweeperMotor, Jaguar* shooterMotorOne, Victor* shooterMotorTwo);
 	virtual ~HopperControl();
 	
 	void Update(int helixSide, int helixDirection, bool limitLeftEntry, bool limitLeftBottom, bool limitLeftTop, 
@@ -20,8 +20,8 @@ public:
 	
 protected:
 	Shoot *m_shoot;
-	Jaguar *m_shooterMotor, *m_sweeperMotor;
-	Victor *m_leftHelixMotor, *m_rightHelixMotor;
+	Jaguar *m_shooterMotorOne, *m_sweeperMotor;
+	Victor *m_leftHelixMotor, *m_rightHelixMotor, *m_shooterMotorTwo;
 	
 	float m_helixSide, m_helixDirection;
 	
