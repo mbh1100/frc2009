@@ -378,15 +378,15 @@ Servo* HardwareInterface::GetServo(UINT8 moduleNum, UINT8 channel)
  * Note that the module number is not literal, 0 is the first slot 
  * in kDigitalSlotNumbers, 1 is the second, ect...
  */
-PIDJaguar* HardwareInterface::GetPIDJaguar(UINT8 moduleNum, UINT8 channel)
+AdvJaguar* HardwareInterface::GetAdvJaguar(UINT8 moduleNum, UINT8 channel)
 {
 	if (m_pwms[moduleNum][channel - 1] == NULL)
 	{
-		m_pwms[moduleNum][channel - 1] = new PIDJaguar(kDigitalSlotNumbers[moduleNum], channel);
+		m_pwms[moduleNum][channel - 1] = new AdvJaguar(kDigitalSlotNumbers[moduleNum], channel);
 		
 		m_emergencyDisableList.push_back(m_pwms[moduleNum][channel - 1]);
 		
-		return (PIDJaguar*)(m_pwms[moduleNum][channel - 1]);
+		return (AdvJaguar*)(m_pwms[moduleNum][channel - 1]);
 	}
 	else
 	{
@@ -400,15 +400,15 @@ PIDJaguar* HardwareInterface::GetPIDJaguar(UINT8 moduleNum, UINT8 channel)
  * Note that the module number is not literal, 0 is the first slot 
  * in kDigitalSlotNumbers, 1 is the second, ect...
  */
-PIDVictor* HardwareInterface::GetPIDVictor(UINT8 moduleNum, UINT8 channel)
+AdvVictor* HardwareInterface::GetAdvVictor(UINT8 moduleNum, UINT8 channel)
 {
 	if (m_pwms[moduleNum][channel - 1] == NULL)
 	{
-		m_pwms[moduleNum][channel - 1] = new PIDVictor(kDigitalSlotNumbers[moduleNum], channel);
+		m_pwms[moduleNum][channel - 1] = new AdvVictor(kDigitalSlotNumbers[moduleNum], channel);
 			
 		m_emergencyDisableList.push_back(m_pwms[moduleNum][channel - 1]);
 		
-		return (PIDVictor*)(m_pwms[moduleNum][channel - 1]);
+		return (AdvVictor*)(m_pwms[moduleNum][channel - 1]);
 	}
 	else
 	{
@@ -429,20 +429,6 @@ AdvServo* HardwareInterface::GetAdvServo(UINT8 moduleNum, UINT8 channel)
 		m_pwms[moduleNum][channel - 1] = new AdvServo(kDigitalSlotNumbers[moduleNum], channel);
 			
 		return (AdvServo*)(m_pwms[moduleNum][channel - 1]);
-	}
-	else
-	{
-		return NULL;
-	}
-}
-
-PIDServo* HardwareInterface::GetPIDServo(UINT8 moduleNum, UINT8 channel)
-{
-	if (m_pwms[moduleNum][channel - 1] == NULL)
-	{
-		m_pwms[moduleNum][channel - 1] = new PIDServo(kDigitalSlotNumbers[moduleNum], channel);
-			
-		return (PIDServo*)(m_pwms[moduleNum][channel - 1]);
 	}
 	else
 	{

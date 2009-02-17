@@ -4,10 +4,12 @@
 #include "WPILib.h"
 #include "Shoot.h"
 
+#include "../Devices/AdvMotorController.h"
+
 class HopperControl
 {
 public:
-	HopperControl(Victor* leftHelixMotor, Victor* rightHelixMotor, Jaguar* sweeperMotor, Jaguar* shooterMotorOne, Victor* shooterMotorTwo);
+	HopperControl(AdvMotorController* leftHelixMotor, AdvMotorController* rightHelixMotor, AdvMotorController* sweeperMotor, AdvMotorController* shooterMotorOne, AdvMotorController* shooterMotorTwo);
 	virtual ~HopperControl();
 	
 	void Update(bool manual, float helixSide, float helixDirection, bool limitLeftEntry, bool limitLeftBottom, bool limitLeftTop, 
@@ -20,8 +22,7 @@ public:
 	
 protected:
 	Shoot *m_shoot;
-	Jaguar *m_shooterMotorOne, *m_sweeperMotor;
-	Victor *m_leftHelixMotor, *m_rightHelixMotor, *m_shooterMotorTwo;
+	AdvMotorController *m_shooterMotorOne, *m_sweeperMotor, *m_leftHelixMotor, *m_rightHelixMotor, *m_shooterMotorTwo;
 	
 	float m_helixSide, m_helixDirection;
 	

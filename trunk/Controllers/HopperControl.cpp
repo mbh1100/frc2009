@@ -1,6 +1,6 @@
 #include "HopperControl.h"
 
-HopperControl::HopperControl(Victor* leftHelixMotor, Victor* rightHelixMotor, Jaguar* sweeperMotor, Jaguar* shooterMotorOne, Victor* shooterMotorTwo)
+HopperControl::HopperControl(AdvMotorController* leftHelixMotor, AdvMotorController* rightHelixMotor, AdvMotorController* sweeperMotor, AdvMotorController* shooterMotorOne, AdvMotorController* shooterMotorTwo)
 {
 	kMinTimePerEntry = .1;
 	kMaxTimePerEntry = .75;

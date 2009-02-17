@@ -7,9 +7,8 @@
 #include "FrcError.h"
 
 #include "Devices/SmartRelay.h"
-#include "Devices/PIDJaguar.h"
-#include "Devices/PIDVictor.h"
-#include "Devices/PIDServo.h"
+#include "Devices/AdvJaguar.h"
+#include "Devices/AdvVictor.h"
 #include "Devices/AdvServo.h"
 
 #include <list>
@@ -39,10 +38,9 @@ public:
 	Jaguar* GetJaguar(UINT8 moduleNum, UINT8 channel);
 	Victor* GetVictor(UINT8 moduleNum, UINT8 channel);
 	Servo* GetServo(UINT8 moduleNum, UINT8 channel);
-	PIDJaguar* GetPIDJaguar(UINT8 moduleNum, UINT8 channel);
-	PIDVictor* GetPIDVictor(UINT8 moduleNum, UINT8 channel);
+	AdvJaguar* GetAdvJaguar(UINT8 moduleNum, UINT8 channel);
+	AdvVictor* GetAdvVictor(UINT8 moduleNum, UINT8 channel);
 	AdvServo* GetAdvServo(UINT8 moduleNum, UINT8 channel);
-	PIDServo* GetPIDServo(UINT8 moduleNum, UINT8 channel);
 	SmartRelay* GetSmartRelay(UINT8 moduleNum, UINT8 channel);
 	Solenoid* GetSolenoid(UINT8 channel);
 	Joystick* GetJoystick(UINT8 port);

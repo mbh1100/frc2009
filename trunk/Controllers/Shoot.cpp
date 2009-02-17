@@ -1,6 +1,6 @@
 #include "Shoot.h"
 
-Shoot::Shoot(Jaguar* shootMotorOne, Victor* shootMotorTwo, Victor* leftHelixMotor, Victor* rightHelixMotor)
+Shoot::Shoot(AdvMotorController* shootMotorOne, AdvMotorController* shootMotorTwo, AdvMotorController* leftHelixMotor, AdvMotorController* rightHelixMotor)
 {
 	m_shootMotorOne = shootMotorOne;
 	m_shootMotorTwo = shootMotorTwo;

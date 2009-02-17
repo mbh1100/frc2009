@@ -9,17 +9,45 @@
 #include "TrackAPI.h" 
 #include "PCVideoServer.h"
 
-#include "Controllers/TankDrive.h"
 #include "Controllers/TrackingTurret.h"
 #include "HardwareInterface.h"
 #include "Devices/PIDEncoder.h"
-#include "Devices/PIDJaguar.h"
-#include "Devices/PIDVictor.h"
-#include "Devices/PIDServo.h"
+#include "Devices/AdvJaguar.h"
+#include "Devices/AdvVictor.h"
 #include "Devices/AdvServo.h"
 #include "Devices/AdvMotorController.h"
 #include "Controllers/HopperControl.h"
 #include "Controllers/EmptyCell.h"
+
+typedef struct
+{
+	float x, y;
+	bool buttons[12];
+}JoystickData;
+
+typedef struct
+{
+	bool manual, shoot, cellRelease;
+	float helixSide, helixDirection, manualTurretSpeed, manualTurretAngle;
+}ButtonBoxData;
+
+typedef struct
+{
+	bool helixLeftLower,  helixLeftMid,  helixLeftUpper;
+	bool helixRightLower, helixRightMid, helixRightUpper;
+	bool cellLeftBottom,  cellLeftTop;
+	bool cellRightBottom, cellRightTop;
+}LimitSwitchData;
+
+typedef struct
+{
+	JoystickData rightJoystick, leftJoystick;
+	JoystickData rightTestJoystick, leftTestJoystick;
+	
+	ButtonBoxData buttonBox;
+	
+	LimitSwitchData limitSwitches;
+}IOData;
 
 class SkyNet : public IterativeRobot
 {
@@ -35,45 +63,32 @@ public:
 protected:
 	HardwareInterface *m_hardwareInterface;
 	
-	/* Joysticks and other Controls */
-	Joystick *m_leftJoystick;
-	Joystick *m_rightJoystick;
+	IOData m_ioData;
+	DriverStation *m_ds;
 	
-	// Joysticks on USB 3 and 4 - Diagnostics only
-	Joystick *m_rightTestJoystick;
-	Joystick *m_leftTestJoystick;
+	/* Joysticks */
+	Joystick *m_leftJoystick, *m_rightJoystick;
+	Joystick *m_rightTestJoystick, *m_leftTestJoystick;
 	
 	/* Drive Variables */
+	AdvMotorController /*J*/*m_leftDriveMotor, /*J*/*m_rightDriveMotor;
 	PIDEncoder *m_leftDriveEncoder, *m_rightDriveEncoder;
-	PIDJaguar *m_leftDriveMotor, *m_rightDriveMotor;
-	TankDrive *m_drive;
-	bool m_drivePID;
 	
 	/* Sweeper and Hopper Variables */
 	HopperControl *m_hopperControl;
-	Victor *m_leftHelixMotor, *m_rightHelixMotor;
-	Jaguar *m_sweeperMotor;
-	float m_helixSide, m_helixDirection;
+	AdvMotorController /*V*/*m_leftHelixMotor, /*V*/*m_rightHelixMotor, /*J*/*m_sweeperMotor;
 	
 	/* Turret and Shooter Variables */
-	PIDJaguar *m_turretMotor;
-	Jaguar *m_shooterMotorOne;
-	Victor *m_shooterMotorTwo;
-	AdvServo *m_turretServoOne, *m_turretServoTwo;
+	AdvMotorController /*J*/*m_shooterMotorOne, /*V*/*m_shooterMotorTwo;
+	AdvMotorController /*S*/*m_turretServoOne, /*S*/*m_turretServoTwo;
 	TrackingTurret *m_trackingTurret;
-	bool m_manual, m_shoot;
-	float m_turnMotor, m_setDistance;
 	
 	/* Empty Cell Variables & Constants */
 	EmptyCell *m_emptyCellControl;
-	Victor *m_leftEmptyCell, *m_rightEmptyCell;
-	bool m_release;
-	static const float kEmptyCellSpeed = .2;
+	AdvMotorController /*V*/*m_leftEmptyCell, /*V*/*m_rightEmptyCell;
 		
 	AnalogModule *m_analogModules[SensorBase::kAnalogModules];
 	DigitalModule *m_digitalModules[SensorBase::kDigitalModules];
-	
-	DriverStation *m_ds;
 		
 	UINT32 m_priorPacketNumber, m_autoCount, m_teleCount, m_disableCount;
 	
@@ -114,12 +129,12 @@ protected:
 	static const UINT8 kRightCellBottomLimitModule = 1;
 	static const UINT8 kLeftCellTopLimitModule     = 0;
 	static const UINT8 kRightCellTopLimitModule    = 1;
-	static const UINT8 kLeftLiftEntryLimitModule   = 0;
-	static const UINT8 kLeftLiftBottomLimitModule  = 0; 
-	static const UINT8 kLeftLiftTopLimitModule     = 0;
-	static const UINT8 kRightLiftEntryLimitModule  = 1;
-	static const UINT8 kRightLiftBottomLimitModule = 1;
-	static const UINT8 kRightLiftTopLimitModule    = 1;
+	static const UINT8 kLeftHelixLowerLimitModule  = 0;
+	static const UINT8 kLeftHelixMidLimitModule    = 0; 
+	static const UINT8 kLeftHelixUpperLimitModule  = 0;
+	static const UINT8 kRightHelixLowerLimitModule = 1;
+	static const UINT8 kRightHelixMidLimitModule   = 1;
+	static const UINT8 kRightHelixUpperLimitModule   = 1;
 	
 	static const UINT8 kLeftDriveEncoderAChannel    = 1;
 	static const UINT8 kLeftDriveEncoderBChannel    = 2;
@@ -129,12 +144,12 @@ protected:
 	static const UINT8 kRightCellBottomLimitChannel = 13;
 	static const UINT8 kLeftCellTopLimitChannel     = 14;
 	static const UINT8 kRightCellTopLimitChannel    = 14;
-	static const UINT8 kLeftLiftEntryLimitChannel   = 5;
-	static const UINT8 kLeftLiftBottomLimitChannel  = 6;
-	static const UINT8 kLeftLiftTopLimitChannel     = 7;
-	static const UINT8 kRightLiftEntryLimitChannel  = 5;
-	static const UINT8 kRightLiftBottomLimitChannel = 6;
-	static const UINT8 kRightLiftTopLimitChannel    = 7;
+	static const UINT8 kLeftHelixLowerLimitChannel  = 5;
+	static const UINT8 kLeftHelixMidLimitChannel    = 6;
+	static const UINT8 kLeftHelixUpperLimitChannel  = 7;
+	static const UINT8 kRightHelixLowerLimitChannel = 5;
+	static const UINT8 kRightHelixMidLimitChannel   = 6;
+	static const UINT8 kRightHelixUpperLimitChannel = 7;
 	
 	/* cRIO Analog In Constants */
 	
@@ -145,7 +160,7 @@ protected:
 	/* Driver Station Digital In Constants */
 	static const UINT8 kShootButton	   = 1;
 	static const UINT8 kCellSwitch     = 2;
-	static const UINT8 kOverRideSwitch = 3;
+	static const UINT8 kManualSwitch = 3;
 	
 	/* Driver Station Analog In Constants */
 	static const UINT8 kHelixSideSwitch        = 1;
@@ -155,4 +170,7 @@ protected:
 	
 	/* Driver Station Digital Out Constants */
 	static const UINT8 kTargetAquiredLED = 1;
+	
+	/* Diag */
+	static const UINT8 kDiagnostic = 0;
 };
