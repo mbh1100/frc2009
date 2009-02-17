@@ -30,6 +30,8 @@ protected:
 	bool m_limitLeft, m_limitRight;
 	bool m_leftPressed, m_rightPressed;
 	
+	Timer *m_timer;
+	
 	/* Direction Constants */
 	static const int kLeft = 0;
 	static const int kRight = 1;

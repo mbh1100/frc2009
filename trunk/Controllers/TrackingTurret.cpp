@@ -64,6 +64,8 @@ bool TrackingTurret::Update(float direction)
 	}
 	m_direction -= 350;
 	m_direction = m_direction/350;
+	m_direction *= .59;
+	m_direction += .2;
 	
 	if (fabs(m_trackingCamera->GetTargetX()) > kTurretAllowedError)
 	{
@@ -77,6 +79,9 @@ bool TrackingTurret::Update(float direction)
 	m_motorPos = (double)m_direction;
 	
 	UpdateMotors();
+	
+	printf("ServoOne Position: %f\r\n", m_primaryServo->Get());
+	printf("ServoTwo Position: %f\r\n", m_secondaryServo->Get());
 	
 	return m_targetFound;
 }
