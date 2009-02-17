@@ -71,6 +71,9 @@ SkyNet::SkyNet()
 	/* Initialize Digital Modules */
 	m_digitalModules[0] = m_hardwareInterface->GetDigitalModule(0);
 	m_digitalModules[1] = m_hardwareInterface->GetDigitalModule(1);
+	
+	/* Initialize Autonomous Timer */
+	m_autoTimer = new Timer();
 }
 
 void SkyNet::DisabledInit()
@@ -91,6 +94,45 @@ void SkyNet::TeleopInit()
 {
 	printf("Inititializing Teleop Mode..\r\n");
 	m_teleCount = 0;
+	
+	m_ioData.rightJoystick.x = m_rightJoystick->GetX();
+	m_ioData.rightJoystick.y = m_rightJoystick->GetY();
+	for (int i = 1; i <= 12; i++) m_ioData.rightJoystick.buttons[i] = m_rightJoystick->GetRawButton(i);
+	
+	m_ioData.leftJoystick.x = m_leftJoystick->GetX();
+	m_ioData.leftJoystick.y = m_leftJoystick->GetY();
+	for (int i = 1; i <= 12; i++) m_ioData.leftJoystick.buttons[i] = m_leftJoystick->GetRawButton(i);
+	
+	m_ioData.rightTestJoystick.x = m_rightTestJoystick->GetX();
+	m_ioData.rightTestJoystick.y = m_rightTestJoystick->GetY();
+	for (int i = 1; i <= 12; i++) m_ioData.rightTestJoystick.buttons[i] = m_rightTestJoystick->GetRawButton(i);
+			
+	m_ioData.leftTestJoystick.x = m_leftTestJoystick->GetX();
+	m_ioData.leftTestJoystick.y = m_leftTestJoystick->GetY();
+	for (int i = 1; i <= 12; i++) m_ioData.leftTestJoystick.buttons[i] = m_leftTestJoystick->GetRawButton(i);
+	
+	m_ioData.limitSwitches.helixLeftLower = !m_digitalModules[kLeftHelixLowerLimitModule]->GetDIO(kLeftHelixLowerLimitChannel);
+	m_ioData.limitSwitches.helixLeftMid = !m_digitalModules[kLeftHelixMidLimitModule]->GetDIO(kLeftHelixMidLimitChannel);
+	m_ioData.limitSwitches.helixLeftUpper = !m_digitalModules[kLeftHelixUpperLimitModule]->GetDIO(kLeftHelixUpperLimitChannel);
+	
+	m_ioData.limitSwitches.helixRightLower = !m_digitalModules[kRightHelixLowerLimitModule]->GetDIO(kRightHelixLowerLimitChannel);
+	m_ioData.limitSwitches.helixRightMid = !m_digitalModules[kRightHelixMidLimitModule]->GetDIO(kRightHelixMidLimitChannel);
+	m_ioData.limitSwitches.helixRightUpper = !m_digitalModules[kRightHelixUpperLimitModule]->GetDIO(kRightHelixUpperLimitChannel);
+	
+	m_ioData.limitSwitches.cellLeftBottom = !m_digitalModules[kLeftCellBottomLimitModule]->GetDIO(kLeftCellBottomLimitChannel);
+	m_ioData.limitSwitches.cellLeftTop = !m_digitalModules[kLeftCellTopLimitModule]->GetDIO(kLeftCellTopLimitChannel);
+	
+	m_ioData.limitSwitches.cellRightBottom = !m_digitalModules[kRightCellBottomLimitModule]->GetDIO(kRightCellBottomLimitChannel);
+	m_ioData.limitSwitches.cellRightTop = !m_digitalModules[kRightCellTopLimitModule]->GetDIO(kRightCellTopLimitChannel);
+	
+	m_ioData.buttonBox.helixSide = m_ds->GetAnalogIn(kHelixSideSwitch);
+	m_ioData.buttonBox.helixDirection = m_ds->GetAnalogIn(kHelixDirectionSwitch);
+	m_ioData.buttonBox.manualTurretAngle = m_ds->GetAnalogIn(kTurretAngleSwitch);
+	m_ioData.buttonBox.manualTurretSpeed = m_ds->GetAnalogIn(kShootingDistanceSwitch);
+	
+	m_ioData.buttonBox.manual = !m_ds->GetDigitalIn(kManualSwitch);
+	m_ioData.buttonBox.shoot = !m_ds->GetDigitalIn(kShootButton);
+	m_ioData.buttonBox.cellRelease = !m_ds->GetDigitalIn(kCellSwitch);
 }
 
 void SkyNet::DisabledPeriodic()
@@ -110,6 +152,37 @@ void SkyNet::AutonomousPeriodic()
 {
 	GetWatchdog().Feed();
 	m_autoCount++;
+	
+	if (m_autoCount < 3)
+	{
+		m_autoTimer->Reset();
+		m_autoTimer->Start();
+	}
+	if (m_autoTimer->Get() < 2)
+	{
+		m_leftDriveMotor->Set(.4);
+		m_rightDriveMotor->Set(-.4);
+	}
+	else if (m_autoTimer->Get() < 6)
+	{
+		m_leftDriveMotor->Set(.4);
+		m_rightDriveMotor->Set(.4);
+	}
+	else if (m_autoTimer->Get() < 10)
+	{
+		m_leftDriveMotor->Set(-.4);
+		m_rightDriveMotor->Set(-.4);
+	}
+	else if (m_autoTimer->Get() < 12)
+	{
+		m_leftDriveMotor->Set(-.4);
+		m_rightDriveMotor->Set(.4);
+	}
+	else
+	{
+		m_leftDriveMotor->Set(0.0);
+		m_rightDriveMotor->Set(0.0);
+	}
 	
 	/* Finding & tracking the target with the camera */
 	if ((m_autoCount % 10) == 0)

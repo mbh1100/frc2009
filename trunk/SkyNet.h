@@ -92,6 +92,9 @@ protected:
 		
 	UINT32 m_priorPacketNumber, m_autoCount, m_teleCount, m_disableCount;
 	
+	/* Autonomous Timer */
+	Timer *m_autoTimer;
+	
 	/* PWM Constants (Relative Modules) */
 	static const UINT8 kLeftDriveModule       = 0; //J
 	static const UINT8 kRightDriveModule      = 1; //J
@@ -140,10 +143,10 @@ protected:
 	static const UINT8 kLeftDriveEncoderBChannel    = 2;
 	static const UINT8 kRightDriveEncoderAChannel   = 1;
 	static const UINT8 kRightDriveEncoderBChannel   = 2;
-	static const UINT8 kLeftCellBottomLimitChannel  = 13;
-	static const UINT8 kRightCellBottomLimitChannel = 13;
-	static const UINT8 kLeftCellTopLimitChannel     = 14;
-	static const UINT8 kRightCellTopLimitChannel    = 14;
+	static const UINT8 kLeftCellBottomLimitChannel  = 14;
+	static const UINT8 kRightCellBottomLimitChannel = 14;
+	static const UINT8 kLeftCellTopLimitChannel     = 13;
+	static const UINT8 kRightCellTopLimitChannel    = 13;
 	static const UINT8 kLeftHelixLowerLimitChannel  = 5;
 	static const UINT8 kLeftHelixMidLimitChannel    = 6;
 	static const UINT8 kLeftHelixUpperLimitChannel  = 7;
