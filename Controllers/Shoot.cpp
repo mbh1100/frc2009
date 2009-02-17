@@ -10,6 +10,8 @@ Shoot::Shoot(Jaguar* shootMotorOne, Victor* shootMotorTwo, Victor* leftHelixMoto
 	m_leftTimer = new Timer();
 	m_rightTimer = new Timer();
 	
+	m_timer = new Timer();	
+	
 	m_direction = 0;
 	m_distance = 3;
 	m_ballsLeft = 0;
@@ -40,6 +42,8 @@ void Shoot::InitialSet(int ballsLeft, int ballsRight, float direction)
 	{
 		m_direction = kRight;
 	}
+	
+	m_timer->Start();
 }
 
 void Shoot::Update(float distance, bool limitLeft, bool limitRight)
@@ -49,9 +53,11 @@ void Shoot::Update(float distance, bool limitLeft, bool limitRight)
 	m_limitRight = limitRight;
 	
 	m_shootMotorOne->Set(Distance());
+	//m_shootMotorOne->Set(.98);
 	m_shootMotorTwo->Set(.98);
 	
 	printf("ShooterSpeed: %lf\r\n", m_shootMotorOne->Get());
+	printf("Distance Value: %lf\r\n", m_distance);
 	
 	SideShooting();
 	
@@ -83,7 +89,7 @@ float Shoot::Distance()
 	}
 	else
 	{
-		return 1.0;
+		return .98f;
 	}
 }
 
@@ -127,41 +133,49 @@ int Shoot::CountBallsRight()
 
 void Shoot::SideShooting()
 {
-	if (m_direction == 0)
+	if (m_timer->Get() < 2)
 	{
-		if (m_ballsRight > 0)
+		if (m_direction == 0)
 		{
-			m_rightHelixMotor->Set(.98);
-			m_leftHelixMotor->Set(0.0);
-		}
-		else if (m_ballsLeft > 0)
-		{
-			m_rightHelixMotor->Set(0.0);
-			m_leftHelixMotor->Set(.98);			
+			if (m_ballsRight > 0)
+			{
+				m_rightHelixMotor->Set(.98);
+				m_leftHelixMotor->Set(0.0);
+			}
+			else if (m_ballsLeft > 0)
+			{
+				m_rightHelixMotor->Set(0.0);
+				m_leftHelixMotor->Set(.98);			
+			}
+			else
+			{
+				m_rightHelixMotor->Set(.98);
+				m_leftHelixMotor->Set(.98);				
+			}
 		}
 		else
 		{
-			m_rightHelixMotor->Set(.98);
-			m_leftHelixMotor->Set(.98);				
+			if (m_ballsLeft > 0)
+			{
+				m_rightHelixMotor->Set(0.0);
+				m_leftHelixMotor->Set(.98);
+			}
+			else if (m_ballsRight > 0)
+			{
+				m_rightHelixMotor->Set(.98);
+				m_leftHelixMotor->Set(0.0);
+			}
+			else
+			{
+				m_rightHelixMotor->Set(.98);
+				m_leftHelixMotor->Set(.98);				
+			}
 		}
 	}
 	else
 	{
-		if (m_ballsLeft > 0)
-		{
-			m_rightHelixMotor->Set(0.0);
-			m_leftHelixMotor->Set(.98);
-		}
-		else if (m_ballsRight > 0)
-		{
-			m_rightHelixMotor->Set(.98);
-			m_leftHelixMotor->Set(0.0);
-		}
-		else
-		{
-			m_rightHelixMotor->Set(.98);
-			m_leftHelixMotor->Set(.98);				
-		}
+		m_rightHelixMotor->Set(.98);
+		m_leftHelixMotor->Set(.98);			
 	}	
 }
 
@@ -171,4 +185,6 @@ void Shoot::Disable()
 	m_leftHelixMotor->Set(0.0);
 	m_shootMotorOne->Set(0.0);
 	m_shootMotorTwo->Set(0.0);
+	m_timer->Stop();
+	m_timer->Reset();
 }

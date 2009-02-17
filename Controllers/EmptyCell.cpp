@@ -30,8 +30,8 @@ void EmptyCell::Update(bool release, bool limitLeftBottom, bool limitRightBottom
 	
 	m_limitLeftBottom = !limitLeftBottom;
 	m_limitRightBottom = !limitRightBottom;
-	m_limitLeftTop = !limitLeftTop;
-	m_limitRightTop = !limitRightTop;
+	m_limitLeftTop = limitLeftTop;
+	m_limitRightTop = limitRightTop;
 	
 	/* Check to see if release button pressed */
 	if (m_release && !m_releaseProcess)
@@ -44,7 +44,7 @@ void EmptyCell::Update(bool release, bool limitLeftBottom, bool limitRightBottom
 	{
 		if (!m_limitLeftTop)
 		{
-			m_leftMotor->Set(kEmptyCellSpeed);
+			m_leftMotor->Set(-kEmptyCellSpeed);
 		}
 		else
 		{
@@ -74,7 +74,7 @@ void EmptyCell::Update(bool release, bool limitLeftBottom, bool limitRightBottom
 		/* Lower Left Side if not lowered or releasing */
 		if (!m_limitLeftBottom)
 		{
-			m_leftMotor->Set(-kEmptyCellSpeed);
+			m_leftMotor->Set(kEmptyCellSpeed);
 		}
 		else
 		{

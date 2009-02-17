@@ -72,17 +72,17 @@ void HopperControl::Update(bool manual, float helixSide, float helixDirection, b
 	
 	m_manual = manual;
 	
-	m_limitLeftEntry = !limitLeftEntry;
-	m_limitLeftBottom = !limitLeftBottom;
-	m_limitLeftTop = !limitLeftTop;
+	m_limitLeftEntry = limitLeftEntry;
+	m_limitLeftBottom = limitLeftBottom;
+	m_limitLeftTop = limitLeftTop;
 	
 	printf("Number of Balls Left:  %d\r\n", m_ballsInLeft);
 	printf("Number of Balls Right:  %d\r\n", m_ballsInRight);
 		
 	
-	m_limitRightEntry = !limitRightEntry;
-	m_limitRightBottom = !limitRightBottom;
-	m_limitRightTop = !limitRightTop;
+	m_limitRightEntry = limitRightEntry;
+	m_limitRightBottom = limitRightBottom;
+	m_limitRightTop = limitRightTop;
 	
 	/* If shooting */
 	if (m_shootPressed)
