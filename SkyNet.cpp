@@ -9,49 +9,19 @@ SkyNet::SkyNet()
 	
 	m_ds = m_hardwareInterface->GetDriverStation();
 	m_priorPacketNumber = 0;
-	
-	/* Initialize Analog Modules */
-	m_analogModules[0] = m_hardwareInterface->GetAnalogModule(0);
-	m_analogModules[1] = m_hardwareInterface->GetAnalogModule(1);
-	
-	m_analogModules[0]->SetAverageBits(1,8);
-	m_analogModules[1]->SetAverageBits(1,8);
-	
-	/* Initialize Digital Modules */
-	m_digitalModules[0] = m_hardwareInterface->GetDigitalModule(0);
-	m_digitalModules[1] = m_hardwareInterface->GetDigitalModule(1);
-	
-	/* Initialize Camera motors and control */	
-	m_shooterMotorOne = m_hardwareInterface->GetJaguar(kShooterOneModule, kShooterOnePWM);
-	m_shooterMotorTwo = m_hardwareInterface->GetVictor(kShooterTwoModule, kShooterTwoPWM);
-	m_leftEmptyCell = m_hardwareInterface->GetVictor(kLeftCellHolderModule, kLeftCellHolderPWM);
-	m_rightEmptyCell = m_hardwareInterface->GetVictor(kRightCellHolderModule, kRightCellHolderPWM);
+		
 	m_leftJoystick = m_hardwareInterface->GetJoystick(kLeftJoystickPort);
 	m_rightJoystick = m_hardwareInterface->GetJoystick(kRightJoystickPort);
-	
 	m_leftTestJoystick = m_hardwareInterface->GetJoystick(3);
 	m_rightTestJoystick = m_hardwareInterface->GetJoystick(4);
 	
-	m_shooterMotorOne->EnableDeadbandElimination(true);
-	m_shooterMotorOne->SetBounds(255, 136, 128, 120, 0);
+	/* Initialize drive motors */	
+	m_leftDriveMotor = m_hardwareInterface->GetAdvJaguar(kLeftDriveModule, kLeftDrivePWM);
+	m_leftDriveMotor->SetDeadband(.05, -.05, 0.0);
 	
-	m_shooterMotorTwo->EnableDeadbandElimination(true);
-	m_shooterMotorTwo->SetBounds(255, 136, 128, 120, 0);
-	
-	m_manual = 0;
-	m_shoot = 0;
-	m_turnMotor = 0.0;
-	m_setDistance = 3.0;
-	
-	/* Initialize drive motors and controls */	
-	m_leftDriveMotor = m_hardwareInterface->GetPIDJaguar(kLeftDriveModule, kLeftDrivePWM);
-	m_leftDriveMotor->EnableDeadbandElimination(true);
-	m_leftDriveMotor->SetBounds(255, 136, 128, 120, 0);
-	
-	m_rightDriveMotor = m_hardwareInterface->GetPIDJaguar(kRightDriveModule, kRightDrivePWM);
-	m_rightDriveMotor->EnableDeadbandElimination(true);
-	m_rightDriveMotor->SetBounds(255, 136, 128, 120, 0);
-	m_rightDriveMotor->SetDirection(-1);
+	m_rightDriveMotor = m_hardwareInterface->GetAdvJaguar(kRightDriveModule, kRightDrivePWM);
+	m_rightDriveMotor->SetDeadband(.05, -.05, 0.0);
+	m_rightDriveMotor->SetDirection(kMotorReverse);
 	
 	m_leftDriveEncoder = new PIDEncoder(kLeftDriveEncoderAModule, kLeftDriveEncoderAChannel, kLeftDriveEncoderBModule, kLeftDriveEncoderBChannel);
 	m_leftDriveEncoder->SetDistancePerTick(.000478536);
@@ -64,34 +34,43 @@ SkyNet::SkyNet()
 	m_rightDriveEncoder->SetType(PIDEncoder::kVelocity);
 	m_rightDriveEncoder->SetSampleSize(3);
 	m_rightDriveEncoder->Start();
-		
-	m_drive = new TankDrive(m_leftDriveMotor, m_rightDriveMotor, m_leftDriveEncoder, m_rightDriveEncoder);
 	
-	m_drivePID = true;
-	
-	
-	/* Sweeper, Hopper, Shooter */	
-	m_turretServoOne = m_hardwareInterface->GetAdvServo(kTurretOneModule, kTurretOnePWM);
-	((AdvMotorController*)m_turretServoOne)->SetBounds(.8, .2);
-	
-	m_turretServoTwo = m_hardwareInterface->GetAdvServo(kTurretTwoModule, kTurretTwoPWM);
-	((AdvMotorController*)m_turretServoTwo)->SetBounds(.8, .2);
-	m_turretServoTwo->SetDirection(kMotorReverse);
-	
-	m_trackingTurret = new TrackingTurret(m_turretServoOne, m_turretServoTwo);
-	
-	m_leftHelixMotor = m_hardwareInterface->GetVictor(kLeftHelixModule, kLeftHelixPWM);
-	m_rightHelixMotor = m_hardwareInterface->GetVictor(kRightHelixModule, kRightHelixPWM);
-	m_sweeperMotor = m_hardwareInterface->GetJaguar(kSweeperModule,kSweeperPWM);
-	
-	m_helixSide = 0;
-	m_helixDirection = 0;
-	
+	/* Initialize Hopper */
 	m_hopperControl = new HopperControl(m_leftHelixMotor, m_rightHelixMotor, m_sweeperMotor, m_shooterMotorOne, m_shooterMotorTwo);
+	
+	m_leftHelixMotor = m_hardwareInterface->GetAdvVictor(kLeftHelixModule, kLeftHelixPWM);
+	m_rightHelixMotor = m_hardwareInterface->GetAdvVictor(kRightHelixModule, kRightHelixPWM);
+	m_sweeperMotor = m_hardwareInterface->GetAdvJaguar(kSweeperModule,kSweeperPWM);
+	
+	/* Initialize Shooter and Turret */
+	m_turretServoOne = m_hardwareInterface->GetAdvServo(kTurretOneModule, kTurretOnePWM);
+	m_turretServoOne->SetBounds(.8, .2);
+		
+	m_turretServoTwo = m_hardwareInterface->GetAdvServo(kTurretTwoModule, kTurretTwoPWM);
+	m_turretServoTwo->SetBounds(.8, .2);
+	m_turretServoTwo->SetDirection(kMotorReverse);
+
+	m_shooterMotorOne = m_hardwareInterface->GetAdvJaguar(kShooterOneModule, kShooterOnePWM);
+	m_shooterMotorTwo = m_hardwareInterface->GetAdvVictor(kShooterTwoModule, kShooterTwoPWM);
+	
+	m_trackingTurret = new TrackingTurret((AdvServo*)m_turretServoOne, (AdvServo*)m_turretServoTwo);
+	
+	/* Empty Cell */
+	m_leftEmptyCell = m_hardwareInterface->GetAdvVictor(kLeftCellHolderModule, kLeftCellHolderPWM);
+	m_rightEmptyCell = m_hardwareInterface->GetAdvVictor(kRightCellHolderModule, kRightCellHolderPWM);
 	
 	m_emptyCellControl = new EmptyCell(m_leftEmptyCell, m_rightEmptyCell);
 	
-	m_release = 0;
+	/* Initialize Analog Modules */
+	m_analogModules[0] = m_hardwareInterface->GetAnalogModule(0);
+	m_analogModules[1] = m_hardwareInterface->GetAnalogModule(1);
+	
+	m_analogModules[0]->SetAverageBits(1,8);
+	m_analogModules[1]->SetAverageBits(1,8);
+	
+	/* Initialize Digital Modules */
+	m_digitalModules[0] = m_hardwareInterface->GetDigitalModule(0);
+	m_digitalModules[1] = m_hardwareInterface->GetDigitalModule(1);
 }
 
 void SkyNet::DisabledInit()
@@ -106,9 +85,6 @@ void SkyNet::AutonomousInit()
 {
 	printf("Inititializing Autonomous Mode..\r\n");
 	m_autoCount = 0;
-	
-	/* Disable TankDrive */
-	m_drive->Disable();
 }
 
 void SkyNet::TeleopInit()
@@ -138,8 +114,6 @@ void SkyNet::AutonomousPeriodic()
 	/* Finding & tracking the target with the camera */
 	if ((m_autoCount % 10) == 0)
 	{
-		//Need to change so 
-		m_shoot = false;
 		
 		m_trackingTurret->Update();
 		
@@ -159,30 +133,39 @@ void SkyNet::TeleopPeriodic()
 {
 	GetWatchdog().Feed();
 	m_teleCount++;
-		
-	if ((m_teleCount % 200) == 0)
+	
+	if ((m_teleCount % 1) == 0)
 	{
-		/* Runs at 1Hz */
+		m_rightDriveMotor->Set(m_ioData.rightJoystick.y);
+		m_leftDriveMotor->Set(m_ioData.leftJoystick.y);
 	}
 	
-	if ((m_teleCount % 20) == 0)
+	if ((m_teleCount % 2) == 0)
 	{
-		/* Runs at 10Hz */
+		/* Runs at 100Hz */
 		
+		/* Hopper, Sweeper, and Shooter Control */
+		m_hopperControl->Update(m_ioData.buttonBox.manual, m_ioData.buttonBox.helixSide, 
+				m_ioData.buttonBox.helixDirection, m_ioData.limitSwitches.helixLeftLower, 
+				m_ioData.limitSwitches.helixLeftMid, m_ioData.limitSwitches.helixLeftUpper,
+				m_ioData.limitSwitches.helixRightLower, m_ioData.limitSwitches.helixRightMid,
+				m_ioData.limitSwitches.helixRightUpper, m_ioData.buttonBox.shoot, 
+				m_ioData.buttonBox.manualTurretSpeed, m_ioData.buttonBox.manualTurretAngle);
+				
+				
+		/* Empty Cell Control */
+		m_emptyCellControl->Update(m_ioData.buttonBox.cellRelease, 
+				m_ioData.limitSwitches.cellLeftBottom, m_ioData.limitSwitches.cellLeftTop, 
+				m_ioData.limitSwitches.cellRightBottom, m_ioData.limitSwitches.cellRightTop);
 	}
 	
 	if ((m_teleCount % 4) == 0)
 	{
 		/* Runs at 50Hz */
-		/* Turret, shooter, and camera servo code */
-		m_manual = (m_ds->GetDigitalIn(kOverRideSwitch));
-		m_turnMotor = m_ds->GetAnalogIn(kTurretAngleSwitch);
-		//TODO: MOVE THIS
-		m_setDistance = m_ds->GetAnalogIn(kShootingDistanceSwitch);
 		
-		if (m_manual)
+		if (m_ioData.buttonBox.manual)
 		{
-			if (m_trackingTurret->Update(m_turnMotor))
+			if (m_trackingTurret->Update(m_ioData.buttonBox.manualTurretAngle))
 			{
 				m_ds->SetDigitalOut(kTargetAquiredLED, 1);
 			}
@@ -203,145 +186,53 @@ void SkyNet::TeleopPeriodic()
 				m_ds->SetDigitalOut(kTargetAquiredLED, 0);			
 			}
 		}
-		
-		
-		/* Hopper, Sweeper, and Shooter Control */
-		m_shoot = !(m_ds->GetDigitalIn(kShootButton));
-		m_helixSide = m_ds->GetAnalogIn(kHelixSideSwitch);
-		m_helixDirection = m_ds->GetAnalogIn(kHelixDirectionSwitch);
-		m_turnMotor = m_ds->GetAnalogIn(kTurretAngleSwitch);
-		m_setDistance = m_ds->GetAnalogIn(kShootingDistanceSwitch);
-		m_hopperControl->Update(m_manual, m_helixSide, m_helixDirection, 
-				(bool)m_digitalModules[kLeftLiftEntryLimitModule]->GetDIO(kLeftLiftEntryLimitChannel), 
-				(bool)m_digitalModules[kLeftLiftBottomLimitModule]->GetDIO(kLeftLiftBottomLimitChannel),
-				(bool)m_digitalModules[kLeftLiftTopLimitModule]->GetDIO(kLeftLiftTopLimitChannel),
-				(bool)m_digitalModules[kRightLiftEntryLimitModule]->GetDIO(kRightLiftEntryLimitChannel), 
-				(bool)m_digitalModules[kRightLiftBottomLimitModule]->GetDIO(kRightLiftBottomLimitChannel),
-				(bool)m_digitalModules[kRightLiftTopLimitModule]->GetDIO(kRightLiftTopLimitChannel), m_shoot, m_turnMotor, m_setDistance);
-		
-		
-		/* Empty Cell Control */
-		m_release = !(m_ds->GetDigitalIn(kCellSwitch));
-		m_emptyCellControl->Update(m_release, 
-				m_digitalModules[kLeftCellBottomLimitModule]->GetDIO(kLeftCellBottomLimitChannel), 
-				m_digitalModules[kRightCellBottomLimitModule]->GetDIO(kRightCellBottomLimitChannel), 
-				m_digitalModules[kLeftCellTopLimitModule]->GetDIO(kLeftCellTopLimitChannel), 
-				m_digitalModules[kRightCellTopLimitModule]->GetDIO(kRightCellTopLimitChannel));
-		
-		m_hardwareInterface->UpdateDashboard(true);
-	}
-	
-	if ((m_teleCount % 2) == 0)
-	{
-		/* Runs at 100Hz */
-		/* Tank Drive */
-		m_leftDriveMotor->Set(-m_leftTestJoystick->GetY()*.98);
-		m_rightDriveMotor->Set(m_rightTestJoystick->GetY()*.98);
 	}
 	
 	if (m_ds->GetPacketNumber() != m_priorPacketNumber)
 	{
-		
-		/* Begin Diagnostic Code */
-		/*m_turretServoOne->Set(1.0);
-		m_turretServoTwo->Set(1.0);
-		m_leftDriveMotor->Set(-m_leftTestJoystick->GetY()*.98);
-		m_rightDriveMotor->Set(m_rightTestJoystick->GetY()*.98);
-		
-		printf("Encoder Right: %d, Encoder Left: %d \n\r", m_rightDriveEncoder->Get(), m_leftDriveEncoder->Get());
-		
-		m_turretServoOne->Set(1.0);
-		m_turretServoTwo->Set(1.0);
-		
-		if (m_rightTestJoystick->GetTrigger())
-		{
-			m_sweeperMotor->Set(.98);
-		}
-		else if (m_rightTestJoystick->GetTop())
-		{
-			m_sweeperMotor->Set(-.98);
-		}
-		else
-		{
-			m_sweeperMotor->Set(0.0);
-		}
-		if (m_leftTestJoystick->GetTrigger())
-		{
-			m_leftHelixMotor->Set(.98);
-			m_rightHelixMotor->Set(.98);
-		}
-		else
-		{
-			if (m_rightTestJoystick->GetRawButton(11))
-			{
-				m_leftHelixMotor->Set(.98);
-			}
-			else if (m_rightTestJoystick->GetRawButton(6))
-			{
-				m_leftHelixMotor->Set(-.98);
-			}
-			else
-			{
-				m_leftHelixMotor->Set(0.0);
-			}
-			if (m_rightTestJoystick->GetRawButton(10))
-			{
-				m_rightHelixMotor->Set(.98);
-			}
-			else if (m_rightTestJoystick->GetRawButton(7))
-			{
-				m_rightHelixMotor->Set(-.98);
-			}
-			else
-			{
-				m_rightHelixMotor->Set(0.0);
-			}
-		}
-		
-		if (m_rightTestJoystick->GetRawButton(3))
-		{
-			m_shooterMotorOne->Set(.98);
-			m_shooterMotorTwo->Set(.98);
-		}
-		if (m_rightTestJoystick->GetRawButton(4))
-		{
-			m_shooterMotorOne->Set(0.0);
-			m_shooterMotorTwo->Set(0.0);
-		}
-		
-		m_ds->SetDigitalOut(1, true);*/
-		/* End Diagnostic Code */
-		
 		m_priorPacketNumber = m_ds->GetPacketNumber();
 		
-		/* Code dependent on driverstation/human input here */
+		m_ioData.rightJoystick.x = m_rightJoystick->GetX();
+		m_ioData.rightJoystick.y = m_rightJoystick->GetY();
+		for (int i = 1; i <= 12; i++) m_ioData.rightJoystick.buttons[i] = m_rightJoystick->GetRawButton(i);
 		
-		/* Tank Drive */
-		/*if (m_leftJoystick->GetRawButton(3))
-		{
-			m_drivePID = true;
-		}
-		if (m_leftJoystick->GetRawButton(2))
-		{
-			m_drivePID = false;
-		}
-		if (m_drivePID)
-		{
-			//m_drive->SetSetpoint(-m_leftJoystick->GetY()* 5.0, -m_rightJoystick->GetY()* 5.0);
-			//m_drive->Update();
-		}
-		else
-		{
-			m_leftDriveMotor->Set(-m_leftJoystick->GetY());
-			m_rightDriveMotor->Set(-m_rightJoystick->GetY());
-		}*/
-
+		m_ioData.leftJoystick.x = m_leftJoystick->GetX();
+		m_ioData.leftJoystick.y = m_leftJoystick->GetY();
+		for (int i = 1; i <= 12; i++) m_ioData.leftJoystick.buttons[i] = m_leftJoystick->GetRawButton(i);
+		
+		m_ioData.rightTestJoystick.x = m_rightTestJoystick->GetX();
+		m_ioData.rightTestJoystick.y = m_rightTestJoystick->GetY();
+		for (int i = 1; i <= 12; i++) m_ioData.rightTestJoystick.buttons[i] = m_rightTestJoystick->GetRawButton(i);
+				
+		m_ioData.leftTestJoystick.x = m_leftTestJoystick->GetX();
+		m_ioData.leftTestJoystick.y = m_leftTestJoystick->GetY();
+		for (int i = 1; i <= 12; i++) m_ioData.leftTestJoystick.buttons[i] = m_leftTestJoystick->GetRawButton(i);
+		
+		m_ioData.limitSwitches.helixLeftLower = !m_digitalModules[kLeftHelixLowerLimitModule]->GetDIO(kLeftHelixLowerLimitChannel);
+		m_ioData.limitSwitches.helixLeftMid = !m_digitalModules[kLeftHelixMidLimitModule]->GetDIO(kLeftHelixMidLimitChannel);
+		m_ioData.limitSwitches.helixLeftUpper = !m_digitalModules[kLeftHelixUpperLimitModule]->GetDIO(kLeftHelixUpperLimitChannel);
+		
+		m_ioData.limitSwitches.helixRightLower = !m_digitalModules[kRightHelixLowerLimitModule]->GetDIO(kRightHelixLowerLimitChannel);
+		m_ioData.limitSwitches.helixRightMid = !m_digitalModules[kRightHelixMidLimitModule]->GetDIO(kRightHelixMidLimitChannel);
+		m_ioData.limitSwitches.helixRightUpper = !m_digitalModules[kRightHelixUpperLimitModule]->GetDIO(kRightHelixUpperLimitChannel);
+		
+		m_ioData.limitSwitches.cellLeftBottom = !m_digitalModules[kLeftCellBottomLimitModule]->GetDIO(kLeftCellBottomLimitChannel);
+		m_ioData.limitSwitches.cellLeftTop = !m_digitalModules[kLeftCellTopLimitModule]->GetDIO(kLeftCellTopLimitChannel);
+		
+		m_ioData.limitSwitches.cellRightBottom = !m_digitalModules[kRightCellBottomLimitModule]->GetDIO(kRightCellBottomLimitChannel);
+		m_ioData.limitSwitches.cellRightTop = !m_digitalModules[kRightCellTopLimitModule]->GetDIO(kRightCellTopLimitChannel);
+		
+		m_ioData.buttonBox.helixSide = m_ds->GetAnalogIn(kHelixSideSwitch);
+		m_ioData.buttonBox.helixDirection = m_ds->GetAnalogIn(kHelixDirectionSwitch);
+		m_ioData.buttonBox.manualTurretAngle = m_ds->GetAnalogIn(kTurretAngleSwitch);
+		m_ioData.buttonBox.manualTurretSpeed = m_ds->GetAnalogIn(kShootingDistanceSwitch);
+		
+		m_ioData.buttonBox.manual = !m_ds->GetDigitalIn(kManualSwitch);
+		m_ioData.buttonBox.shoot = !m_ds->GetDigitalIn(kShootButton);
+		m_ioData.buttonBox.cellRelease = !m_ds->GetDigitalIn(kCellSwitch);
+		
+		m_hardwareInterface->UpdateDashboard(true);
 	}
-	
-	if ((m_teleCount % 10) == 0)
-	{
-
-	}	
 }
 
 //DONT EVER FORGET THIS!

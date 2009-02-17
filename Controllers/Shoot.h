@@ -3,10 +3,12 @@
 
 #include "WPILib.h"
 
+#include "../Devices/AdvMotorController.h"
+
 class Shoot
 {
 public:
-	Shoot(Jaguar* shootMotorOne, Victor* shootMotorTwo, Victor* leftHelixMotor, Victor* rightHelixMotor);
+	Shoot(AdvMotorController* shootMotorOne, AdvMotorController* shootMotorTwo, AdvMotorController* leftHelixMotor, AdvMotorController* rightHelixMotor);
 	virtual ~Shoot();
 	
 	void Update(float distance, bool limitLeft, bool limitRight);
@@ -19,8 +21,7 @@ public:
 	void Disable();
 	
 protected:
-	Jaguar *m_shootMotorOne;
-	Victor *m_shootMotorTwo, *m_leftHelixMotor, *m_rightHelixMotor;
+	AdvMotorController *m_shootMotorOne, *m_shootMotorTwo, *m_leftHelixMotor, *m_rightHelixMotor;
 	
 	Timer *m_leftTimer, *m_rightTimer;
 	

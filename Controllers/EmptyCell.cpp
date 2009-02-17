@@ -1,6 +1,6 @@
 #include "EmptyCell.h"
 
-EmptyCell::EmptyCell(Victor* leftMotor, Victor* rightMotor)
+EmptyCell::EmptyCell(AdvMotorController* leftMotor, AdvMotorController* rightMotor)
 {
 	kEmptyCellSpeed = .2;
 	

@@ -3,16 +3,18 @@
 
 #include "WPILib.h"
 
+#include "../Devices/AdvMotorController.h"
+
 class EmptyCell
 {
 public:
-	EmptyCell(Victor* leftMotor, Victor* rightMotor);
+	EmptyCell(AdvMotorController* leftMotor, AdvMotorController* rightMotor);
 	virtual ~EmptyCell();
 	
 	void Update(bool release, bool limitLeftBottom, bool limitRightBottom, bool limitLeftTop, bool limitRightTop);
 	
 protected:
-	Victor *m_leftMotor, *m_rightMotor;
+	AdvMotorController *m_leftMotor, *m_rightMotor;
 	
 	bool m_release, m_releaseProcess, m_limitLeftBottom, m_limitRightBottom, m_limitLeftTop, m_limitRightTop;
 	
